@@ -7,6 +7,9 @@ help: ## Show this help
 lint: ## Run all pre-commit linters
 	pre-commit run --all-files
 
+update: ## Bump pre-commit hook / linter tool pins to their latest releases
+	pre-commit autoupdate
+
 format: ## Auto-format (prettier + ruff)
 	pre-commit run prettier --all-files || true
 	pre-commit run ruff-format --all-files || true
