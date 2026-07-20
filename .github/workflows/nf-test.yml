@@ -11,21 +11,33 @@ concurrency:
 
 jobs:
   nf-test:
-    name: Run nf-test
-    runs-on: ubuntu-latest
+    name: nf-test (NF ${{ matrix.nextflow }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        nextflow: ["26.04.6"]
     steps:
       - name: Check out
         uses: actions/checkout@v4
 
-      - name: Install Nextflow
-        uses: nf-core/setup-nextflow@v2
+      - name: Set up Java
+        uses: actions/setup-java@v4
         with:
-          version: "24.10.5"
+          distribution: temurin
+          java-version: "21"
 
-      - name: Install nf-test
+      - name: Install Nextflow + nf-test
+        env:
+          NXF_VER: ${{ matrix.nextflow }}
         run: |
-          curl -fsSL https://get.nf-test.com | bash
-          sudo mv nf-test /usr/local/bin/
+          mkdir -p "$HOME/.local/bin"
+          curl -fsSL https://get.nextflow.io | bash
+          mv nextflow "$HOME/.local/bin/nextflow"
+          curl -fsSL https://github.com/askimed/nf-test/releases/download/v0.9.5/nf-test-0.9.5.tar.gz | tar -xz -C "$HOME/.local/bin"
+          chmod +x "$HOME/.local/bin/"*
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
-      - name: Run tests
+      - name: Run nf-test
         run: nf-test test --verbose
