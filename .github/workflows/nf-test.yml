@@ -31,11 +31,13 @@ jobs:
       - name: Install Nextflow + nf-test
         env:
           NXF_VER: ${{ matrix.nextflow }}
+          # renovate: datasource=github-releases depName=askimed/nf-test
+          NF_TEST_VERSION: "0.9.5"
         run: |
           mkdir -p "$HOME/.local/bin"
           curl -fsSL https://get.nextflow.io | bash
           mv nextflow "$HOME/.local/bin/nextflow"
-          nftest_url="https://github.com/askimed/nf-test/releases/download/v0.9.5/nf-test-0.9.5.tar.gz"
+          nftest_url="https://github.com/askimed/nf-test/releases/download/v${NF_TEST_VERSION}/nf-test-${NF_TEST_VERSION}.tar.gz"
           curl -fsSL "$nftest_url" | tar -xz -C "$HOME/.local/bin"
           chmod +x "$HOME/.local/bin/"*
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"

@@ -1,0 +1,61 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":dependencyDashboard"],
+  "dependencyDashboard": true,
+  "dependencyDashboardApproval": true,
+  "dependencyDashboardTitle": "Renovate: available tool / dependency updates",
+  "labels": ["dependencies"],
+  "automerge": false,
+  "configMigration": true,
+  "pre-commit": {
+    "enabled": true
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Container image tags in Nextflow modules/configs (container 'x:tag' or container = \"x:tag\").",
+      "managerFilePatterns": ["/\\.nf$/", "/\\.config$/"],
+      "matchStrings": [
+        "container\\s*=?\\s*[\"'](?<depName>[^\"'$]+):(?<currentValue>[^\"':/\\s$]+)[\"']"
+      ],
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "nf-schema Nextflow plugin pin: id 'nf-schema@x.y.z'.",
+      "managerFilePatterns": ["/nextflow\\.config$/"],
+      "matchStrings": ["id\\s+[\"']nf-schema@(?<currentValue>[^\"']+)[\"']"],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "nextflow-io/nf-schema"
+    },
+    {
+      "customType": "regex",
+      "description": "Generic '# renovate: datasource=.. depName=..' annotations (e.g. nf-test version in CI).",
+      "managerFilePatterns": ["/^\\.github/workflows/[^/]+\\.ya?ml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\\s+\\S+?[:=]\\s*[\"']?(?<currentValue>[^\"'\\s]+)"
+      ],
+      "datasourceTemplate": "{{{datasource}}}",
+      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Bare-name images use quay.io per the pipelines' registry='quay.io' convention.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["biocontainers/**", "nf-core/**", "erdikilic/**"],
+      "registryUrls": ["https://quay.io"]
+    },
+    {
+      "description": "Biocontainer tags are <version>--<buildhash>; track the version part only.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["biocontainers/**"],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)(\\.(?<patch>\\d+))?(--.+)?$"
+    },
+    {
+      "description": "Label pipeline tool container updates so they stand out on the dashboard.",
+      "matchDatasources": ["docker"],
+      "addLabels": ["container"]
+    }
+  ]
+}
