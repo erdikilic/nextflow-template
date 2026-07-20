@@ -1,0 +1,22 @@
+nextflow_pipeline {
+
+    name "Minimal pipeline test (stub)"
+    script "main.nf"
+
+    test("test profile runs end-to-end in stub mode") {
+
+        options "-stub"
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+        }
+
+        then {
+            assert workflow.success
+            // 3 samplesheet rows -> 3 EXAMPLE outputs
+            assert path("$outputDir/example").list().size() == 3
+        }
+    }
+}

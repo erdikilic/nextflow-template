@@ -1,0 +1,26 @@
+name: Bug report
+description: Report something that is not working
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description of the bug
+      description: A clear description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command used and terminal output
+      render: console
+  - type: input
+    id: nextflow_version
+    attributes:
+      label: Nextflow version
+      placeholder: "24.10.5"
+  - type: dropdown
+    id: engine
+    attributes:
+      label: Container engine
+      options: [Docker, Apptainer, Singularity, Podman, Conda]

@@ -1,0 +1,4 @@
+sample,platform,fastq_1,fastq_2
+ILLUMINA_PAIRED,illumina,assets/reads/sample1_R1.fastq,assets/reads/sample1_R2.fastq
+ILLUMINA_SINGLE,illumina,assets/reads/sample1_R1.fastq,
+NANOPORE_LONG,nanopore,assets/reads/sample_ont.fastq,

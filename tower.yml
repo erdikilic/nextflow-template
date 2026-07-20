@@ -1,0 +1,7 @@
+reports:
+  pipeline_info/execution_report.html:
+    display: "Nextflow execution report"
+  pipeline_info/execution_timeline.html:
+    display: "Nextflow timeline"
+  pipeline_info/collated_versions.yml:
+    display: "Tool versions"

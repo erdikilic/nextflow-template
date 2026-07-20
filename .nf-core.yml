@@ -1,0 +1,14 @@
+repository_type: pipeline
+nf_core_version: "3.3.2"
+
+# This template is nf-core-aligned but not an official nf-core pipeline. The
+# checks below are disabled so `nf-core pipelines lint` does not fail on
+# nf-core-registry-specific requirements. Remove entries as you adopt them.
+lint:
+  files_exist:
+    - .github/workflows/awsfulltest.yml
+    - .github/workflows/awstest.yml
+    - conf/igenomes.config
+  nextflow_config: false
+  multiqc_config: false
+  files_unchanged: false

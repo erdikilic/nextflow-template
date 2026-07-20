@@ -1,0 +1,15 @@
+[project]
+name = "nextflow-template"
+version = "1.0.0dev"
+description = "Helper scripts for the nextflow-template pipeline (bin/)."
+requires-python = ">=3.10"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.0",
+    "ruff>=0.8",
+    "nf-core>=3.3",
+]
+
+# Ruff configuration lives in ruff.toml.

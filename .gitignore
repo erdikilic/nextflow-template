@@ -1,0 +1,21 @@
+# Nextflow
+work/
+.nextflow/
+.nextflow.*
+results/
+results_*/
+
+# nf-test
+.nf-test/
+.nf-test.log
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.ruff_cache/
+
+# Editors / OS
+.DS_Store
+*.swp
+*.log

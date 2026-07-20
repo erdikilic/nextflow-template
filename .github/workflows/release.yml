@@ -1,0 +1,29 @@
+name: release
+on:
+  push:
+    tags: ["[0-9]*"] # versions have no 'v' prefix (e.g. 0.1.0, 1.0.0)
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create release + changelog
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog (git-cliff)
+        id: cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --latest --strip all
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          body: ${{ steps.cliff.outputs.content }}

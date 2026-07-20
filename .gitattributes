@@ -1,0 +1,4 @@
+*.nf     linguist-language=Nextflow
+*.config linguist-language=Nextflow
+*.nf.test linguist-language=Groovy
+modules/nf-core/**  linguist-generated=true

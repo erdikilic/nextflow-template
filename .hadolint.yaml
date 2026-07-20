@@ -1,0 +1,6 @@
+ignored:
+  - DL3008 # apt-get: pinning versions is brittle across mirrors for a template
+  - DL3013 # pip: same rationale for pinning
+trustedRegistries:
+  - docker.io
+  - quay.io
