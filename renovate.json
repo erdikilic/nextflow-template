@@ -15,9 +15,7 @@
       "customType": "regex",
       "description": "Container image tags in Nextflow modules/configs (container 'x:tag' or container = \"x:tag\").",
       "managerFilePatterns": ["/\\.nf$/", "/\\.config$/"],
-      "matchStrings": [
-        "container\\s*=?\\s*[\"'](?<depName>[^\"'$]+):(?<currentValue>[^\"':/\\s$]+)[\"']"
-      ],
+      "matchStrings": ["container\\s*=?\\s*[\"'](?<depName>[^\"'$]+):(?<currentValue>[^\"':/\\s$]+)[\"']"],
       "datasourceTemplate": "docker"
     },
     {
