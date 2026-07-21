@@ -1,4 +1,6 @@
 name: nf-test
+# Correctness of the pipeline wiring via the nf-test suite (stub-based, fast).
+# NF-version coverage lives in nextflow-compatibility.yml, so this runs once.
 on:
   push:
     branches: [main]
@@ -14,15 +16,9 @@ permissions:
 
 jobs:
   nf-test:
-    name: nf-test (NF ${{ matrix.NXF_VER }})
+    name: nf-test
     runs-on: ubuntu-24.04
     timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        NXF_VER:
-          - "26.04.0" # minimum supported (manifest nextflowVersion '>=26.04.0')
-          - "26.04.6" # current pin
     steps:
       - name: Check out
         uses: actions/checkout@v7
@@ -35,7 +31,7 @@ jobs:
 
       - name: Install Nextflow + nf-test
         env:
-          NXF_VER: ${{ matrix.NXF_VER }}
+          NXF_VER: "26.04.6"
           # renovate: datasource=github-releases depName=askimed/nf-test
           NF_TEST_VERSION: "0.9.5"
         run: |

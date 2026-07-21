@@ -1,6 +1,7 @@
-name: functional test
-# Runs the pipeline for real (containers + tools), not just -stub. This is the
-# job that catches broken container pulls, tool invocations, and publishDir wiring.
+name: functional
+# Runs the pipeline for real (containers + tools), not just -stub — catches
+# broken container pulls, tool invocations, and publishDir wiring. Runs once on
+# the current NF; NF-version coverage lives in nextflow-compatibility.yml.
 on:
   push:
     branches: [main]
@@ -15,16 +16,10 @@ permissions:
   contents: read
 
 jobs:
-  run:
-    name: run (NF ${{ matrix.NXF_VER }})
+  docker:
+    name: docker
     runs-on: ubuntu-24.04
     timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        NXF_VER:
-          - "26.04.0" # minimum supported (manifest nextflowVersion '>=26.04.0')
-          - "26.04.6" # current pin
     steps:
       - name: Check out
         uses: actions/checkout@v7
@@ -37,7 +32,7 @@ jobs:
 
       - name: Install Nextflow
         env:
-          NXF_VER: ${{ matrix.NXF_VER }}
+          NXF_VER: "26.04.6"
         run: |
           mkdir -p "$HOME/.local/bin"
           curl -fsSL https://get.nextflow.io | bash

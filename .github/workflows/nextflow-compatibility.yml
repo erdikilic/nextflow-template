@@ -1,0 +1,55 @@
+name: nextflow-compatibility
+# "Which Nextflow versions does this template support?" — cheap check that the
+# pipeline parses and its wiring runs across the supported NF range. Uses config
+# parsing + -stub (no containers pulled), so the whole matrix stays fast.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  compat:
+    name: NF ${{ matrix.NXF_VER }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        NXF_VER:
+          - "26.04.0" # minimum supported (manifest nextflowVersion '>=26.04.0')
+          - "26.04.6" # current pin
+          - "latest-everything" # newest release — early warning on upstream breaks
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install Nextflow (${{ matrix.NXF_VER }})
+        env:
+          NXF_VER: ${{ matrix.NXF_VER }}
+        run: |
+          mkdir -p "$HOME/.local/bin"
+          # 'latest-everything' -> install the newest release (leave NXF_VER unset)
+          if [ "$NXF_VER" = "latest-everything" ]; then unset NXF_VER; fi
+          curl -fsSL https://get.nextflow.io | bash
+          mv nextflow "$HOME/.local/bin/nextflow"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Parse config
+        run: nextflow config . -profile test,docker >/dev/null
+
+      - name: Run wiring (stub, no containers)
+        run: nextflow run . -profile test,docker -stub --outdir results_stub
