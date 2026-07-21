@@ -54,6 +54,13 @@
           "default": true,
           "description": "Validate parameters against the schema at runtime.",
           "fa_icon": "fas fa-check-square"
+        },
+        "monochrome_logs": {
+          "type": "boolean",
+          "default": false,
+          "description": "Strip ANSI colour codes from the completion summary.",
+          "help_text": "Set when piping logs to a file or an executor that does not render colour.",
+          "fa_icon": "fas fa-palette"
         }
       }
     },
