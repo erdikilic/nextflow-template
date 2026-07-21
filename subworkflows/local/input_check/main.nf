@@ -17,7 +17,7 @@ include { samplesheetToList } from 'plugin/nf-schema'
 workflow INPUT_CHECK {
 
     main:
-    ch_reads = Channel
+    ch_reads = channel
         .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
         .map { meta, fastq_1, fastq_2 ->
             def key = [
@@ -30,8 +30,8 @@ workflow INPUT_CHECK {
         }
         .groupTuple()
         .map { meta, r1, r2 ->
-            def reads = r1.findAll { it } + r2.findAll { it }
-            [meta, reads.collect { file(it) }]
+            def reads = r1.findAll { f -> f } + r2.findAll { f -> f }
+            [meta, reads.collect { f -> file(f) }]
         }
 
     emit:

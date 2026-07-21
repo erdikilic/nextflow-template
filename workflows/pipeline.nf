@@ -11,7 +11,7 @@ include { EXAMPLE     } from '../modules/local/example/main'
 workflow PIPELINE {
 
     main:
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
 
     // 1. Parse + validate the samplesheet, grouping multi-file samples.
     INPUT_CHECK()

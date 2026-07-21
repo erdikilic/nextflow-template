@@ -30,7 +30,7 @@ process HANDLE_DATA {
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def files = (reads instanceof List ? reads : [reads]).collect { it.toString() }
+    def files = (reads instanceof List ? reads : [reads]).collect { f -> f.toString() }
     if (meta.single_end) {
         """
         zcat -f ${files.join(' ')} | gzip -c > ${prefix}.merged.fastq.gz
