@@ -1,5 +1,12 @@
 # nextflow-template
 
+[![lint](https://github.com/erdikilic/nextflow-template/actions/workflows/linting.yml/badge.svg)](https://github.com/erdikilic/nextflow-template/actions/workflows/linting.yml)
+[![nf-test](https://github.com/erdikilic/nextflow-template/actions/workflows/nf-test.yml/badge.svg)](https://github.com/erdikilic/nextflow-template/actions/workflows/nf-test.yml)
+[![functional](https://github.com/erdikilic/nextflow-template/actions/workflows/functional.yml/badge.svg)](https://github.com/erdikilic/nextflow-template/actions/workflows/functional.yml)
+[![nextflow-compatibility](https://github.com/erdikilic/nextflow-template/actions/workflows/nextflow-compatibility.yml/badge.svg)](https://github.com/erdikilic/nextflow-template/actions/workflows/nextflow-compatibility.yml)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/erdikilic/nextflow-template/badge)](https://scorecard.dev/viewer/?uri=github.com/erdikilic/nextflow-template)
+[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A526.04.0-brightgreen?labelColor=000000&logo=nextflow)](https://www.nextflow.io/)
+
 A state-of-the-art [Nextflow](https://www.nextflow.io/) DSL2 pipeline template —
 a runnable, tool-free skeleton plus the full linting, testing, and CI setup.
 Use it with GitHub's **"Use this template"** button, then replace the `EXAMPLE`
@@ -15,13 +22,16 @@ module with your real tools.
 - **Testing**: pipeline-level [nf-test](https://www.nf-test.com/).
 - **Linting** (pre-commit + CI): prettier, ruff, hadolint (Dockerfile),
   shellcheck, actionlint, yamllint, markdownlint, gitleaks (secret scan),
-  nf-core lint.
+  plus `nextflow lint` for the DSL.
+- **CI**: lint, nf-test, a real containerised `test,docker` run, a
+  Nextflow-version compatibility matrix (min → current → latest), plus
+  [OpenSSF Scorecard](https://securityscorecards.dev/) and dependency review.
 - **Agent-ready**: `AGENTS.md` (canonical, symlinked to `CLAUDE.md`).
 
 ## Quick start
 
 ```bash
-# 1. Requirements: Nextflow >= 24.04, plus Docker/Apptainer/Conda
+# 1. Requirements: Nextflow >= 26.04.0, plus Docker/Apptainer/Conda
 # 2. Run the bundled minimal test (from the repo root)
 nextflow run . -profile test,docker --outdir results
 
