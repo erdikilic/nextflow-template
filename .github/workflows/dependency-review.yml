@@ -1,0 +1,22 @@
+name: dependency-review
+# Flags vulnerable or badly-licensed dependency changes on a PR (works off
+# GitHub's dependency graph — for this repo, mainly the Action versions).
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-review:
+    name: dependency review
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Dependency review
+        uses: actions/dependency-review-action@v5.0.0
+        with:
+          fail-on-severity: high

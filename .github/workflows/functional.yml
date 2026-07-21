@@ -1,4 +1,6 @@
-name: nf-test
+name: functional test
+# Runs the pipeline for real (containers + tools), not just -stub. This is the
+# job that catches broken container pulls, tool invocations, and publishDir wiring.
 on:
   push:
     branches: [main]
@@ -13,10 +15,10 @@ permissions:
   contents: read
 
 jobs:
-  nf-test:
-    name: nf-test (NF ${{ matrix.NXF_VER }})
+  run:
+    name: run (NF ${{ matrix.NXF_VER }})
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -33,19 +35,19 @@ jobs:
           distribution: temurin
           java-version: "21"
 
-      - name: Install Nextflow + nf-test
+      - name: Install Nextflow
         env:
           NXF_VER: ${{ matrix.NXF_VER }}
-          # renovate: datasource=github-releases depName=askimed/nf-test
-          NF_TEST_VERSION: "0.9.5"
         run: |
           mkdir -p "$HOME/.local/bin"
           curl -fsSL https://get.nextflow.io | bash
           mv nextflow "$HOME/.local/bin/nextflow"
-          nftest_url="https://github.com/askimed/nf-test/releases/download/v${NF_TEST_VERSION}/nf-test-${NF_TEST_VERSION}.tar.gz"
-          curl -fsSL "$nftest_url" | tar -xz -C "$HOME/.local/bin"
-          chmod +x "$HOME/.local/bin/"*
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
-      - name: Run nf-test
-        run: nf-test test --verbose
+      - name: Run pipeline (test profile, docker)
+        run: nextflow run . -profile test,docker --outdir results
+
+      - name: Assert outputs exist
+        run: |
+          test -d results/example
+          test -f results/pipeline_info/collated_versions.yml

@@ -1,0 +1,46 @@
+name: scorecard
+# OpenSSF Scorecard — supply-chain posture (token permissions, branch
+# protection, dangerous workflow patterns, ...). Results appear in the Security
+# tab and, when publish_results is on, on the public Scorecard registry.
+# Requires a PUBLIC repo.
+on:
+  branch_protection_rule:
+  schedule:
+    - cron: "26 3 * * 1" # Mondays 03:26 UTC
+  push:
+    branches: [main]
+
+# Top-level: least privilege. The analysis job elevates only what it needs.
+permissions: read-all
+
+jobs:
+  analysis:
+    name: Scorecard analysis
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write # upload SARIF to code-scanning
+      id-token: write # publish_results (OIDC to the Scorecard API)
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Run analysis
+        uses: ossf/scorecard-action@v2.4.3
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: true
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SARIF file
+          path: results.sarif
+          retention-days: 5
+
+      - name: Upload to code-scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif

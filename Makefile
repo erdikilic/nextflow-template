@@ -1,4 +1,4 @@
-.PHONY: help lint format test run stub config clean
+.PHONY: help lint nf-lint format nf-format update test run stub config clean
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -7,12 +7,18 @@ help: ## Show this help
 lint: ## Run all pre-commit linters
 	pre-commit run --all-files
 
+nf-lint: ## Lint Nextflow (.nf/.config) for errors + deprecations
+	nextflow lint -o concise .
+
 update: ## Bump pre-commit hook / linter tool pins to their latest releases
 	pre-commit autoupdate
 
 format: ## Auto-format (prettier + ruff)
 	pre-commit run prettier --all-files || true
 	pre-commit run ruff-format --all-files || true
+
+nf-format: ## Auto-format Nextflow (.nf/.config) to canonical style
+	nextflow lint -format -spaces 4 .
 
 test: ## Run the nf-test suite
 	nf-test test
