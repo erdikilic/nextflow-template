@@ -10,6 +10,12 @@
   "pre-commit": {
     "enabled": true
   },
+  "pixi": {
+    "enabled": true
+  },
+  "lockFileMaintenance": {
+    "enabled": true
+  },
   "customManagers": [
     {
       "customType": "regex",
@@ -54,6 +60,23 @@
       "description": "Label pipeline tool container updates so they stand out on the dashboard.",
       "matchDatasources": ["docker"],
       "addLabels": ["container"]
+    },
+    {
+      "description": "pixi's nf-min feature pins the Nextflow floor from manifest.nextflowVersion. Bumping it would defeat the minimum-version environment, so it moves only when that floor is raised by hand.",
+      "matchManagers": ["pixi"],
+      "matchDepTypes": ["feature-nf-min"],
+      "enabled": false
+    },
+    {
+      "description": "The nf-pin feature must stay in step with NXF_VER in the CI workflows; flag it so the dashboard makes that obvious.",
+      "matchManagers": ["pixi"],
+      "matchDepTypes": ["feature-nf-pin"],
+      "addLabels": ["nextflow-version"]
+    },
+    {
+      "description": "ruff is pinned twice — the hook rev in .pre-commit-config.yaml and the pixi.toml pin that must match it. Group them so they can never drift apart in separate PRs.",
+      "matchPackageNames": ["ruff", "astral-sh/ruff-pre-commit"],
+      "groupName": "ruff"
     }
   ]
 }
