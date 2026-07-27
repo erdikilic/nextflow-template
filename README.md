@@ -45,6 +45,19 @@ Provide your own data with a CSV samplesheet (see [`assets/samplesheet.csv`](ass
 nextflow run . --input samplesheet.csv --outdir results -profile docker
 ```
 
+Or launch through [`run.sh`](run.sh), which applies the defaults in `run.env` and
+forwards anything else to Nextflow:
+
+```bash
+./run.sh --input samplesheet.csv                    # Nextflow must be installed
+pixi run launch --input samplesheet.csv             # pixi supplies Nextflow itself
+```
+
+`pixi run launch` needs no prior Nextflow, Java or bash-4 install — see
+[Development](#development). A container engine is still required: pixi can
+provide Apptainer (`pixi run -e hpc launch ... --profile apptainer`) but not
+Docker, which is a daemon rather than a package.
+
 ## Profiles
 
 Engines: `docker`, `apptainer`, `singularity`, `podman`, `conda`.
@@ -73,11 +86,19 @@ nf-test, Java, the linters) from a lockfile, so local checks match CI exactly:
 pixi run setup              # install the toolchain + git hooks
 pixi run lint               # all linters
 pixi run test               # run the test suite
+pixi run launch <args>      # run the pipeline on real data via run.sh
 pixi task list              # list available tasks
 ```
 
-This is developer tooling only — it has no bearing on how the pipeline itself
-provisions software, which is always via `container` / `conda` directives.
+Environments: `default` (Nextflow 26.04.6), `nf-min` (26.04.0, the floor declared
+by `manifest.nextflowVersion` — `pixi run -e nf-min stub` reproduces the CI
+minimum-version job), and `hpc` (adds Apptainer; Linux only, as there is no
+osx-arm64 build).
+
+pixi pins only the _toolchain_. It never sets pipeline parameters — those stay
+owned by `run.env` and `run.sh`, so a run has exactly one source of settings —
+and it has no bearing on how the pipeline provisions per-process software, which
+is always via `container` / `conda` directives.
 
 ## License
 

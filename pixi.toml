@@ -26,6 +26,15 @@ platforms = ["linux-64", "osx-arm64"]
 openjdk = "21.*"
 nf-test = "0.9.5.*"
 
+# --- Launcher portability ---------------------------------------------------
+# run.sh is a trivial stub here, but pipelines built from this template grow real
+# launchers that need bash >= 4 (associative arrays, BASH_VERSINFO guards) and GNU
+# realpath/nproc. macOS ships bash 3.2 and no nproc, so such a launcher exits
+# immediately on a Mac even though osx-arm64 is a supported platform above.
+# Shipping both keeps `pixi run launch` portable; neither is needed by the stub.
+bash = ">=5.2"
+coreutils = ">=9.5"
+
 # --- Linting / release tooling ----------------------------------------------
 # pre-commit fetches its own hook binaries (prettier, markdownlint, yamllint,
 # shellcheck, hadolint, actionlint, gitleaks) from the revs pinned in
@@ -54,6 +63,16 @@ nf-format = { cmd = "nextflow lint -format -spaces 4 $NF_LINT_EXCLUDE .", descri
 test = { cmd = "nf-test test", description = "Run the nf-test suite" }
 run = { cmd = "nextflow run . -profile test,docker --outdir results", description = "Run the minimal test end-to-end (docker)" }
 stub = { cmd = "nextflow run . -profile test,docker -stub --outdir results_stub", description = "Validate wiring without running tools" }
+# The real-data entry point, and the one task name meant to stay identical across
+# every pipeline built from this template:  pixi run launch /seq/RUN_07 --dry-run
+#
+# KEEP THIS A SINGLE COMMAND. pixi appends a user's trailing arguments to the END
+# of the task string, not to the first command in it. Chaining anything here (`&&`,
+# `;`) would silently deliver every pipeline parameter to the wrong command.
+#
+# Pipeline parameters stay owned by run.sh and run.env — pixi contributes the
+# toolchain only, so there is exactly one place a run's settings come from.
+launch = { cmd = "bash run.sh", description = "Run the pipeline on real data via run.sh (arguments are forwarded)" }
 config = { cmd = "nextflow config . -profile test > /dev/null && echo 'config OK'", description = "Parse config / catch syntax errors" }
 update = { cmd = "pre-commit autoupdate", description = "Bump pre-commit hook / linter pins to their latest releases" }
 clean = { cmd = "rm -rf work results results_* .nextflow* .nf-test .nf-test.log", description = "Remove run artefacts" }
@@ -69,7 +88,20 @@ nextflow = "26.04.6.*"
 # The floor declared by manifest.nextflowVersion in nextflow.config.
 nextflow = "26.04.0.*"
 
+# Container engines: pixi can supply Apptainer, but not Docker (a daemon, not a
+# conda package). On a Docker workstation the engine still comes from the host.
+[feature.hpc]
+platforms = ["linux-64"]   # apptainer has no osx-arm64 build
+
+[feature.hpc.dependencies]
+apptainer = ">=1.5"
+
 [environments]
 default = ["nf-pin"]
 # Reproduce the CI minimum-version job locally:  pixi run -e nf-min stub
 nf-min = { features = ["nf-min"], no-default-feature = false }
+# Clusters without a usable Apptainer:  pixi run -e hpc launch /data --profile apptainer
+# The profile is passed explicitly on purpose. Setting PROFILE here would be
+# overridden without warning by a run.env, which run.sh sources after the
+# environment — silently running Docker on a machine that has no Docker.
+hpc = ["nf-pin", "hpc"]
