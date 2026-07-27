@@ -66,6 +66,19 @@ nf-test test                # run the test suite
 make help                   # list convenience targets
 ```
 
+Optionally, [pixi](https://pixi.sh) provides the whole toolchain (Nextflow,
+nf-test, Java, the linters) from a lockfile, so local checks match CI exactly:
+
+```bash
+pixi run setup              # install the toolchain + git hooks
+pixi run lint               # all linters
+pixi run test               # run the test suite
+pixi task list              # list available tasks
+```
+
+This is developer tooling only — it has no bearing on how the pipeline itself
+provisions software, which is always via `container` / `conda` directives.
+
 ## License
 
 [Apache License 2.0](LICENSE).
