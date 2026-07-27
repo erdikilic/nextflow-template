@@ -1,0 +1,75 @@
+# pixi.toml — reproducible developer toolchain for this template.
+#
+# This does NOT affect how the pipeline provisions software: Nextflow does that
+# per process via the `container` / `conda` directives in modules/local/*/main.nf.
+# pixi only pins the tools a contributor needs on their PATH.
+#
+#   pixi run setup    # install the git pre-commit hooks
+#   pixi run lint     # all linters
+#   pixi run test     # nf-test suite
+#   pixi run stub     # wiring check, no tools executed
+#   pixi task list    # everything else
+#
+# Using pixi is optional. The Makefile targets and the `[dependency-groups] dev`
+# block in pyproject.toml keep working unchanged for contributors without it.
+
+[workspace]
+name = "nextflow-template"
+description = "Developer toolchain for the nextflow-template pipeline"
+channels = ["conda-forge", "bioconda"]
+platforms = ["linux-64", "osx-arm64"]
+
+[dependencies]
+# --- Nextflow runtime -------------------------------------------------------
+# bioconda's nextflow package constrains openjdk >=17,<=24. 21 is what CI installs
+# (actions/setup-java, temurin 21) — keep the two in step.
+openjdk = "21.*"
+nf-test = "0.9.5.*"
+
+# --- Linting / release tooling ----------------------------------------------
+# pre-commit fetches its own hook binaries (prettier, markdownlint, yamllint,
+# shellcheck, hadolint, actionlint, gitleaks) from the revs pinned in
+# .pre-commit-config.yaml, so those are deliberately NOT duplicated here.
+python = "3.14.*"      # matches actions/setup-python in .github/workflows/linting.yml
+pre-commit = ">=4.6,<5"
+nf-core = ">=4.0,<5"
+# Pinned to the exact rev of the ruff-pre-commit hook so that `pixi run ruff`
+# and `pixi run lint` can never disagree about what is a violation.
+ruff = "0.15.22.*"
+
+[activation.env]
+# `nextflow lint` walks the whole tree, and pixi's env holds nf-core's Jinja
+# *templates* (.pixi/envs/*/lib/python*/site-packages/nf_core/**/*.nf) — which are
+# not valid Nextflow and produce ~11 phantom errors. Passing -exclude REPLACES the
+# built-in default list rather than appending to it, so the defaults are restated
+# here. (.venv is covered too: a pip-installed nf-core has the same problem.)
+NF_LINT_EXCLUDE = "-exclude .git -exclude .lineage -exclude .nextflow -exclude .nf-test -exclude nf-test.config -exclude work -exclude .pixi -exclude .venv"
+
+[tasks]
+setup = { cmd = "pre-commit install", description = "Install the git pre-commit hooks" }
+lint = { cmd = "pre-commit run --all-files", description = "Run all pre-commit linters" }
+nf-lint = { cmd = "nextflow lint -o concise $NF_LINT_EXCLUDE .", description = "Lint Nextflow (.nf/.config) for errors + deprecations" }
+format = { cmd = "pre-commit run prettier --all-files || true; pre-commit run ruff-format --all-files || true", description = "Auto-format (prettier + ruff)" }
+nf-format = { cmd = "nextflow lint -format -spaces 4 $NF_LINT_EXCLUDE .", description = "Auto-format Nextflow to canonical style" }
+test = { cmd = "nf-test test", description = "Run the nf-test suite" }
+run = { cmd = "nextflow run . -profile test,docker --outdir results", description = "Run the minimal test end-to-end (docker)" }
+stub = { cmd = "nextflow run . -profile test,docker -stub --outdir results_stub", description = "Validate wiring without running tools" }
+config = { cmd = "nextflow config . -profile test > /dev/null && echo 'config OK'", description = "Parse config / catch syntax errors" }
+update = { cmd = "pre-commit autoupdate", description = "Bump pre-commit hook / linter pins to their latest releases" }
+clean = { cmd = "rm -rf work results results_* .nextflow* .nf-test .nf-test.log", description = "Remove run artefacts" }
+
+# Nextflow lives in a feature rather than [dependencies] so the version can be
+# swapped per environment without the two pins colliding.
+[feature.nf-pin.dependencies]
+# Keep in sync with NXF_VER in .github/workflows/linting.yml and the "current pin"
+# entry in .github/workflows/nextflow-compatibility.yml.
+nextflow = "26.04.6.*"
+
+[feature.nf-min.dependencies]
+# The floor declared by manifest.nextflowVersion in nextflow.config.
+nextflow = "26.04.0.*"
+
+[environments]
+default = ["nf-pin"]
+# Reproduce the CI minimum-version job locally:  pixi run -e nf-min stub
+nf-min = { features = ["nf-min"], no-default-feature = false }
