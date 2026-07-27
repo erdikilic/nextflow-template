@@ -1,5 +1,12 @@
 .PHONY: help lint nf-lint format nf-format update test run stub config clean
 
+# `nextflow lint` walks the whole tree, and an in-tree env dir (.pixi/, .venv/)
+# holds nf-core's Jinja templates, which are not valid Nextflow. Passing -exclude
+# REPLACES the built-in default list, so the defaults are restated here.
+NF_LINT_EXCLUDE := -exclude .git -exclude .lineage -exclude .nextflow \
+	-exclude .nf-test -exclude nf-test.config -exclude work \
+	-exclude .pixi -exclude .venv
+
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}'
@@ -8,7 +15,7 @@ lint: ## Run all pre-commit linters
 	pre-commit run --all-files
 
 nf-lint: ## Lint Nextflow (.nf/.config) for errors + deprecations
-	nextflow lint -o concise .
+	nextflow lint -o concise $(NF_LINT_EXCLUDE) .
 
 update: ## Bump pre-commit hook / linter tool pins to their latest releases
 	pre-commit autoupdate
@@ -18,7 +25,7 @@ format: ## Auto-format (prettier + ruff)
 	pre-commit run ruff-format --all-files || true
 
 nf-format: ## Auto-format Nextflow (.nf/.config) to canonical style
-	nextflow lint -format -spaces 4 .
+	nextflow lint -format -spaces 4 $(NF_LINT_EXCLUDE) .
 
 test: ## Run the nf-test suite
 	nf-test test
