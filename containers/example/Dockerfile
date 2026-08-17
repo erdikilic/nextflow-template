@@ -5,7 +5,7 @@
 #   docker build -t quay.io/erdikilic/example:0.1.0 containers/example
 #   docker push  quay.io/erdikilic/example:0.1.0
 #   # in modules/local/<tool>/main.nf:  container 'erdikilic/example:0.1.0'
-FROM mambaorg/micromamba:2.8.1
+FROM mambaorg/micromamba:2.9.0
 
 LABEL org.opencontainers.image.source="https://github.com/erdikilic/nextflow-template" \
       org.opencontainers.image.licenses="Apache-2.0"
