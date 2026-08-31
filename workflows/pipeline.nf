@@ -10,26 +10,29 @@ include { EXAMPLE     } from '../modules/local/example/main'
 
 workflow PIPELINE {
 
+    take:
+    samplesheet   // path: CSV samplesheet
+
     main:
-    ch_versions = channel.empty()
-
     // 1. Parse + validate the samplesheet, grouping multi-file samples.
-    INPUT_CHECK()
+    INPUT_CHECK(samplesheet)
 
-    // 2. Merge each sample's files into one FASTQ / pair (ONT-aware).
+    // 2. Merge each sample's files into one FASTQ.
     HANDLE_DATA(INPUT_CHECK.out.reads)
-    ch_versions = ch_versions.mix(HANDLE_DATA.out.versions.first())
 
     // 3. Example per-sample process (replace with your real stages).
     EXAMPLE(HANDLE_DATA.out.reads)
-    ch_versions = ch_versions.mix(EXAMPLE.out.versions.first())
 
-    // 4. Collate tool versions.
-    ch_versions
-        .collectFile(name: 'collated_versions.yml', storeDir: "${params.outdir}/pipeline_info")
+    // 4. Collate the versions every process publishes on the `versions` topic.
+    //    Processes contribute to the topic implicitly, so no channel plumbing is
+    //    needed when a stage is added.
+    channel
+        .topic('versions')
+        .unique()
+        .map { proc, tool, version -> "\"${proc}\":\n    ${tool}: ${version}\n" }
+        .collectFile(name: 'collated_versions.yml', storeDir: "${params.outdir}/pipeline_info", sort: true)
 
     emit:
-    reads    = HANDLE_DATA.out.reads
-    counts   = EXAMPLE.out.counts
-    versions = ch_versions
+    reads  = HANDLE_DATA.out.reads
+    counts = EXAMPLE.out.counts
 }

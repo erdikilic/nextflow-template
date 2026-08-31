@@ -19,8 +19,8 @@
           "mimetype": "text/csv",
           "pattern": "^\\S+\\.csv$",
           "schema": "assets/schema_input.json",
-          "description": "Path to a comma-separated samplesheet describing the input samples.",
-          "help_text": "Use `assets/samplesheet.csv` as a starting point. Columns: sample, platform, fastq_1, fastq_2.",
+          "description": "Path to a comma-separated samplesheet describing the long-read input samples.",
+          "help_text": "Use `assets/samplesheet.csv` as a starting point. Columns: sample, platform, fastq.",
           "fa_icon": "fas fa-file-csv"
         },
         "outdir": {

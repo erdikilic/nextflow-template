@@ -1,0 +1,8 @@
+@PACBIO_READ1 np=12 rq=0.999
+GTCAGTCAGTCAGTCAGTCAACGTACGTACGTACGTACGTGTCAGTCAGTCAGTCAGTCAACGTACGTACGTACGTACGT
++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+@PACBIO_READ2 np=9 rq=0.998
+ACGTACGTACGTACGTACGTGTCAGTCAGTCAGTCAGTCAACGTACGTACGTACGTACGTGTCAGTCAGTCAGTCAGTCA
++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

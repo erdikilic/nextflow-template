@@ -1,0 +1,32 @@
+{
+    "nanopore + pacbio samplesheet groups multi-file samples": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "NANOPORE_BARCODE01",
+                        "platform": "nanopore"
+                    },
+                    [
+                        "sample_ont_part1.fastq",
+                        "sample_ont_part2.fastq"
+                    ]
+                ],
+                [
+                    {
+                        "id": "PACBIO_HIFI",
+                        "platform": "pacbio"
+                    },
+                    [
+                        "sample_pacbio.fastq"
+                    ]
+                ]
+            ]
+        ],
+        "timestamp": "2026-08-31T13:44:57.732446451",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
+        }
+    }
+}

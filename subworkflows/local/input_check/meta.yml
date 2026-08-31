@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: input_check
+description: Validate a long-read samplesheet and group multi-file samples
+keywords:
+  - samplesheet
+  - validation
+  - nanopore
+  - pacbio
+  - long reads
+components: []
+input:
+  - samplesheet:
+      type: file
+      description: |
+        CSV samplesheet with the columns sample, platform and fastq, validated
+        against assets/schema_input.json.
+      pattern: "*.csv"
+output:
+  - reads:
+      type: file
+      description: |
+        One entry per sample, with every FASTQ for that sample collected into a
+        list sorted by filename.
+        Structure: [ val(meta), [ path(reads) ] ]
+      pattern: "*.{fastq,fq}{,.gz}"
+authors:
+  - "@erdikilic"
+maintainers:
+  - "@erdikilic"

@@ -1,0 +1,57 @@
+nextflow_process {
+
+    name "Test Process EXAMPLE"
+    script "../main.nf"
+    process "EXAMPLE"
+
+    tag "modules"
+    tag "modules_local"
+    tag "example"
+
+    test("nanopore - fastq") {
+
+        when {
+            process {
+                """
+                input[0] = Channel.of([
+                    [ id:'NANOPORE_BARCODE01', platform:'nanopore' ],
+                    file("${projectDir}/assets/reads/sample_ont_part1.fastq", checkIfExists: true)
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                // The tool version resolves from whichever engine the suite runs
+                // under, so assert its shape and snapshot the file outputs.
+                { assert process.out.versions_coreutils[0][2] ==~ /\d+\.\d+.*/ },
+                { assert snapshot(process.out.counts).match() }
+            )
+        }
+    }
+
+    test("nanopore - fastq - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of([
+                    [ id:'NANOPORE_BARCODE01', platform:'nanopore' ],
+                    file("${projectDir}/assets/reads/sample_ont_part1.fastq", checkIfExists: true)
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.counts).match() }
+            )
+        }
+    }
+}

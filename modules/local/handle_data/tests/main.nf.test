@@ -1,0 +1,86 @@
+nextflow_process {
+
+    name "Test Process HANDLE_DATA"
+    script "../main.nf"
+    process "HANDLE_DATA"
+
+    tag "modules"
+    tag "modules_local"
+    tag "handle_data"
+
+    test("nanopore - multiple fastq") {
+
+        when {
+            process {
+                """
+                input[0] = Channel.of([
+                    [ id:'NANOPORE_BARCODE01', platform:'nanopore' ],
+                    [ file("${projectDir}/assets/reads/sample_ont_part1.fastq", checkIfExists: true),
+                      file("${projectDir}/assets/reads/sample_ont_part2.fastq", checkIfExists: true) ]
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                // The tool version resolves from whichever engine the suite runs
+                // under, so assert its shape and snapshot the file outputs.
+                { assert process.out.versions_coreutils[0][2] ==~ /\d+\.\d+.*/ },
+                { assert snapshot(process.out.reads).match() }
+            )
+        }
+    }
+
+    test("pacbio - single fastq") {
+
+        when {
+            process {
+                """
+                input[0] = Channel.of([
+                    [ id:'PACBIO_HIFI', platform:'pacbio' ],
+                    [ file("${projectDir}/assets/reads/sample_pacbio.fastq", checkIfExists: true) ]
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                // The tool version resolves from whichever engine the suite runs
+                // under, so assert its shape and snapshot the file outputs.
+                { assert process.out.versions_coreutils[0][2] ==~ /\d+\.\d+.*/ },
+                { assert snapshot(process.out.reads).match() }
+            )
+        }
+    }
+
+    test("nanopore - multiple fastq - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of([
+                    [ id:'NANOPORE_BARCODE01', platform:'nanopore' ],
+                    [ file("${projectDir}/assets/reads/sample_ont_part1.fastq", checkIfExists: true),
+                      file("${projectDir}/assets/reads/sample_ont_part2.fastq", checkIfExists: true) ]
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                // The tool version resolves from whichever engine the suite runs
+                // under, so assert its shape and snapshot the file outputs.
+                { assert process.out.versions_coreutils[0][2] ==~ /\d+\.\d+.*/ },
+                { assert snapshot(process.out.reads).match() }
+            )
+        }
+    }
+}

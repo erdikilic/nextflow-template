@@ -1,0 +1,63 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: example
+description: Count the lines in a sample's reads as a placeholder for a real tool
+keywords:
+  - example
+  - placeholder
+  - template
+tools:
+  - coreutils:
+      description: GNU core utilities, the basic file, shell and text manipulation utilities
+      homepage: https://www.gnu.org/software/coreutils/
+      documentation: https://www.gnu.org/software/coreutils/manual/
+      licence: ["GPL-3.0-or-later"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', platform:'nanopore' ]`
+    - reads:
+        type: file
+        description: Merged FASTQ for a single sample, plain or gzipped
+        pattern: "*.{fastq,fq}{,.gz}"
+        ontologies: []
+output:
+  counts:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1', platform:'nanopore' ]`
+      - "*.linecount.txt":
+          type: file
+          description: Number of lines in the sample's reads
+          pattern: "*.linecount.txt"
+          ontologies: []
+  versions_coreutils:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - coreutils:
+          type: string
+          description: The tool name
+      - wc --version | head -n1 | sed "s/^.* //":
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - coreutils:
+          type: string
+          description: The tool name
+      - wc --version | head -n1 | sed "s/^.* //":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@erdikilic"
+maintainers:
+  - "@erdikilic"

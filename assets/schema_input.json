@@ -15,23 +15,17 @@
       },
       "platform": {
         "type": "string",
-        "enum": ["illumina", "nanopore", "pacbio"],
-        "errorMessage": "platform must be one of: illumina, nanopore, pacbio",
+        "enum": ["nanopore", "pacbio"],
+        "errorMessage": "platform must be one of: nanopore, pacbio",
         "meta": ["platform"]
       },
-      "fastq_1": {
+      "fastq": {
         "type": "string",
         "format": "file-path",
         "pattern": "^\\S+\\.f(ast)?q(\\.gz)?$",
-        "errorMessage": "FASTQ for read 1 (short read) or the single long-read FASTQ (nanopore/pacbio) must be provided and end with .fastq/.fq(.gz)"
-      },
-      "fastq_2": {
-        "type": "string",
-        "format": "file-path",
-        "pattern": "^\\S+\\.f(ast)?q(\\.gz)?$",
-        "errorMessage": "FASTQ read 2 — leave empty for single-end short reads and for long reads (nanopore/pacbio)"
+        "errorMessage": "A long-read FASTQ must be provided and end with .fastq/.fq(.gz)"
       }
     },
-    "required": ["sample", "platform", "fastq_1"]
+    "required": ["sample", "platform", "fastq"]
   }
 }

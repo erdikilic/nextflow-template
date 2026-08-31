@@ -48,7 +48,7 @@ workflow {
     validateParameters()
     log.info paramsSummaryLog(workflow)
 
-    PIPELINE()
+    PIPELINE(file(params.input))
 }
 
 /*
