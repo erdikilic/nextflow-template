@@ -7,19 +7,26 @@
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/erdikilic/nextflow-template/badge)](https://scorecard.dev/viewer/?uri=github.com/erdikilic/nextflow-template)
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A526.04.0-brightgreen?labelColor=000000&logo=nextflow)](https://www.nextflow.io/)
 
-A state-of-the-art [Nextflow](https://www.nextflow.io/) DSL2 pipeline template —
-a runnable, tool-free skeleton plus the full linting, testing, and CI setup.
-Use it with GitHub's **"Use this template"** button, then replace the `EXAMPLE`
-module with your real tools.
+A state-of-the-art [Nextflow](https://www.nextflow.io/) DSL2 pipeline template for
+long-read data (Oxford Nanopore and PacBio) — a runnable, tool-free skeleton plus
+the full linting, testing, and CI setup. Use it with GitHub's **"Use this
+template"** button, then replace the `EXAMPLE` module with your real tools.
 
 ## Features
 
 - **DSL2 structure** aligned with [nf-core](https://nf-co.re/) conventions:
-  `main.nf` → `workflows/` → `subworkflows/local/` → `modules/local/`.
+  `main.nf` → `workflows/` → `subworkflows/local/` → `modules/local/`. Every
+  component is a directory carrying `main.nf`, `environment.yml`, `meta.yml` and
+  its own `tests/`.
+- **Long-read input handling**: one row per FASTQ, grouped per sample, so an ONT
+  barcode directory or a re-sequenced PacBio run merges into a single FASTQ.
+- **Tool versions on the `versions` topic** (`eval` outputs), collated into
+  `pipeline_info/collated_versions.yml` with no per-stage channel plumbing.
 - **Parameter + samplesheet validation** via the `nf-schema` plugin.
 - **Config split**: resource labels in `conf/base.config`, per-stage settings in
   `conf/<stage>.config`, container/engine profiles + hardware tiers.
-- **Testing**: pipeline-level [nf-test](https://www.nf-test.com/).
+- **Testing**: [nf-test](https://www.nf-test.com/) at both pipeline and component
+  level, with committed snapshots.
 - **Linting** (pre-commit + CI): prettier, ruff, hadolint (Dockerfile),
   shellcheck, actionlint, yamllint, markdownlint, gitleaks (secret scan),
   plus `nextflow lint` for the DSL.
@@ -76,6 +83,7 @@ Data: `test`, `test_full`. Combine, e.g. `-profile test,docker,workstation`.
 pre-commit install          # enable linters on every commit
 pre-commit run --all-files  # run them now
 nf-test test                # run the test suite
+nf-test test --tag example  # run one component's tests
 make help                   # list convenience targets
 ```
 

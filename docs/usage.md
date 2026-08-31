@@ -2,27 +2,30 @@
 
 ## Input: samplesheet
 
-Provide a CSV via `--input`. Both short-read (Illumina) and long-read
-(Nanopore/PacBio) inputs are supported via the `platform` column. Columns:
+Provide a CSV via `--input`. The pipeline takes long-read data only — Oxford
+Nanopore and PacBio. Columns:
 
-| Column     | Description                                                                       |
-| ---------- | --------------------------------------------------------------------------------- |
-| `sample`   | Unique sample name (no spaces). Becomes `meta.id`.                                |
-| `platform` | `illumina`, `nanopore`, or `pacbio`. Becomes `meta.platform`.                     |
-| `fastq_1`  | Short-read R1, **or** the single long-read FASTQ. `.fastq`/`.fq`, optional `.gz`. |
-| `fastq_2`  | Short-read R2. Leave empty for single-end short reads and for long reads.         |
+| Column     | Description                                            |
+| ---------- | ------------------------------------------------------ |
+| `sample`   | Sample name (no spaces). Becomes `meta.id`.            |
+| `platform` | `nanopore` or `pacbio`. Becomes `meta.platform`.       |
+| `fastq`    | One long-read FASTQ. `.fastq`/`.fq`, optionally `.gz`. |
+
+A sample that arrives as several files — an ONT barcode directory split across
+many FASTQs, or a re-sequenced run — gets **one row per file**, all sharing the
+same `sample` name. `INPUT_CHECK` groups those rows and `HANDLE_DATA` merges them
+into a single FASTQ per sample.
 
 ```csv
-sample,platform,fastq_1,fastq_2
-ILLUMINA_PAIRED,illumina,/data/s1_R1.fastq.gz,/data/s1_R2.fastq.gz
-ILLUMINA_SINGLE,illumina,/data/s2.fastq.gz,
-NANOPORE_LONG,nanopore,/data/ont_run.fastq.gz,
+sample,platform,fastq
+NANOPORE_BARCODE01,nanopore,/data/barcode01/fastq_runid_a.fastq.gz
+NANOPORE_BARCODE01,nanopore,/data/barcode01/fastq_runid_b.fastq.gz
+PACBIO_HIFI,pacbio,/data/pacbio/hifi_reads.fastq.gz
 ```
 
 The samplesheet is validated against [`assets/schema_input.json`](../assets/schema_input.json)
-by the `nf-schema` plugin. `INPUT_CHECK` sets `meta.single_end` and
-`meta.long_reads` so modules can branch (e.g. `minimap2 -x map-ont` for long reads
-vs `-x sr` for short reads).
+by the `nf-schema` plugin. `meta` carries `id` and `platform`, so modules can branch
+on the technology (e.g. `minimap2 -x map-ont` vs `-x map-hifi`).
 
 ## Running
 

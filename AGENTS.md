@@ -6,10 +6,11 @@ is a symlink to this file. This is the cross-tool standard (Codex and others rea
 
 ## What this is
 
-A state-of-the-art **Nextflow DSL2** pipeline template. It ships a runnable,
-tool-free skeleton (one example module + subworkflow) plus the full linting,
-testing, and CI setup. Replace the `EXAMPLE` module and `INPUT_CHECK` samplesheet
-schema with your own tools; keep the structure and conventions.
+A state-of-the-art **Nextflow DSL2** pipeline template for **long-read data**
+(Oxford Nanopore and PacBio). It ships a runnable, tool-free skeleton (one example
+module + subworkflow) plus the full linting, testing, and CI setup. Replace the
+`EXAMPLE` module and `INPUT_CHECK` samplesheet schema with your own tools; keep the
+structure and conventions.
 
 ## Commands
 
@@ -26,6 +27,8 @@ nextflow config . -profile test
 # Tests (nf-test is the standard)
 nf-test test                      # all tests
 nf-test test tests/default.nf.test
+nf-test test --tag example        # one component, by tag
+nf-test test --update-snapshot    # re-record snapshots after an intended change
 
 # Lint everything (also runs in CI)
 pre-commit run --all-files        # prettier, ruff, hadolint, shellcheck, actionlint, gitleaks, ...
@@ -39,11 +42,11 @@ main.nf                     entry: nf-schema validation -> workflows/pipeline.nf
 nextflow.config             defaults, manifest, profiles (docker/apptainer/conda/test + hw tiers)
 nextflow_schema.json        parameter schema (nf-schema)
 conf/base.config            resource labels (process_single/low/medium/high) + check_max()
-conf/<stage>.config         per-stage publishDir/ext.args (one file per logical stage)
+conf/modules/<stage>.config per-stage publishDir/ext.args (one file per logical stage)
 workflows/pipeline.nf       wires subworkflows + modules
-subworkflows/local/input_check/  parse/validate samplesheet, group multi-file samples
-modules/local/handle_data/  merge a sample's many FASTQs (ONT barcode / lanes); ONT-aware
-modules/local/<tool>/main.nf   one process per tool
+subworkflows/local/<name>/  main.nf + meta.yml + tests/
+modules/local/<tool>/       main.nf + environment.yml + meta.yml + tests/
+modules/local/handle_data/  merge a sample's many FASTQs (ONT barcode / re-runs)
 modules/nf-core/            installed nf-core modules (tracked in modules.json)
 bin/                        executable helper scripts (Python: ruff-clean)
 assets/                     samplesheet + schema_input.json + tiny example data
@@ -54,38 +57,66 @@ docs/                       usage.md + output.md
 
 ## Conventions (match these when adding code)
 
-- **DSL2, 4-space indentation.** Process names `UPPERCASE_WITH_UNDERSCORES`;
-  module files `modules/local/<tool>/main.nf`.
-- **Channels carry `[ val(meta), path(...) ]`.** `meta` has at least `id` and
-  `platform` (`illumina`/`nanopore`/`pacbio`), plus `single_end` and `long_reads`
-  set by `INPUT_CHECK`. Supports both short-read and long-read (ONT/PacBio) inputs.
-- **Every process emits `versions.yml`** via a heredoc, and has a matching `stub:`
-  block so `-stub` runs without the tool.
+- **DSL2, 4-space indentation.** Process names `UPPERCASE_WITH_UNDERSCORES`.
+- **Every component is a directory.** A module holds `main.nf`, `environment.yml`,
+  `meta.yml` and `tests/main.nf.test` (+ the committed `.snap`); a subworkflow holds
+  `main.nf`, `meta.yml` and `tests/`. The directory mirrors the process name:
+  `<tool>/<subcommand>/` for `TOOL_SUBCOMMAND`, and a single directory named after
+  the task for local utility processes (`handle_data/` -> `HANDLE_DATA`).
+- **Long reads only.** `platform` is `nanopore` or `pacbio`; the samplesheet has one
+  `fastq` column and no pairing. Do not reintroduce short-read concepts such as
+  `single_end`, `fastq_2` or R1/R2 handling.
+- **Channels carry `[ val(meta), path(...) ]`.** `meta` has `id` and `platform`, set
+  by `INPUT_CHECK`, so modules can branch (e.g. `minimap2 -x map-ont` vs `-x map-hifi`).
+- **Conda comes from `environment.yml`**: `conda "${moduleDir}/environment.yml"`,
+  never an inline dependency string.
+- **Versions travel on the `versions` topic**, one entry per tool:
+  `tuple val("${task.process}"), val('<tool>'), eval('<version command>'), emit: versions_<tool>, topic: versions`.
+  `PIPELINE` collates the topic into `pipeline_info/collated_versions.yml`, so a new
+  stage needs no channel plumbing. The eval command also runs under `-stub`, so it
+  must resolve inside the module's container or conda environment.
+- **Every process has a `stub:` block** so `-stub` validates wiring without running
+  the tool.
+- **Every component has an nf-test** with tags (`modules` / `modules_local` /
+  `<name>`, or `subworkflows` / `subworkflows_local` / `<name>`) and a committed
+  snapshot. Snapshot deterministic outputs only: assert a tool version by shape,
+  because it follows whichever engine the suite runs under.
 - **Modules stay parameter-agnostic**: tuning comes from `ext.args` / `ext.prefix`
-  in `conf/<stage>.config`, never `params.*` read inside the module.
+  in `conf/modules/<stage>.config`, never `params.*` read inside the module.
 - **`withName:` selectors are PLAIN process names** (`withName: EXAMPLE`), never
   `WORKFLOW:SUBWORKFLOW:PROCESS` — the qualified form silently matches nothing.
 - **Container refs are bare names** (`container 'nf-core/ubuntu:22.04'`); the
   registry is set once in `nextflow.config`. Pin an explicit host only for images
   not on that registry.
 - **Update together**: `nextflow_schema.json`, the `--help` text, and
-  `conf/<stage>.config` whenever you add a parameter or stage.
+  `conf/modules/<stage>.config` whenever you add a parameter or stage.
 - **Commits**: Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`,
   `chore:`); `cliff.toml` maps them into the changelog at tag time.
+- **Comments and commit messages are professional and standardised.** In code,
+  configs and documentation alike, they describe what something does and why it is
+  built that way. They never narrate the history of a change or the discussion that
+  produced it: no "now", "no longer", "previously", "as requested", "changed from",
+  and no references to a prior revision of the file.
 
 ## Adding a new stage (recipe)
 
-1. `modules/local/<tool>/main.nf` — the process (inputs/outputs, container, conda,
-   `versions.yml`, `stub:`).
-2. `conf/<stage>.config` — `withName: <PROCESS>` block; add the include to
+1. `modules/local/<tool>/main.nf` — the process (inputs/outputs, container,
+   `conda "${moduleDir}/environment.yml"`, a `versions` topic entry, `stub:`).
+2. `modules/local/<tool>/environment.yml` and `meta.yml` — the conda spec and the
+   documented inputs/outputs.
+3. `conf/modules/<stage>.config` — `withName: <PROCESS>` block; add the include to
    `nextflow.config`.
-3. Wire it into `workflows/pipeline.nf` (or a subworkflow under
+4. Wire it into `workflows/pipeline.nf` (or a subworkflow under
    `subworkflows/local/`).
-4. Add an nf-test; run `nf-test test` and `pre-commit run --all-files`.
+5. `modules/local/<tool>/tests/main.nf.test` — tagged test; run
+   `nf-test test --update-snapshot` and commit the generated `.snap`.
+6. Run `nf-test test` and `pre-commit run --all-files`.
 
 ## Do not
 
 - Do not add AI/assistant attribution to commits or PRs (no `Co-Authored-By` /
   "Generated with" trailers).
 - Do not commit `work/`, `.nextflow*`, or `results*/` (see `.gitignore`).
-- Do not read `params.*` inside a module.
+- Do not read `params.*` inside a module or a subworkflow; pass values in via
+  `take:` or `ext.args`.
+- Do not reintroduce Illumina / short-read handling (`single_end`, `fastq_2`, R1/R2).
