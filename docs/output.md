@@ -8,11 +8,11 @@ results/
 │   └── <sample>.merged.fastq.gz    # every FASTQ for the sample, concatenated
 ├── example/
 │   └── <sample>.linecount.txt      # per-sample output of the EXAMPLE process
-└── pipeline_info/
+└── workflow_info/
     ├── execution_report.html       # Nextflow run report
     ├── execution_timeline.html     # per-task timeline
     ├── execution_trace.txt         # per-task trace (resources, exit status)
-    ├── pipeline_dag.html           # workflow DAG
+    ├── workflow_dag.html           # workflow DAG
     └── collated_versions.yml       # versions of every tool that ran, from the `versions` topic
 ```
 

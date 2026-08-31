@@ -1,9 +1,9 @@
 nextflow_pipeline {
 
-    name "Minimal pipeline test (stub)"
+    name "Minimal workflow test (stub)"
     script "main.nf"
 
-    tag "pipeline"
+    tag "workflow"
 
     test("test profile runs end-to-end in stub mode") {
 

@@ -1,6 +1,6 @@
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    WORKFLOW: PIPELINE — wire subworkflows and modules together
+    WORKFLOW: NEXTFLOW_TEMPLATE — wire subworkflows and modules together
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
@@ -8,7 +8,7 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check/main'
 include { HANDLE_DATA } from '../modules/local/handle_data/main'
 include { EXAMPLE     } from '../modules/local/example/main'
 
-workflow PIPELINE {
+workflow NEXTFLOW_TEMPLATE {
 
     take:
     samplesheet   // path: CSV samplesheet
@@ -30,7 +30,7 @@ workflow PIPELINE {
         .topic('versions')
         .unique()
         .map { proc, tool, version -> "\"${proc}\":\n    ${tool}: ${version}\n" }
-        .collectFile(name: 'collated_versions.yml', storeDir: "${params.outdir}/pipeline_info", sort: true)
+        .collectFile(name: 'collated_versions.yml', storeDir: "${params.outdir}/workflow_info", sort: true)
 
     emit:
     reads  = HANDLE_DATA.out.reads

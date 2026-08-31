@@ -1,6 +1,6 @@
 name: nextflow-compatibility
 # "Which Nextflow versions does this template support?" — cheap check that the
-# pipeline parses and its wiring runs across the supported NF range. Uses config
+# workflow parses and its wiring runs across the supported NF range. Uses config
 # parsing + -stub (no containers pulled), so the whole matrix stays fast.
 on:
   push:

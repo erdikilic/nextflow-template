@@ -6,7 +6,7 @@ is a symlink to this file. This is the cross-tool standard (Codex and others rea
 
 ## What this is
 
-A state-of-the-art **Nextflow DSL2** pipeline template for **long-read data**
+A state-of-the-art **Nextflow DSL2** workflow template for **long-read data**
 (Oxford Nanopore and PacBio). It ships a runnable, tool-free skeleton (one example
 module + subworkflow) plus the full linting, testing, and CI setup. Replace the
 `EXAMPLE` module and `INPUT_CHECK` samplesheet schema with your own tools; keep the
@@ -38,12 +38,12 @@ make lint                         # convenience wrapper
 ## Layout
 
 ```text
-main.nf                     entry: nf-schema validation -> workflows/pipeline.nf
+main.nf                     entry: nf-schema validation -> workflows/nextflow_template.nf
 nextflow.config             defaults, manifest, profiles (docker/apptainer/conda/test + hw tiers)
 nextflow_schema.json        parameter schema (nf-schema)
 conf/base.config            resource labels (process_single/low/medium/high) + check_max()
 conf/modules/<stage>.config per-stage publishDir/ext.args (one file per logical stage)
-workflows/pipeline.nf       wires subworkflows + modules
+workflows/nextflow_template.nf  wires subworkflows + modules
 subworkflows/local/<name>/  main.nf + meta.yml + tests/
 modules/local/<tool>/       main.nf + environment.yml + meta.yml + tests/
 modules/local/handle_data/  merge a sample's many FASTQs (ONT barcode / re-runs)
@@ -51,7 +51,7 @@ modules/nf-core/            installed nf-core modules (tracked in modules.json)
 bin/                        executable helper scripts (Python: ruff-clean)
 assets/                     samplesheet + schema_input.json + tiny example data
 containers/<tool>/Dockerfile   custom images (bare name in module; registry set in config)
-tests/                      pipeline-level nf-test
+tests/                      workflow-level nf-test
 docs/                       usage.md + output.md
 ```
 
@@ -72,7 +72,7 @@ docs/                       usage.md + output.md
   never an inline dependency string.
 - **Versions travel on the `versions` topic**, one entry per tool:
   `tuple val("${task.process}"), val('<tool>'), eval('<version command>'), emit: versions_<tool>, topic: versions`.
-  `PIPELINE` collates the topic into `pipeline_info/collated_versions.yml`, so a new
+  `NEXTFLOW_TEMPLATE` collates the topic into `workflow_info/collated_versions.yml`, so a new
   stage needs no channel plumbing. The eval command also runs under `-stub`, so it
   must resolve inside the module's container or conda environment.
 - **Every process has a `stub:` block** so `-stub` validates wiring without running
@@ -106,7 +106,7 @@ docs/                       usage.md + output.md
    documented inputs/outputs.
 3. `conf/modules/<stage>.config` — `withName: <PROCESS>` block; add the include to
    `nextflow.config`.
-4. Wire it into `workflows/pipeline.nf` (or a subworkflow under
+4. Wire it into `workflows/nextflow_template.nf` (or a subworkflow under
    `subworkflows/local/`).
 5. `modules/local/<tool>/tests/main.nf.test` — tagged test; run
    `nf-test test --update-snapshot` and commit the generated `.snap`.

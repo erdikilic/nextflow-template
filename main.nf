@@ -1,9 +1,9 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    <PIPELINE_NAME>
+    <WORKFLOW_NAME>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    A Nextflow DSL2 pipeline scaffolded from nextflow-template.
+    A Nextflow DSL2 workflow scaffolded from nextflow-template.
     Replace this header, the EXAMPLE module, and the schema with your own tools.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
@@ -23,7 +23,7 @@ params {
 }
 
 include { validateParameters ; paramsSummaryLog } from 'plugin/nf-schema'
-include { PIPELINE                             } from './workflows/pipeline'
+include { NEXTFLOW_TEMPLATE                    } from './workflows/nextflow_template'
 
 workflow {
 
@@ -48,7 +48,7 @@ workflow {
     validateParameters()
     log.info paramsSummaryLog(workflow)
 
-    PIPELINE(file(params.input))
+    NEXTFLOW_TEMPLATE(file(params.input))
 }
 
 /*
@@ -76,14 +76,14 @@ def completionSummary() {
         Exit status : ${workflow.exitStatus != null ? workflow.exitStatus : '-'}
         Work dir    : ${workflow.workDir}
         Results     : ${params.outdir}
-        Reports     : ${params.outdir}/pipeline_info
+        Reports     : ${params.outdir}/workflow_info
         ${rule}
         """.stripIndent()
     )
 
     if (!workflow.success) {
         def reason = workflow.errorMessage ? ": ${workflow.errorMessage}" : ''
-        log.error("${colour.red}Pipeline failed${colour.reset}${reason}")
+        log.error("${colour.red}Workflow failed${colour.reset}${reason}")
     }
 }
 

@@ -2,7 +2,7 @@
 
 ## Input: samplesheet
 
-Provide a CSV via `--input`. The pipeline takes long-read data only — Oxford
+Provide a CSV via `--input`. The workflow takes long-read data only — Oxford
 Nanopore and PacBio. Columns:
 
 | Column     | Description                                            |

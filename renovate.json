@@ -45,7 +45,7 @@
   ],
   "packageRules": [
     {
-      "description": "Bare-name images use quay.io per the pipelines' registry='quay.io' convention.",
+      "description": "Bare-name images use quay.io per the workflows' registry='quay.io' convention.",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["biocontainers/**", "nf-core/**", "erdikilic/**"],
       "registryUrls": ["https://quay.io"]
@@ -57,7 +57,7 @@
       "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)(\\.(?<patch>\\d+))?(--.+)?$"
     },
     {
-      "description": "Label pipeline tool container updates so they stand out on the dashboard.",
+      "description": "Label workflow tool container updates so they stand out on the dashboard.",
       "matchDatasources": ["docker"],
       "addLabels": ["container"]
     },

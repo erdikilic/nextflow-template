@@ -1,5 +1,5 @@
 name: functional
-# Runs the pipeline for real (containers + tools), not just -stub — catches
+# Runs the workflow for real (containers + tools), not just -stub — catches
 # broken container pulls, tool invocations, and publishDir wiring. Runs once on
 # the current NF; NF-version coverage lives in nextflow-compatibility.yml.
 on:
@@ -39,10 +39,10 @@ jobs:
           mv nextflow "$HOME/.local/bin/nextflow"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
-      - name: Run pipeline (test profile, docker)
+      - name: Run workflow (test profile, docker)
         run: nextflow run . -profile test,docker --outdir results
 
       - name: Assert outputs exist
         run: |
           test -d results/example
-          test -f results/pipeline_info/collated_versions.yml
+          test -f results/workflow_info/collated_versions.yml

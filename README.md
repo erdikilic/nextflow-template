@@ -7,7 +7,7 @@
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/erdikilic/nextflow-template/badge)](https://scorecard.dev/viewer/?uri=github.com/erdikilic/nextflow-template)
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A526.04.0-brightgreen?labelColor=000000&logo=nextflow)](https://www.nextflow.io/)
 
-A state-of-the-art [Nextflow](https://www.nextflow.io/) DSL2 pipeline template for
+A state-of-the-art [Nextflow](https://www.nextflow.io/) DSL2 workflow template for
 long-read data (Oxford Nanopore and PacBio) — a runnable, tool-free skeleton plus
 the full linting, testing, and CI setup. Use it with GitHub's **"Use this
 template"** button, then replace the `EXAMPLE` module with your real tools.
@@ -21,11 +21,11 @@ template"** button, then replace the `EXAMPLE` module with your real tools.
 - **Long-read input handling**: one row per FASTQ, grouped per sample, so an ONT
   barcode directory or a re-sequenced PacBio run merges into a single FASTQ.
 - **Tool versions on the `versions` topic** (`eval` outputs), collated into
-  `pipeline_info/collated_versions.yml` with no per-stage channel plumbing.
+  `workflow_info/collated_versions.yml` with no per-stage channel plumbing.
 - **Parameter + samplesheet validation** via the `nf-schema` plugin.
 - **Config split**: resource labels in `conf/base.config`, per-stage settings in
   `conf/<stage>.config`, container/engine profiles + hardware tiers.
-- **Testing**: [nf-test](https://www.nf-test.com/) at both pipeline and component
+- **Testing**: [nf-test](https://www.nf-test.com/) at both workflow and component
   level, with committed snapshots.
 - **Linting** (pre-commit + CI): prettier, ruff, hadolint (Dockerfile),
   shellcheck, actionlint, yamllint, markdownlint, gitleaks (secret scan),
@@ -94,7 +94,7 @@ nf-test, Java, the linters) from a lockfile, so local checks match CI exactly:
 pixi run setup              # install the toolchain + git hooks
 pixi run lint               # all linters
 pixi run test               # run the test suite
-pixi run launch <args>      # run the pipeline on real data via run.sh
+pixi run launch <args>      # run the workflow on real data via run.sh
 pixi task list              # list available tasks
 ```
 
@@ -103,9 +103,9 @@ by `manifest.nextflowVersion` — `pixi run -e nf-min stub` reproduces the CI
 minimum-version job), and `hpc` (adds Apptainer; Linux only, as there is no
 osx-arm64 build).
 
-pixi pins only the _toolchain_. It never sets pipeline parameters — those stay
+pixi pins only the _toolchain_. It never sets workflow parameters — those stay
 owned by `run.env` and `run.sh`, so a run has exactly one source of settings —
-and it has no bearing on how the pipeline provisions per-process software, which
+and it has no bearing on how the workflow provisions per-process software, which
 is always via `container` / `conda` directives.
 
 ## License

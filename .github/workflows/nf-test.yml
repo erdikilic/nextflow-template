@@ -1,5 +1,5 @@
 name: nf-test
-# Correctness of the pipeline wiring via the nf-test suite (stub-based, fast).
+# Correctness of the workflow wiring via the nf-test suite (stub-based, fast).
 # NF-version coverage lives in nextflow-compatibility.yml, so this runs once.
 on:
   push:

@@ -1,6 +1,6 @@
 # pixi.toml — reproducible developer toolchain for this template.
 #
-# This does NOT affect how the pipeline provisions software: Nextflow does that
+# This does NOT affect how the workflow provisions software: Nextflow does that
 # per process via the `container` / `conda` directives in modules/local/*/main.nf.
 # pixi only pins the tools a contributor needs on their PATH.
 #
@@ -15,7 +15,7 @@
 
 [workspace]
 name = "nextflow-template"
-description = "Developer toolchain for the nextflow-template pipeline"
+description = "Developer toolchain for the nextflow-template workflow"
 channels = ["conda-forge", "bioconda"]
 platforms = ["linux-64", "osx-arm64"]
 
@@ -27,7 +27,7 @@ openjdk = "21.*"
 nf-test = "0.9.5.*"
 
 # --- Launcher portability ---------------------------------------------------
-# run.sh is a trivial stub here, but pipelines built from this template grow real
+# run.sh is a trivial stub here, but workflows built from this template grow real
 # launchers that need bash >= 4 (associative arrays, BASH_VERSINFO guards) and GNU
 # realpath/nproc. macOS ships bash 3.2 and no nproc, so such a launcher exits
 # immediately on a Mac even though osx-arm64 is a supported platform above.
@@ -64,15 +64,15 @@ test = { cmd = "nf-test test", description = "Run the nf-test suite" }
 run = { cmd = "nextflow run . -profile test,docker --outdir results", description = "Run the minimal test end-to-end (docker)" }
 stub = { cmd = "nextflow run . -profile test,docker -stub --outdir results_stub", description = "Validate wiring without running tools" }
 # The real-data entry point, and the one task name meant to stay identical across
-# every pipeline built from this template:  pixi run launch /seq/RUN_07 --dry-run
+# every workflow built from this template:  pixi run launch /seq/RUN_07 --dry-run
 #
 # KEEP THIS A SINGLE COMMAND. pixi appends a user's trailing arguments to the END
 # of the task string, not to the first command in it. Chaining anything here (`&&`,
-# `;`) would silently deliver every pipeline parameter to the wrong command.
+# `;`) would silently deliver every workflow parameter to the wrong command.
 #
-# Pipeline parameters stay owned by run.sh and run.env — pixi contributes the
+# Workflow parameters stay owned by run.sh and run.env — pixi contributes the
 # toolchain only, so there is exactly one place a run's settings come from.
-launch = { cmd = "bash run.sh", description = "Run the pipeline on real data via run.sh (arguments are forwarded)" }
+launch = { cmd = "bash run.sh", description = "Run the workflow on real data via run.sh (arguments are forwarded)" }
 config = { cmd = "nextflow config . -profile test > /dev/null && echo 'config OK'", description = "Parse config / catch syntax errors" }
 update = { cmd = "pre-commit autoupdate", description = "Bump pre-commit hook / linter pins to their latest releases" }
 clean = { cmd = "rm -rf work results results_* .nextflow* .nf-test .nf-test.log", description = "Remove run artefacts" }

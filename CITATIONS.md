@@ -1,6 +1,6 @@
 # Citations
 
-## Pipeline framework
+## Workflow framework
 
 - [Nextflow](https://doi.org/10.1038/nbt.3820) — Di Tommaso P, et al. Nat Biotechnol. 2017.
 - [nf-core](https://doi.org/10.1038/s41587-020-0439-x) — Ewels PA, et al. Nat Biotechnol. 2020.
@@ -9,7 +9,7 @@
 ## Tools
 
 - **coreutils** — placeholder for the `EXAMPLE` process. Replace this list with the
-  tools your pipeline actually uses, with their citations.
+  tools your workflow actually uses, with their citations.
 
 ## Software packaging
 
