@@ -50,6 +50,6 @@ jobs:
 
       # Check mode only (no -format): fails on syntax errors, reports deprecations.
       # It never rewrites files, so trailing comments / hand alignment are preserved.
-      # `make nf-format` is available locally if you ever want to auto-format.
+      # `just nf-format` is available locally if you ever want to auto-format.
       - name: Lint Nextflow code
         run: nextflow lint -o concise .

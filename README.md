@@ -84,7 +84,7 @@ pre-commit install          # enable linters on every commit
 pre-commit run --all-files  # run them now
 nf-test test                # run the test suite
 nf-test test --tag example  # run one component's tests
-make help                   # list convenience targets
+just                        # list convenience recipes
 ```
 
 Optionally, [pixi](https://pixi.sh) provides the whole toolchain (Nextflow,

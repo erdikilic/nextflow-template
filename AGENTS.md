@@ -32,7 +32,7 @@ nf-test test --update-snapshot    # re-record snapshots after an intended change
 
 # Lint everything (also runs in CI)
 pre-commit run --all-files        # prettier, ruff, hadolint, shellcheck, actionlint, gitleaks, ...
-make lint                         # convenience wrapper
+just lint                         # convenience wrapper
 ```
 
 ## Layout

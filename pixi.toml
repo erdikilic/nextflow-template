@@ -10,7 +10,7 @@
 #   pixi run stub     # wiring check, no tools executed
 #   pixi task list    # everything else
 #
-# Using pixi is optional. The Makefile targets and the `[dependency-groups] dev`
+# Using pixi is optional. The justfile recipes and the `[dependency-groups] dev`
 # block in pyproject.toml keep working unchanged for contributors without it.
 
 [workspace]
