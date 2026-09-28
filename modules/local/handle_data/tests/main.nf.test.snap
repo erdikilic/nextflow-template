@@ -8,12 +8,12 @@
                             "id": "NANOPORE_BARCODE01",
                             "platform": "nanopore"
                         },
-                        "NANOPORE_BARCODE01.merged.fastq.gz:md5,435a3930f0fa736d32945370be3c1b30"
+                        "NANOPORE_BARCODE01.merged.fastq.gz:md5,b29ef46756ad3aa01139a43a26b22a21"
                     ]
                 ]
             }
         ],
-        "timestamp": "2026-09-28T12:25:11.511827772",
+        "timestamp": "2026-09-28T12:35:57.197620845",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "26.04.6"
