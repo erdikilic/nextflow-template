@@ -10,23 +10,47 @@
 
 nextflow.enable.dsl = 2
 
-// Typed declarations so the strict (v2) parser coerces CLI values instead of
-// leaving them as Strings: `--help false` would otherwise arrive as the truthy
-// String "false". Types only — defaults live in nextflow.config.
-params {
-    help: Boolean
-    monochrome_logs: Boolean
-}
+include { paramsHelp ; paramsSummaryLog ; validateParameters } from 'plugin/nf-schema'
+include { NEXTFLOW_TEMPLATE                                } from './workflows/nextflow_template'
 
-include { validateParameters ; paramsSummaryLog } from 'plugin/nf-schema'
-include { NEXTFLOW_TEMPLATE                    } from './workflows/nextflow_template'
+// Parameters read only by the workflow script. The declared types make the
+// strict parser convert CLI values (`--validate_params false` arrives as a
+// Boolean, not the truthy String "false"). Parameters that the configuration
+// also reads (outdir, publish_dir_mode, monochrome_logs, max_cpus, max_memory)
+// are declared in nextflow.config. nextflow_schema.json documents and validates
+// every parameter and is kept in step with both.
+params {
+    // Samplesheet CSV of long-read inputs (see assets/samplesheet.csv). Nullable
+    // so that --help runs without it; nf-schema reports it as required otherwise.
+    input: Path?
+
+    // Validate the parameters against nextflow_schema.json before the run starts.
+    validate_params: Boolean = true
+
+    // --help lists the top-level parameters; --help <name> shows one in full.
+    // Untyped because it takes either form.
+    help = false
+
+    // With --help, list every non-hidden parameter.
+    help_full: Boolean = false
+
+    // With --help, include hidden parameters.
+    show_hidden: Boolean = false
+}
 
 workflow {
 
-    // Print help and exit when --help is set.
-    if (params.help) {
-        log.info paramsSummaryLog(workflow)
-        log.info "Run with --input <samplesheet.csv> --outdir <dir> -profile <docker/apptainer/conda>,<test>"
+    // Print the schema-driven help and exit when --help or --help_full is set.
+    // The strict parser passes an untyped CLI flag as a String, so "true" and
+    // "false" are read as flags and any other value names a parameter.
+    def helpTopic = params.help instanceof String && !(params.help in ['true', 'false']) ? params.help : ''
+    if (params.help in [true, 'true'] || helpTopic || params.help_full) {
+        def helpOptions = [
+            command: 'nextflow run . -profile <docker/apptainer/conda> --input samplesheet.csv --outdir results',
+            fullHelp: params.help_full,
+            showHidden: params.show_hidden,
+        ]
+        log.info paramsHelp(helpOptions, helpTopic)
         exit 0
     }
 
@@ -40,11 +64,13 @@ workflow {
         completionSummary()
     }
 
-    // Validate CLI parameters against nextflow_schema.json (nf-schema plugin).
-    validateParameters()
+    // Validate the parameters against nextflow_schema.json (nf-schema plugin).
+    if (params.validate_params) {
+        validateParameters()
+    }
     log.info paramsSummaryLog(workflow)
 
-    NEXTFLOW_TEMPLATE(file(params.input))
+    NEXTFLOW_TEMPLATE(params.input)
 }
 
 /*

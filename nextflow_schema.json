@@ -38,9 +38,22 @@
       "description": "Less common options for the workflow, typically set in a config file.",
       "properties": {
         "help": {
+          "type": ["boolean", "string"],
+          "description": "Display the help text. Give a parameter name to show that parameter in full.",
+          "fa_icon": "fas fa-question-circle",
+          "hidden": true
+        },
+        "help_full": {
           "type": "boolean",
-          "description": "Display help text.",
-          "fa_icon": "fas fa-question-circle"
+          "description": "Display the help text for every non-hidden parameter.",
+          "fa_icon": "fas fa-question-circle",
+          "hidden": true
+        },
+        "show_hidden": {
+          "type": "boolean",
+          "description": "Include hidden parameters in the help text.",
+          "fa_icon": "fas fa-eye-slash",
+          "hidden": true
         },
         "publish_dir_mode": {
           "type": "string",
@@ -58,9 +71,21 @@
         "monochrome_logs": {
           "type": "boolean",
           "default": false,
-          "description": "Strip ANSI colour codes from the completion summary.",
+          "description": "Strip ANSI colour codes from the logs and summaries.",
           "help_text": "Set when piping logs to a file or an executor that does not render colour.",
           "fa_icon": "fas fa-palette"
+        },
+        "config_profile_name": {
+          "type": "string",
+          "description": "Name of the configuration profile in use.",
+          "fa_icon": "fas fa-id-badge",
+          "hidden": true
+        },
+        "config_profile_description": {
+          "type": "string",
+          "description": "Description of the configuration profile in use.",
+          "fa_icon": "fas fa-align-left",
+          "hidden": true
         }
       }
     },
@@ -78,7 +103,7 @@
           "fa_icon": "fas fa-microchip"
         },
         "max_memory": {
-          "type": "string",
+          "type": ["integer", "string"],
           "default": "30.GB",
           "pattern": "^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$",
           "description": "Maximum memory a single task may use, including the increase on a retry.",
@@ -88,8 +113,14 @@
     }
   },
   "allOf": [
-    { "$ref": "#/$defs/input_output_options" },
-    { "$ref": "#/$defs/generic_options" },
-    { "$ref": "#/$defs/max_job_request_options" }
+    {
+      "$ref": "#/$defs/input_output_options"
+    },
+    {
+      "$ref": "#/$defs/generic_options"
+    },
+    {
+      "$ref": "#/$defs/max_job_request_options"
+    }
   ]
 }

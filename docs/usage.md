@@ -47,7 +47,10 @@ data — e.g. `-profile apptainer,server` or `-profile test,docker`. See
 | `--max_memory`       | `30.GB`   | Per-task memory limit.     |
 | `--publish_dir_mode` | `copy`    | How results are published. |
 
-Run `nextflow run . --help` for the full, schema-generated parameter list.
+`nextflow run . --help` lists the parameters from `nextflow_schema.json`.
+`--help <parameter>` shows one parameter in full, and `--help_full --show_hidden`
+lists every parameter, hidden ones included. Parameters are checked against the
+schema before the run starts; `--validate_params false` skips the check.
 
 ## Resource limits
 

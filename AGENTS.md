@@ -38,7 +38,7 @@ just lint                         # convenience wrapper
 ## Layout
 
 ```text
-main.nf                     entry: nf-schema validation -> workflows/nextflow_template.nf
+main.nf                     entry: typed params, --help, nf-schema validation -> workflows/nextflow_template.nf
 nextflow.config             defaults, manifest, profiles (docker/apptainer/conda/test + hw tiers)
 nextflow_schema.json        parameter schema (nf-schema)
 conf/base.config            resource labels (process_single/low/medium/high) + resourceLimits
@@ -88,7 +88,12 @@ docs/                       usage.md + output.md
 - **Container refs are bare names** (`container 'nf-core/ubuntu:22.04'`); the
   registry is set once in `nextflow.config`. Pin an explicit host only for images
   not on that registry.
-- **Update together**: `nextflow_schema.json`, the `--help` text, and
+- **Parameters are declared once.** A parameter read only by the workflow script
+  goes in the typed `params {}` block of `main.nf`, with its default and a `//`
+  comment. A parameter the configuration reads (`outdir`, `publish_dir_mode`,
+  `max_cpus`, ...) goes in `nextflow.config`. `--help` is generated from
+  `nextflow_schema.json`, so every parameter also gets a schema entry.
+- **Update together**: the parameter declaration, `nextflow_schema.json`, and
   `conf/modules/<stage>.config` whenever you add a parameter or stage.
 - **Commits**: Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`,
   `chore:`); `cliff.toml` maps them into the changelog at tag time.
