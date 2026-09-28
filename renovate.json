@@ -34,6 +34,14 @@
     },
     {
       "customType": "regex",
+      "description": "nf-test plugin pins in nf-test.config: load \"nft-utils@x.y.z\".",
+      "managerFilePatterns": ["/nf-test\\.config$/"],
+      "matchStrings": ["load\\s+[\"']nft-utils@(?<currentValue>[^\"']+)[\"']"],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "nf-core/nft-utils"
+    },
+    {
+      "customType": "regex",
       "description": "Generic '# renovate: datasource=.. depName=..' annotations (e.g. nf-test version in CI).",
       "managerFilePatterns": ["/^\\.github/workflows/[^/]+\\.ya?ml$/"],
       "matchStrings": [
@@ -68,7 +76,7 @@
       "enabled": false
     },
     {
-      "description": "The nf-pin feature must stay in step with NXF_VER in the CI workflows; flag it so the dashboard makes that obvious.",
+      "description": "The nf-pin feature must stay in step with the nf-core/setup-nextflow version in the CI workflows; flag it so the dashboard makes that obvious.",
       "matchManagers": ["pixi"],
       "matchDepTypes": ["feature-nf-pin"],
       "addLabels": ["nextflow-version"]

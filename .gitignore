@@ -8,6 +8,7 @@ results_*/
 # nf-test
 .nf-test/
 .nf-test.log
+nf-test-results.xml
 
 # Python
 __pycache__/
@@ -22,3 +23,6 @@ __pycache__/
 .DS_Store
 *.swp
 *.log
+
+# Nextflow data lineage store (lineage.enabled)
+.lineage/

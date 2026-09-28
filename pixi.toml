@@ -80,8 +80,8 @@ clean = { cmd = "rm -rf work results results_* .nextflow* .nf-test .nf-test.log"
 # Nextflow lives in a feature rather than [dependencies] so the version can be
 # swapped per environment without the two pins colliding.
 [feature.nf-pin.dependencies]
-# Keep in sync with NXF_VER in .github/workflows/linting.yml and the "current pin"
-# entry in .github/workflows/nextflow-compatibility.yml.
+# Keep in sync with the nf-core/setup-nextflow `version` in .github/workflows/
+# (functional, linting, nf-test and the "current pin" of nextflow-compatibility).
 nextflow = "26.04.6.*"
 
 [feature.nf-min.dependencies]
