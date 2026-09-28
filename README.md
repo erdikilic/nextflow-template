@@ -68,7 +68,7 @@ Docker, which is a daemon rather than a package.
 ## Profiles
 
 Engines: `docker`, `apptainer`, `singularity`, `podman`, `conda`.
-Hardware tiers: `laptop`, `workstation`, `server`, `hpc`.
+Hardware tiers (per-task `resourceLimits`): `laptop`, `workstation`, `server`, `hpc`.
 Data: `test`, `test_full`. Combine, e.g. `-profile test,docker,workstation`.
 
 ## Documentation

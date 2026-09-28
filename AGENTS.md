@@ -41,7 +41,7 @@ just lint                         # convenience wrapper
 main.nf                     entry: nf-schema validation -> workflows/nextflow_template.nf
 nextflow.config             defaults, manifest, profiles (docker/apptainer/conda/test + hw tiers)
 nextflow_schema.json        parameter schema (nf-schema)
-conf/base.config            resource labels (process_single/low/medium/high) + check_max()
+conf/base.config            resource labels (process_single/low/medium/high) + resourceLimits
 conf/modules/<stage>.config per-stage publishDir/ext.args (one file per logical stage)
 workflows/nextflow_template.nf  wires subworkflows + modules
 subworkflows/local/<name>/  main.nf + meta.yml + tests/

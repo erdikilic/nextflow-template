@@ -65,22 +65,23 @@
       }
     },
     "max_job_request_options": {
-      "title": "Max job request options",
+      "title": "Resource limits",
       "type": "object",
       "fa_icon": "fab fa-acquisitions-incorporated",
-      "description": "Set the top limit for requested resources for any single job.",
+      "description": "Per-task resource limits. Nextflow lowers any larger request to these values.",
+      "help_text": "Set through `process.resourceLimits`. The laptop, workstation, server and hpc profiles set both; values given on the command line take precedence.",
       "properties": {
         "max_cpus": {
           "type": "integer",
           "default": 14,
-          "description": "Maximum number of CPUs that can be requested for any single job.",
+          "description": "Maximum number of CPUs a single task may use.",
           "fa_icon": "fas fa-microchip"
         },
         "max_memory": {
           "type": "string",
           "default": "30.GB",
           "pattern": "^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$",
-          "description": "Maximum amount of memory that can be requested for any single job.",
+          "description": "Maximum memory a single task may use, including the increase on a retry.",
           "fa_icon": "fas fa-memory"
         }
       }
