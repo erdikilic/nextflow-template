@@ -22,11 +22,11 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 // 3 rows -> 2 samples: NANOPORE_BARCODE01 arrives as two FASTQs.
-                { assert workflow.out.reads.size() == 2 },
+                { assert workflow.out[0].size() == 2 },
                 // Snapshot names only: the samplesheet holds paths outside the
                 // work dir, whose absolute form differs per machine.
                 { assert snapshot(
-                    workflow.out.reads.collect { meta, reads -> [meta, reads.collect { r -> file(r).name }] }
+                    workflow.out[0].collect { meta, reads -> [meta, reads.collect { r -> file(r).name }] }
                 ).match() }
             )
         }

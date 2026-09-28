@@ -15,10 +15,10 @@ workflow NEXTFLOW_TEMPLATE {
 
     main:
     // 1. Parse + validate the samplesheet, grouping multi-file samples.
-    INPUT_CHECK(samplesheet)
+    ch_reads = INPUT_CHECK(samplesheet)
 
     // 2. Merge each sample's files into one FASTQ.
-    HANDLE_DATA(INPUT_CHECK.out.reads)
+    HANDLE_DATA(ch_reads)
 
     // 3. Example per-sample process (replace with your real stages).
     EXAMPLE(HANDLE_DATA.out.reads)

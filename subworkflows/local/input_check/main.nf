@@ -22,8 +22,9 @@ workflow INPUT_CHECK {
     take:
     samplesheet   // path: CSV samplesheet
 
-    main:
-    ch_reads = channel
+    // channel: [ val(meta), [ path(reads) ] ]
+    emit:
+    channel
         .fromList(samplesheetToList(samplesheet, "${projectDir}/assets/schema_input.json"))
         .map { meta, fastq ->
             // Rebuild meta explicitly so the grouping key stays stable when
@@ -34,7 +35,4 @@ workflow INPUT_CHECK {
         .map { meta, fastqs ->
             [meta, fastqs.toSorted { f -> f.name }]
         }
-
-    emit:
-    reads = ch_reads   // channel: [ val(meta), [ path(reads) ] ]
 }
