@@ -1,5 +1,5 @@
 repository_type: pipeline
-nf_core_version: "3.3.2"
+nf_core_version: "4.1.0"
 
 # This template is nf-core-aligned but not an official nf-core pipeline. The
 # checks below are disabled so `nf-core pipelines lint` does not fail on
