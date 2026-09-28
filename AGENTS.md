@@ -47,7 +47,7 @@ workflows/nextflow_template.nf  wires subworkflows + modules
 subworkflows/local/<name>/  main.nf + meta.yml + tests/
 modules/local/<tool>/       main.nf + environment.yml + meta.yml + tests/
 modules/local/handle_data/  merge a sample's many FASTQs (ONT barcode / re-runs)
-modules/nf-core/            installed nf-core modules (tracked in modules.json)
+modules/nf-core/            installed nf-core modules (tracked in modules.json), e.g. sequali
 bin/                        executable helper scripts (Python: ruff-clean)
 assets/                     samplesheet + schema_input.json + tiny example data
 containers/<tool>/Dockerfile   custom images (bare name in module; registry set in config)
@@ -86,6 +86,11 @@ docs/                       usage.md + output.md
   `output {}` block in `main.nf` places them under `outputDir` (= `--outdir`).
   Give a per-sample output an `index {}` file when a downstream run or a user
   benefits from a samplesheet of it.
+- **nf-core modules are installed, not written**: `nf-core modules install <tool>`
+  places them under `modules/nf-core/` and records them in `modules.json`. Do not
+  edit them in place; tune them through `ext.args` in `conf/modules/<stage>.config`
+  and update them with `nf-core modules update`. They keep their own full
+  container URLs, and their upstream tests are excluded in `nf-test.config`.
 - **Modules stay parameter-agnostic**: tuning comes from `ext.args` / `ext.prefix`
   in `conf/modules/<stage>.config`, never `params.*` read inside the module.
 - **`withName:` selectors are PLAIN process names** (`withName: EXAMPLE`), never

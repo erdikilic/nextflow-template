@@ -66,6 +66,7 @@ workflow {
     // index file can be passed straight back to --input.
     publish:
     reads    = NEXTFLOW_TEMPLATE.out.reads.map { meta, fastq -> [sample: meta.id, platform: meta.platform, fastq: fastq] }
+    qc       = NEXTFLOW_TEMPLATE.out.qc.map { meta, html, json -> [sample: meta.id, platform: meta.platform, html: html, json: json] }
     counts   = NEXTFLOW_TEMPLATE.out.counts
     versions = NEXTFLOW_TEMPLATE.out.versions
 
@@ -113,6 +114,16 @@ output {
         path 'reads'
         index {
             path 'reads/samplesheet.csv'
+            header true
+        }
+    }
+
+    // Sequali read-QC reports, one HTML and one JSON per sample, indexed by a
+    // table that links each sample to its two reports.
+    qc {
+        path 'qc/sequali'
+        index {
+            path 'qc/sequali/index.csv'
             header true
         }
     }

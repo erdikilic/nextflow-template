@@ -18,6 +18,8 @@ template"** button, then replace the `EXAMPLE` module with your real tools.
   `main.nf` → `workflows/` → `subworkflows/local/` → `modules/local/`. Every
   component is a directory carrying `main.nf`, `environment.yml`, `meta.yml` and
   its own `tests/`.
+- **Read QC** with [Sequali](https://github.com/rhpvorderman/sequali) (the
+  nf-core/sequali module): an HTML and a JSON report per sample.
 - **Long-read input handling**: one row per FASTQ, grouped per sample, so an ONT
   barcode directory or a re-sequenced PacBio run merges into a single FASTQ.
 - **Tool versions on the `versions` topic** (`eval` outputs), collated into

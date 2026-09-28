@@ -1,4 +1,6 @@
 reports:
+  "qc/sequali/*.html":
+    display: "Sequali read QC"
   workflow_info/execution_report.html:
     display: "Nextflow execution report"
   workflow_info/execution_timeline.html:

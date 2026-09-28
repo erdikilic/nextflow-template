@@ -8,6 +8,8 @@
 
 ## Tools
 
+- [Sequali](https://doi.org/10.5281/zenodo.10854010) — Vorderman RHP. Sequence
+  quality metrics for short- and long-read data (read QC, `SEQUALI`).
 - **coreutils** — placeholder for the `EXAMPLE` process. Replace this list with the
   tools your workflow actually uses, with their citations.
 
