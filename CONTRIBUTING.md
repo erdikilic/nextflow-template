@@ -39,5 +39,6 @@ Either route works; pixi is optional. See `pixi task list` for the rest.
 
 See [`AGENTS.md`](AGENTS.md) for the full module/config/naming conventions. In
 short: DSL2, 4-space indent, `UPPERCASE` process names, `[meta, files]` channels,
-`versions.yml` + `stub:` in every process, tuning via `ext.args` in
-`conf/<stage>.config`, plain `withName:` selectors.
+a `versions` topic output + `stub:` in every process, tuning via `ext.args` in
+`conf/modules/<stage>.config`, plain `withName:` selectors, and results published
+through the `output {}` block in `main.nf`.

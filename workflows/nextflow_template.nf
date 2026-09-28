@@ -26,13 +26,14 @@ workflow NEXTFLOW_TEMPLATE {
     // 4. Collate the versions every process publishes on the `versions` topic.
     //    Processes contribute to the topic implicitly, so no channel plumbing is
     //    needed when a stage is added.
-    channel
+    ch_versions = channel
         .topic('versions')
         .unique()
         .map { proc, tool, version -> "\"${proc}\":\n    ${tool}: ${version}\n" }
-        .collectFile(name: 'collated_versions.yml', storeDir: "${params.outdir}/workflow_info", sort: true)
+        .collectFile(name: 'collated_versions.yml', sort: true)
 
     emit:
-    reads  = HANDLE_DATA.out.reads
-    counts = EXAMPLE.out.counts
+    reads    = HANDLE_DATA.out.reads   // channel: [ val(meta), path(fastq) ]
+    counts   = EXAMPLE.out.counts      // channel: [ val(meta), path(linecount) ]
+    versions = ch_versions             // channel: path(collated_versions.yml)
 }

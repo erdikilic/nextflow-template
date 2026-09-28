@@ -22,9 +22,14 @@ template"** button, then replace the `EXAMPLE` module with your real tools.
   barcode directory or a re-sequenced PacBio run merges into a single FASTQ.
 - **Tool versions on the `versions` topic** (`eval` outputs), collated into
   `workflow_info/collated_versions.yml` with no per-stage channel plumbing.
-- **Parameter + samplesheet validation** via the `nf-schema` plugin.
-- **Config split**: resource labels in `conf/base.config`, per-stage settings in
-  `conf/<stage>.config`, container/engine profiles + hardware tiers.
+- **Workflow outputs**: a `publish:` section and an `output {}` block declare the
+  whole results layout in one place, and the merged reads come with a
+  samplesheet index that can be passed back to `--input`.
+- **Typed parameters** in `main.nf`, validated by the `nf-schema` plugin, which
+  also renders `--help` and checks the samplesheet.
+- **Config split**: resource labels and `resourceLimits` in `conf/base.config`,
+  per-stage tool arguments in `conf/modules/<stage>.config`, container/engine
+  profiles + hardware tiers.
 - **Testing**: [nf-test](https://www.nf-test.com/) at both workflow and component
   level, with committed snapshots.
 - **Linting** (pre-commit + CI): prettier, ruff, hadolint (Dockerfile),

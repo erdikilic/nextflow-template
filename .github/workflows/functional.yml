@@ -1,6 +1,6 @@
 name: functional
 # Runs the workflow for real (containers + tools), not just -stub — catches
-# broken container pulls, tool invocations, and publishDir wiring. Runs once on
+# broken container pulls, tool invocations, and output publishing. Runs once on
 # the current NF; NF-version coverage lives in nextflow-compatibility.yml.
 on:
   push:
@@ -45,4 +45,5 @@ jobs:
       - name: Assert outputs exist
         run: |
           test -d results/example
+          test -f results/reads/samplesheet.csv
           test -f results/workflow_info/collated_versions.yml

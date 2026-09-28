@@ -38,11 +38,11 @@ just lint                         # convenience wrapper
 ## Layout
 
 ```text
-main.nf                     entry: typed params, --help, nf-schema validation -> workflows/nextflow_template.nf
+main.nf                     entry: typed params, --help, validation, publish: + output {} block
 nextflow.config             defaults, manifest, profiles (docker/apptainer/conda/test + hw tiers)
 nextflow_schema.json        parameter schema (nf-schema)
 conf/base.config            resource labels (process_single/low/medium/high) + resourceLimits
-conf/modules/<stage>.config per-stage publishDir/ext.args (one file per logical stage)
+conf/modules/<stage>.config per-stage ext.args/ext.prefix (one file per logical stage)
 workflows/nextflow_template.nf  wires subworkflows + modules
 subworkflows/local/<name>/  main.nf + meta.yml + tests/
 modules/local/<tool>/       main.nf + environment.yml + meta.yml + tests/
@@ -81,6 +81,11 @@ docs/                       usage.md + output.md
   `<name>`, or `subworkflows` / `subworkflows_local` / `<name>`) and a committed
   snapshot. Snapshot deterministic outputs only: assert a tool version by shape,
   because it follows whichever engine the suite runs under.
+- **Results are published through workflow outputs**, never `publishDir`. The
+  entry workflow's `publish:` section names the channels to keep and the
+  `output {}` block in `main.nf` places them under `outputDir` (= `--outdir`).
+  Give a per-sample output an `index {}` file when a downstream run or a user
+  benefits from a samplesheet of it.
 - **Modules stay parameter-agnostic**: tuning comes from `ext.args` / `ext.prefix`
   in `conf/modules/<stage>.config`, never `params.*` read inside the module.
 - **`withName:` selectors are PLAIN process names** (`withName: EXAMPLE`), never
@@ -109,13 +114,15 @@ docs/                       usage.md + output.md
    `conda "${moduleDir}/environment.yml"`, a `versions` topic entry, `stub:`).
 2. `modules/local/<tool>/environment.yml` and `meta.yml` — the conda spec and the
    documented inputs/outputs.
-3. `conf/modules/<stage>.config` — `withName: <PROCESS>` block; add the include to
-   `nextflow.config`.
+3. `conf/modules/<stage>.config` — `withName: <PROCESS>` block with `ext.args` /
+   `ext.prefix`; add the include to `nextflow.config`.
 4. Wire it into `workflows/nextflow_template.nf` (or a subworkflow under
-   `subworkflows/local/`).
-5. `modules/local/<tool>/tests/main.nf.test` — tagged test; run
+   `subworkflows/local/`) and `emit:` the channels worth keeping.
+5. Publish them: add a `publish:` assignment in `main.nf` and a matching target
+   in its `output {}` block, then list the files in `docs/output.md`.
+6. `modules/local/<tool>/tests/main.nf.test` — tagged test; run
    `nf-test test --update-snapshot` and commit the generated `.snap`.
-6. Run `nf-test test` and `pre-commit run --all-files`.
+7. Run `nf-test test` and `pre-commit run --all-files`.
 
 ## Do not
 

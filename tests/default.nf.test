@@ -20,8 +20,12 @@ nextflow_pipeline {
                 { assert workflow.success },
                 // 3 samplesheet rows -> 2 samples: NANOPORE_BARCODE01 arrives as
                 // two FASTQs and is merged into one.
-                { assert path("$outputDir/reads").list().size() == 2 },
-                { assert path("$outputDir/example").list().size() == 2 }
+                { assert path("$outputDir/reads").list().findAll { f -> f.fileName.toString().endsWith('.merged.fastq.gz') }.size() == 2 },
+                { assert path("$outputDir/example").list().size() == 2 },
+                // The reads index is a samplesheet in the input format.
+                { assert path("$outputDir/reads/samplesheet.csv").readLines().size() == 3 },
+                { assert path("$outputDir/reads/samplesheet.csv").readLines()[0] == '"sample","platform","fastq"' },
+                { assert path("$outputDir/workflow_info/collated_versions.yml").exists() }
             )
         }
     }

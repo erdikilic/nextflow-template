@@ -61,6 +61,14 @@ workflow {
 
     NEXTFLOW_TEMPLATE(params.input)
 
+    // Channels written to the output directory; the output block below says
+    // where each one goes. Reads are published as samplesheet records so their
+    // index file can be passed straight back to --input.
+    publish:
+    reads    = NEXTFLOW_TEMPLATE.out.reads.map { meta, fastq -> [sample: meta.id, platform: meta.platform, fastq: fastq] }
+    counts   = NEXTFLOW_TEMPLATE.out.counts
+    versions = NEXTFLOW_TEMPLATE.out.versions
+
     // Runs when the workflow finishes, successfully or not. The failure reason is
     // reported here rather than in an `onError:` section, which Nextflow 26.04
     // invokes with an argument the section cannot accept.
@@ -87,6 +95,36 @@ workflow {
     if (!workflow.success) {
         def reason = workflow.errorMessage ? ": ${workflow.errorMessage}" : ''
         log.error("${colour.red}Workflow failed${colour.reset}${reason}")
+    }
+}
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Outputs — layout of --outdir (see docs/output.md)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Each target publishes the files in the channel of the same name. The root is
+    `outputDir` (= --outdir) and the copy mode is `workflow.output.mode`
+    (= --publish_dir_mode), both set in nextflow.config.
+*/
+
+output {
+    // One merged FASTQ per sample, indexed by a samplesheet in the input format.
+    reads {
+        path 'reads'
+        index {
+            path 'reads/samplesheet.csv'
+            header true
+        }
+    }
+
+    // Per-sample output of the EXAMPLE process.
+    counts {
+        path 'example'
+    }
+
+    // Versions of every tool that ran.
+    versions {
+        path 'workflow_info'
     }
 }
 
