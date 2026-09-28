@@ -86,7 +86,7 @@ nextflow = "26.04.6.*"
 
 [feature.nf-min.dependencies]
 # The floor declared by manifest.nextflowVersion in nextflow.config.
-nextflow = "26.04.0.*"
+nextflow = "26.04.4.*"
 
 # Container engines: pixi can supply Apptainer, but not Docker (a daemon, not a
 # conda package). On a Docker workstation the engine still comes from the host.

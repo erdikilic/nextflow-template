@@ -5,7 +5,7 @@
 [![functional](https://github.com/erdikilic/nextflow-template/actions/workflows/functional.yml/badge.svg)](https://github.com/erdikilic/nextflow-template/actions/workflows/functional.yml)
 [![nextflow-compatibility](https://github.com/erdikilic/nextflow-template/actions/workflows/nextflow-compatibility.yml/badge.svg)](https://github.com/erdikilic/nextflow-template/actions/workflows/nextflow-compatibility.yml)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/erdikilic/nextflow-template/badge)](https://scorecard.dev/viewer/?uri=github.com/erdikilic/nextflow-template)
-[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A526.04.0-brightgreen?labelColor=000000&logo=nextflow)](https://www.nextflow.io/)
+[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A526.04.4-brightgreen?labelColor=000000&logo=nextflow)](https://www.nextflow.io/)
 
 A state-of-the-art [Nextflow](https://www.nextflow.io/) DSL2 workflow template for
 long-read data (Oxford Nanopore and PacBio) — a runnable, tool-free skeleton plus
@@ -38,7 +38,7 @@ template"** button, then replace the `EXAMPLE` module with your real tools.
 ## Quick start
 
 ```bash
-# 1. Requirements: Nextflow >= 26.04.0, plus Docker/Apptainer/Conda
+# 1. Requirements: Nextflow >= 26.04.4, plus Docker/Apptainer/Conda
 # 2. Run the bundled minimal test (from the repo root)
 nextflow run . -profile test,docker --outdir results
 
@@ -98,7 +98,7 @@ pixi run launch <args>      # run the workflow on real data via run.sh
 pixi task list              # list available tasks
 ```
 
-Environments: `default` (Nextflow 26.04.6), `nf-min` (26.04.0, the floor declared
+Environments: `default` (Nextflow 26.04.6), `nf-min` (26.04.4, the floor declared
 by `manifest.nextflowVersion` — `pixi run -e nf-min stub` reproduces the CI
 minimum-version job), and `hpc` (adds Apptainer; Linux only, as there is no
 osx-arm64 build).
