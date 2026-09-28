@@ -8,8 +8,6 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-nextflow.enable.dsl = 2
-
 include { paramsHelp ; paramsSummaryLog ; validateParameters } from 'plugin/nf-schema'
 include { NEXTFLOW_TEMPLATE                                } from './workflows/nextflow_template'
 
@@ -40,6 +38,7 @@ params {
 
 workflow {
 
+    main:
     // Print the schema-driven help and exit when --help or --help_full is set.
     // The strict parser passes an untyped CLI flag as a String, so "true" and
     // "false" are read as flags and any other value names a parameter.
@@ -54,16 +53,6 @@ workflow {
         exit 0
     }
 
-    // Print a summary when the run finishes. The handler delegates to a
-    // top-level function: `params`/`workflow`/`log` are null inside the deferred
-    // closure itself, but resolve normally inside a function it calls.
-    // Registered here (not at top level) because the strict parser rejects a
-    // top-level `workflow.onComplete` statement. Registered before validation so
-    // it still prints if `validateParameters()` fails.
-    workflow.onComplete {
-        completionSummary()
-    }
-
     // Validate the parameters against nextflow_schema.json (nf-schema plugin).
     if (params.validate_params) {
         validateParameters()
@@ -71,23 +60,16 @@ workflow {
     log.info paramsSummaryLog(workflow)
 
     NEXTFLOW_TEMPLATE(params.input)
-}
 
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Helpers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-// One-run summary printed from workflow.onComplete. A function (not the closure
-// itself) so `params` / `workflow` / `log` resolve — see the onComplete note above.
-def completionSummary() {
+    // Runs when the workflow finishes, successfully or not. The failure reason is
+    // reported here rather than in an `onError:` section, which Nextflow 26.04
+    // invokes with an argument the section cannot accept.
+    onComplete:
     def colour = logColours(params.monochrome_logs)
     def status = workflow.success
         ? "${colour.green}Succeeded${colour.reset}"
         : "${colour.red}Failed${colour.reset}"
     def rule = "${colour.dim}${'-' * 62}${colour.reset}"
-
     log.info(
         """
         ${rule}
@@ -102,12 +84,17 @@ def completionSummary() {
         ${rule}
         """.stripIndent()
     )
-
     if (!workflow.success) {
         def reason = workflow.errorMessage ? ": ${workflow.errorMessage}" : ''
         log.error("${colour.red}Workflow failed${colour.reset}${reason}")
     }
 }
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Helpers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 
 // ANSI colour codes, blanked out when --monochrome_logs is set.
 def logColours(monochrome) {
