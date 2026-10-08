@@ -70,6 +70,11 @@
       "addLabels": ["container"]
     },
     {
+      "description": "conda channels publish pre-releases (e.g. python 3.15.0rc3) that conda versioning does not mark unstable, and its pep440 backend cannot rewrite a 'X.Y.*' pin to one. Restrict pixi deps to final releases.",
+      "matchManagers": ["pixi"],
+      "allowedVersions": "/^\\d+(\\.\\d+)*$/"
+    },
+    {
       "description": "pixi's nf-min feature pins the Nextflow floor from manifest.nextflowVersion. Bumping it would defeat the minimum-version environment, so it moves only when that floor is raised by hand.",
       "matchManagers": ["pixi"],
       "matchDepTypes": ["feature-nf-min"],
