@@ -10,10 +10,11 @@ FROM mambaorg/micromamba:2.10.0
 LABEL org.opencontainers.image.source="https://github.com/erdikilic/nextflow-template" \
       org.opencontainers.image.licenses="Apache-2.0"
 
-USER root
+USER 0
 RUN apt-get update && apt-get install -y --no-install-recommends procps \
     && rm -rf /var/lib/apt/lists/*
-USER $MAMBA_USER
+# 57439 is MAMBA_USER_ID / MAMBA_USER_GID (mambauser) in the micromamba base image.
+USER 57439:57439
 
 # Install tools via micromamba, e.g.:
 # COPY --chown=$MAMBA_USER:$MAMBA_USER environment.yml /tmp/environment.yml
