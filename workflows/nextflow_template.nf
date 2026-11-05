@@ -7,7 +7,7 @@
 include { INPUT_CHECK } from '../subworkflows/local/input_check/main'
 include { HANDLE_DATA } from '../modules/local/handle_data/main'
 include { EXAMPLE     } from '../modules/local/example/main'
-include { SEQUALI     } from '../modules/nf-core/sequali/main'
+include { SEQUALI     } from '../modules/local/sequali/main'
 
 workflow NEXTFLOW_TEMPLATE {
 
@@ -21,7 +21,7 @@ workflow NEXTFLOW_TEMPLATE {
     // 2. Merge each sample's files into one FASTQ.
     HANDLE_DATA(ch_reads)
 
-    // 3. Read QC on each merged FASTQ (nf-core module).
+    // 3. Read QC on each merged FASTQ.
     SEQUALI(HANDLE_DATA.out.reads)
 
     // 4. Example per-sample process (replace with your real stages).
@@ -38,7 +38,7 @@ workflow NEXTFLOW_TEMPLATE {
 
     emit:
     reads    = HANDLE_DATA.out.reads   // channel: [ val(meta), path(fastq) ]
-    qc       = SEQUALI.out.html.join(SEQUALI.out.json)   // channel: [ val(meta), path(html), path(json) ]
+    qc       = SEQUALI.out.report      // channel: [ val(meta), path(html), path(json) ]
     counts   = EXAMPLE.out.counts      // channel: [ val(meta), path(linecount) ]
     versions = ch_versions             // channel: path(collated_versions.yml)
 }

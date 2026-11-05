@@ -1,0 +1,50 @@
+{
+    "nanopore - fastq - stub": {
+        "content": [
+            {
+                "report": [
+                    [
+                        {
+                            "id": "NANOPORE_BARCODE01",
+                            "platform": "nanopore"
+                        },
+                        "NANOPORE_BARCODE01.html:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "NANOPORE_BARCODE01.json:md5,8a80554c91d9fca8acb82f023de02f11"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-11-05T12:05:10.490759017",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.4"
+        }
+    },
+    "nanopore - fastq": {
+        "content": [
+            {
+                "id": "NANOPORE_BARCODE01",
+                "platform": "nanopore"
+            },
+            "NANOPORE_BARCODE01.html",
+            "NANOPORE_BARCODE01.json",
+            {
+                "mean_length": 80.0,
+                "minimum_length": 80,
+                "maximum_length": 80,
+                "total_reads": 2,
+                "q20_reads": 2,
+                "total_bases": 160,
+                "q20_bases": 160,
+                "total_gc_bases": 80,
+                "total_n_bases": 0,
+                "read_pair_info": null
+            }
+        ],
+        "timestamp": "2026-11-05T12:05:05.384484412",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.4"
+        }
+    }
+}

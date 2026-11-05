@@ -24,7 +24,7 @@ nextflow run . -profile test,docker -stub --outdir results_stub
 # Parse config / catch syntax errors without running
 nextflow config . -profile test
 
-# Tests (nf-test is the standard)
+# Tests (nf-test is the standard; they run with -profile test,docker)
 nf-test test                      # all tests
 nf-test test tests/default.nf.test
 nf-test test --tag example        # one component, by tag
@@ -47,7 +47,7 @@ workflows/nextflow_template.nf  wires subworkflows + modules
 subworkflows/local/<name>/  main.nf + meta.yml + tests/
 modules/local/<tool>/       main.nf + environment.yml + meta.yml + tests/
 modules/local/handle_data/  merge a sample's many FASTQs (ONT barcode / re-runs)
-modules/nf-core/            installed nf-core modules (tracked in modules.json), e.g. sequali
+modules/local/sequali/      per-sample read QC (HTML + JSON report)
 bin/                        executable helper scripts (Python: ruff-clean)
 assets/                     samplesheet + schema_input.json + tiny example data
 containers/<tool>/Dockerfile   custom images (bare name in module; registry set in config)
@@ -92,11 +92,9 @@ docs/                       usage.md + output.md
 - **Files are renamed or routed in the `output {}` block**: a target's `path`
   closure returns a map from each file to its destination. `publishDir` and its
   `saveAs` option are not used.
-- **nf-core modules are installed, not written**: `nf-core modules install <tool>`
-  places them under `modules/nf-core/` and records them in `modules.json`. Do not
-  edit them in place; tune them through `ext.args` in `conf/modules/<stage>.config`
-  and update them with `nf-core modules update`. They keep their own full
-  container URLs, and their upstream tests are excluded in `nf-test.config`.
+- **Modules are written in this repository** under `modules/local/`; no module is
+  installed from an external registry, so every process follows the conventions
+  above and is tested here.
 - **Modules stay parameter-agnostic**: tuning comes from `ext.args` / `ext.prefix`
   in `conf/modules/<stage>.config`, never `params.*` read inside the module.
 - **`withName:` selectors are PLAIN process names** (`withName: EXAMPLE`), never

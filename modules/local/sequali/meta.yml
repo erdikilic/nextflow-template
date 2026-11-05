@@ -1,0 +1,73 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: sequali
+description: Read quality metrics for a sample's long-read FASTQ, as an HTML report and JSON
+keywords:
+  - quality_control
+  - qc
+  - long-read
+tools:
+  - sequali:
+      description: Fast sequencing quality metrics for short and long reads
+      homepage: https://github.com/rhpvorderman/sequali
+      documentation: https://sequali.readthedocs.io/en/latest/
+      tool_dev_url: https://github.com/rhpvorderman/sequali
+      doi: "10.5281/zenodo.10854010"
+      licence: ["AGPL-3.0-or-later"]
+      identifier: biotools:sequali
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', platform:'nanopore' ]`
+    - reads:
+        type: file
+        description: Merged FASTQ for a single sample, plain or gzipped
+        pattern: "*.{fastq,fq}{,.gz}"
+        ontologies:
+          - edam: http://edamontology.org/format_1930 # FASTQ
+output:
+  report:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'sample1', platform:'nanopore' ]`
+      - "*.html":
+          type: file
+          description: Sequali HTML report
+          pattern: "*.html"
+          ontologies:
+            - edam: http://edamontology.org/format_2331 # HTML
+      - "*.json":
+          type: file
+          description: The report's metrics as JSON
+          pattern: "*.json"
+          ontologies:
+            - edam: http://edamontology.org/format_3464 # JSON
+  versions_sequali:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - sequali:
+          type: string
+          description: The tool name
+      - sequali --version |& sed "1!d ; s/sequali //":
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - sequali:
+          type: string
+          description: The tool name
+      - sequali --version |& sed "1!d ; s/sequali //":
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@erdikilic"
+maintainers:
+  - "@erdikilic"

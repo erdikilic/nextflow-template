@@ -35,11 +35,11 @@ At the end of a run Nextflow prints the published outputs;
 
 Sequali shows the whole path from a process to `results/`:
 
-1. **Process** — `SEQUALI` (the nf-core/sequali module) declares its outputs,
-   `html` and `json`. It sets no `publishDir`; its tool arguments live in
-   [`conf/modules/qc.config`](../conf/modules/qc.config).
-2. **Named workflow** — `NEXTFLOW_TEMPLATE` joins the two outputs per sample and
-   emits them: `qc = SEQUALI.out.html.join(SEQUALI.out.json)`.
+1. **Process** — `SEQUALI` ([`modules/local/sequali`](../modules/local/sequali/main.nf))
+   emits `report`, the HTML and JSON of one sample together with its `meta`. Its
+   tool arguments live in [`conf/modules/qc.config`](../conf/modules/qc.config).
+2. **Named workflow** — `NEXTFLOW_TEMPLATE` emits that channel:
+   `qc = SEQUALI.out.report`.
 3. **`publish:`** — the entry workflow in [`main.nf`](../main.nf) turns each
    value into a record and names the channel:
    `qc = NEXTFLOW_TEMPLATE.out.qc.map { meta, html, json -> [sample: meta.id, platform: meta.platform, html: html, json: json] }`.

@@ -1,0 +1,63 @@
+nextflow_process {
+
+    name "Test Process SEQUALI"
+    script "../main.nf"
+    process "SEQUALI"
+
+    tag "modules"
+    tag "modules_local"
+    tag "sequali"
+
+    test("nanopore - fastq") {
+
+        when {
+            process {
+                """
+                input[0] = channel.of([
+                    [ id:'NANOPORE_BARCODE01', platform:'nanopore' ],
+                    file("${projectDir}/assets/reads/sample_ont_part1.fastq", checkIfExists: true)
+                ])
+                """
+            }
+        }
+
+        then {
+            def (meta, html, json) = process.out.report[0]
+            assertAll(
+                { assert process.success },
+                // The HTML report embeds the run time, so its name is snapshotted
+                // together with the read metrics from the JSON summary.
+                { assert process.out.versions_sequali[0][2] ==~ /\d+\.\d+.*/ },
+                { assert snapshot(
+                    meta,
+                    path(html).fileName.toString(),
+                    path(json).fileName.toString(),
+                    path(json).json.summary
+                ).match() }
+            )
+        }
+    }
+
+    test("nanopore - fastq - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = channel.of([
+                    [ id:'NANOPORE_BARCODE01', platform:'nanopore' ],
+                    file("${projectDir}/assets/reads/sample_ont_part1.fastq", checkIfExists: true)
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(sanitizeOutput(process.out, ignoreKeys: ['versions_sequali'])).match() }
+            )
+        }
+    }
+}
