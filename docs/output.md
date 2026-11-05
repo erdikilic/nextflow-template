@@ -11,8 +11,8 @@ results/
 │   └── samplesheet.csv             # index of the merged reads, in the --input format
 ├── qc/
 │   └── sequali/
-│       ├── <sample>.html           # Sequali read-QC report
-│       ├── <sample>.json           # the same metrics as JSON
+│       ├── <sample>.sequali.html   # Sequali read-QC report
+│       ├── <sample>.sequali.json   # the same metrics as JSON
 │       └── index.csv               # sample, platform, html, json for every sample
 ├── example/
 │   └── <sample>.linecount.txt      # per-sample output of the EXAMPLE process
@@ -43,14 +43,21 @@ Sequali shows the whole path from a process to `results/`:
 3. **`publish:`** — the entry workflow in [`main.nf`](../main.nf) turns each
    value into a record and names the channel:
    `qc = NEXTFLOW_TEMPLATE.out.qc.map { meta, html, json -> [sample: meta.id, platform: meta.platform, html: html, json: json] }`.
-4. **`output {}`** — the `qc` target places every file of that channel under
-   `qc/sequali/`, and its `index` block writes one row per record to
-   `qc/sequali/index.csv`, with the paths of the published copies.
+4. **`output {}`** — the `qc` target's `path` closure maps each file of a record
+   to its own target, `qc/sequali/<sample>.sequali.html` and `.json`, and its
+   `index` block writes one row per record to `qc/sequali/index.csv`, with the
+   paths of the published copies.
 
 To add a stage, emit its channel from the named workflow, add a `publish:`
-assignment, and add an `output {}` target with the same name. A target can also
-compute the directory per value, for example `path { r -> "qc/${r.sample}" }`
-for one directory per sample.
+assignment, and add an `output {}` target with the same name. `path` takes one of
+three forms:
+
+- a string, the directory for every file of the channel: `path 'example'`;
+- a closure returning a directory per value, for example
+  `path { r -> "qc/${r.sample}/" }` for one directory per sample;
+- a closure returning a map from each file to its target, which renames files or
+  sends them to different directories, as the `qc` target does. This is the
+  workflow-output form of the `publishDir` `saveAs` option.
 
 Replace the `example/` section with your real stages. Follow the naming
 convention: publish standalone files as `<id>.<descriptor>.<ext>` and keep

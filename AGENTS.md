@@ -89,6 +89,9 @@ docs/                       usage.md + output.md
   `output {}` block in `main.nf` places them under `outputDir` (= `--outdir`).
   Give a per-sample output an `index {}` file when a downstream run or a user
   benefits from a samplesheet of it.
+- **Files are renamed or routed in the `output {}` block**: a target's `path`
+  closure returns a map from each file to its destination. `publishDir` and its
+  `saveAs` option are not used.
 - **nf-core modules are installed, not written**: `nf-core modules install <tool>`
   places them under `modules/nf-core/` and records them in `modules.json`. Do not
   edit them in place; tune them through `ext.args` in `conf/modules/<stage>.config`

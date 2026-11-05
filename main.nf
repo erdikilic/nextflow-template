@@ -119,9 +119,15 @@ output {
     }
 
     // Sequali read-QC reports, one HTML and one JSON per sample, indexed by a
-    // table that links each sample to its two reports.
+    // table that links each sample to its two reports. The map form of `path`
+    // gives every file its own target, here <sample>.sequali.<ext>.
     qc {
-        path 'qc/sequali'
+        path { r ->
+            [
+                (r.html): "qc/sequali/${r.sample}.sequali.html",
+                (r.json): "qc/sequali/${r.sample}.sequali.json",
+            ]
+        }
         index {
             path 'qc/sequali/index.csv'
             header true
