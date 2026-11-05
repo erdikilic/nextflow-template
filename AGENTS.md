@@ -135,6 +135,36 @@ docs/                       usage.md + output.md
    `nf-test test --update-snapshot` and commit the generated `.snap`.
 7. Run `nf-test test` and `pre-commit run --all-files`.
 
+## Reusing an expensive intermediate (recipe)
+
+`storeDir` is deprecated in Nextflow 26.10. An output that is costly to rebuild
+and stable across runs, such as a minimap2 index, is reused through workflow
+logic instead:
+
+1. Declare the prebuilt file as an optional typed parameter in the `params {}`
+   block of `main.nf`, next to the input it is built from, and add both to
+   `nextflow_schema.json`.
+
+   ```nextflow
+   // Reference FASTA; the minimap2 index is built from it when --index is unset.
+   fasta: Path?
+
+   // Prebuilt minimap2 index (.mmi), for example one published by an earlier run.
+   index: Path?
+   ```
+
+2. Pass both into the named workflow through `take:` and build the index only
+   when none is given:
+
+   ```nextflow
+   ch_index = index
+       ? channel.value([[id: index.baseName], index])
+       : MINIMAP2_INDEX(channel.value([[id: fasta.baseName], fasta])).index
+   ```
+
+3. Emit `ch_index` and publish it, so the published file can be passed back with
+   `--index` on the next run.
+
 ## Do not
 
 - Do not add AI/assistant attribution to commits or PRs (no `Co-Authored-By` /
@@ -142,4 +172,6 @@ docs/                       usage.md + output.md
 - Do not commit `work/`, `.nextflow*`, or `results*/` (see `.gitignore`).
 - Do not read `params.*` inside a module or a subworkflow; pass values in via
   `take:` or `ext.args`.
+- Do not use the `publishDir` or `storeDir` directives; publish through workflow
+  outputs and reuse intermediates through workflow logic.
 - Do not reintroduce Illumina / short-read handling (`single_end`, `fastq_2`, R1/R2).
