@@ -71,9 +71,7 @@ workflow {
     counts   = NEXTFLOW_TEMPLATE.out.counts
     versions = NEXTFLOW_TEMPLATE.out.versions
 
-    // Runs when the workflow finishes, successfully or not. The failure reason is
-    // reported here rather than in an `onError:` section, which Nextflow 26.04
-    // invokes with an argument the section cannot accept.
+    // Runs when the workflow finishes, successfully or not.
     onComplete:
     def colour = logColours(params.monochrome_logs)
     def status = workflow.success
@@ -94,10 +92,11 @@ workflow {
         ${rule}
         """.stripIndent()
     )
-    if (!workflow.success) {
-        def reason = workflow.errorMessage ? ": ${workflow.errorMessage}" : ''
-        log.error("${colour.red}Workflow failed${colour.reset}${reason}")
-    }
+
+    // Runs when the workflow fails, before onComplete.
+    onError:
+    def reason = workflow.errorMessage ? ": ${workflow.errorMessage}" : ''
+    log.error("Workflow failed${reason}")
 }
 
 /*
