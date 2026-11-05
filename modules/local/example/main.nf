@@ -3,8 +3,8 @@
  *
  * Counts the lines in each read file (a stand-in for a real tool). Demonstrates
  * the conventions every module follows: a destructured record input naming only
- * the fields the process reads, a record output keyed by `id`, `ext.args` /
- * `ext.prefix` from conf/modules, a container plus an `environment.yml` conda
+ * the fields the process reads, tool options as a typed `args` input, a record
+ * output keyed by `id`, a container plus an `environment.yml` conda
  * spec, a version emitted to the `versions` topic, and a matching stub block.
  */
 
@@ -22,6 +22,8 @@ process EXAMPLE {
         id: String,
         fastq: Path
     )
+    // Extra wc options.
+    args: String
 
     output:
     record(
@@ -33,15 +35,12 @@ process EXAMPLE {
     record(process: task.process, tool: 'coreutils', version: eval('wc --version | head -n1 | sed "s/^.* //"')) >> 'versions'
 
     script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: id
     """
-    zcat -f ${fastq} | wc -l ${args} > ${prefix}.linecount.txt
+    zcat -f ${fastq} | wc -l ${args} > ${id}.linecount.txt
     """
 
     stub:
-    def prefix = task.ext.prefix ?: id
     """
-    echo 0 > ${prefix}.linecount.txt
+    echo 0 > ${id}.linecount.txt
     """
 }

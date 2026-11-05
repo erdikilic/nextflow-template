@@ -104,11 +104,40 @@
           "fa_icon": "fas fa-memory"
         }
       }
+    },
+    "tool_options": {
+      "title": "Tool options",
+      "type": "object",
+      "fa_icon": "fas fa-sliders-h",
+      "description": "Extra command-line options for each tool. Give a value that starts with a dash with '=', e.g. --sequali_args='--adapter-file adapters.fa'.",
+      "properties": {
+        "handle_data_args": {
+          "type": "string",
+          "default": "",
+          "description": "Extra gzip options for HANDLE_DATA, which merges each sample's FASTQs.",
+          "fa_icon": "fas fa-file-archive"
+        },
+        "sequali_args": {
+          "type": "string",
+          "default": "",
+          "description": "Extra Sequali options for read QC, e.g. --adapter-file adapters.fa.",
+          "fa_icon": "fas fa-chart-bar"
+        },
+        "example_args": {
+          "type": "string",
+          "default": "",
+          "description": "Extra wc options for the EXAMPLE stage.",
+          "fa_icon": "fas fa-calculator"
+        }
+      }
     }
   },
   "allOf": [
     {
       "$ref": "#/$defs/input_output_options"
+    },
+    {
+      "$ref": "#/$defs/tool_options"
     },
     {
       "$ref": "#/$defs/generic_options"

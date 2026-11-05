@@ -31,6 +31,9 @@ input:
       pattern: "*.{fastq,fq}{,.gz}"
       ontologies:
         - edam: http://edamontology.org/format_1930 # FASTQ
+  - name: args
+    type: string
+    description: Extra wc command-line options (empty for none)
 output:
   - - name: id
       type: string

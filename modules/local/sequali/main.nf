@@ -20,6 +20,8 @@ process SEQUALI {
         id: String,
         fastq: Path
     )
+    // Extra Sequali options, e.g. --adapter-file adapters.fa.
+    args: String
 
     output:
     record(
@@ -32,21 +34,18 @@ process SEQUALI {
     record(process: task.process, tool: 'sequali', version: eval('sequali --version |& sed "1!d ; s/sequali //"')) >> 'versions'
 
     script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: id
     """
     sequali \\
         ${args} \\
         --threads ${task.cpus} \\
-        --html ${prefix}.html \\
-        --json ${prefix}.json \\
+        --html ${id}.html \\
+        --json ${id}.json \\
         ${fastq}
     """
 
     stub:
-    def prefix = task.ext.prefix ?: id
     """
-    touch ${prefix}.html
-    echo '{}' > ${prefix}.json
+    touch ${id}.html
+    echo '{}' > ${id}.json
     """
 }

@@ -11,9 +11,10 @@ invocation covers Oxford Nanopore and PacBio input.
 | --------- | ------- | -------- | ---------------------------------------------- |
 | input     | `id`    | `String` | Sample identifier                              |
 | input     | `fastq` | `Path`   | Merged FASTQ of the sample, plain or gzipped   |
+| input     | `args`  | `String` | Extra Sequali options (`''` for none)          |
 | output    | `id`    | `String` | Sample identifier                              |
-| output    | `html`  | `Path`   | `<prefix>.html`, the Sequali report            |
-| output    | `json`  | `Path`   | `<prefix>.json`, the report's metrics          |
+| output    | `html`  | `Path`   | `<id>.html`, the Sequali report                |
+| output    | `json`  | `Path`   | `<id>.json`, the report's metrics              |
 | topic     | —       | record   | `versions`: process, tool (`sequali`), version |
 
 ## Usage
@@ -21,17 +22,17 @@ invocation covers Oxford Nanopore and PacBio input.
 ```nextflow
 include { SEQUALI } from './modules/local/sequali/main'
 
-qc = SEQUALI(samples)   // samples: Channel of records with id and fastq
+qc = SEQUALI(samples, '')   // samples: Channel of records with id and fastq
 ```
 
 Run it on its own:
 
 ```bash
-nextflow module run ./modules/local/sequali/main.nf --id S1 --fastq reads.fastq.gz -with-docker
+nextflow module run ./modules/local/sequali/main.nf --id S1 --fastq reads.fastq.gz --args= -with-docker
 ```
 
 ## Configuration
 
-- `ext.args`: extra Sequali options, e.g. `--adapter-file adapters.fa`.
-- `ext.prefix`: output file prefix (default: `id`).
+- `args` input: extra Sequali options, e.g. `--adapter-file adapters.fa`; `''` for none. Outputs are
+  named by `id`.
 - Software: `quay.io/biocontainers/sequali` or the conda spec in `environment.yml`.

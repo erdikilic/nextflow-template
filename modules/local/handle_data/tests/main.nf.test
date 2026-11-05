@@ -20,6 +20,7 @@ nextflow_process {
                         file("${projectDir}/assets/reads/sample_ont_part2.fastq", checkIfExists: true),
                     ]
                 ))
+                input[1] = ''
                 """
             }
         }
@@ -41,6 +42,7 @@ nextflow_process {
                     id: 'PACBIO_HIFI',
                     reads: [ file("${projectDir}/assets/reads/sample_pacbio.fastq", checkIfExists: true) ]
                 ))
+                input[1] = ''
                 """
             }
         }
@@ -67,6 +69,7 @@ nextflow_process {
                         file("${projectDir}/assets/reads/sample_ont_part2.fastq", checkIfExists: true),
                     ]
                 ))
+                input[1] = ''
                 """
             }
         }

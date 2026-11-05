@@ -36,8 +36,8 @@ At the end of a run Nextflow prints the published outputs;
 Sequali shows the whole path from a process to `results/`:
 
 1. **Process** — `SEQUALI` ([`modules/local/sequali`](../modules/local/sequali/main.nf))
-   takes `record(id, fastq)` and returns `record(id, html, json)`. Its tool
-   arguments live in [`conf/modules/qc.config`](../conf/modules/qc.config).
+   takes `record(id, fastq)` and its `args` (from `--sequali_args`) and returns
+   `record(id, html, json)`.
 2. **Named workflow** — `NEXTFLOW_TEMPLATE` joins those records with the other
    results of each sample by `id` and emits one `SampleResult` record per sample.
 3. **`publish:`** — the entry workflow in [`main.nf`](../main.nf) turns each

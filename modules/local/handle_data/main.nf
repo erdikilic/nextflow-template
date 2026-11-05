@@ -24,6 +24,8 @@ process HANDLE_DATA {
         id: String,
         reads: List<Path>
     )
+    // Extra gzip options, e.g. -6.
+    args: String
 
     stage:
     stageAs reads, '?/*'
@@ -38,15 +40,12 @@ process HANDLE_DATA {
     record(process: task.process, tool: 'coreutils', version: eval('wc --version | head -n1 | sed "s/^.* //"')) >> 'versions'
 
     script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: id
     """
-    zcat -f ${reads.join(' ')} | gzip -c ${args} > ${prefix}.merged.fastq.gz
+    zcat -f ${reads.join(' ')} | gzip -c ${args} > ${id}.merged.fastq.gz
     """
 
     stub:
-    def prefix = task.ext.prefix ?: id
     """
-    echo | gzip -c > ${prefix}.merged.fastq.gz
+    echo | gzip -c > ${id}.merged.fastq.gz
     """
 }

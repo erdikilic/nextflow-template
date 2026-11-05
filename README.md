@@ -39,9 +39,11 @@ template"** button, then replace the `EXAMPLE` module with your real tools.
 - **Composable**: another pipeline can include this one with
   `include { workflow as LONGREAD } from './main.nf'` and pass the samplesheet as
   a channel of records.
+- **Tool options as typed inputs**: each module takes an `args` input, set per
+  tool with `--<tool>_args` (e.g. `--sequali_args='--adapter-file a.fa'`), the same
+  when the pipeline is included elsewhere or a module runs on its own.
 - **Config split**: resource labels and `resourceLimits` in `conf/base.config`,
-  per-stage tool arguments in `conf/modules/<stage>.config`, container/engine
-  profiles + hardware tiers.
+  container/engine profiles + hardware tiers.
 - **Testing**: [nf-test](https://www.nf-test.com/) at both workflow and component
   level, with committed snapshots.
 - **Linting** (pre-commit + CI): prettier, ruff, hadolint (Dockerfile),

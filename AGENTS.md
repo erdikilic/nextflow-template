@@ -42,7 +42,6 @@ main.nf                     entry: typed params, --help, validation, publish: + 
 nextflow.config             defaults, manifest, profiles (docker/apptainer/conda/test + hw tiers)
 nextflow_schema.json        parameter schema (nf-schema)
 conf/base.config            resource labels (process_single/low/medium/high) + resourceLimits
-conf/modules/<stage>.config per-stage ext.args/ext.prefix (one file per logical stage)
 workflows/nextflow_template.nf  wires subworkflows + modules
 subworkflows/local/<name>/  main.nf + meta.yml + tests/
 modules/local/<tool>/       main.nf + environment.yml + meta.yml + tests/
@@ -107,7 +106,7 @@ module run ./modules/local/<tool>/main.nf --<field> <value>` runs a module on
   the tool.
 - **Processes have no `when:` section** (deprecated in Nextflow 26.10). Skip a
   stage with an `if` in the calling workflow, or disable a process at runtime with
-  `process.when` in `conf/modules/<stage>.config`.
+  `process.when` in a custom config passed with `-c`.
 - **Every component has an nf-test** with tags (`modules` / `modules_local` /
   `<name>`, or `subworkflows` / `subworkflows_local` / `<name>`) and a committed
   snapshot. Test inputs are built with `record(...)`, and a typed process's output
@@ -124,8 +123,14 @@ module run ./modules/local/<tool>/main.nf --<field> <value>` runs a module on
 - **Modules are written in this repository** under `modules/local/`; no module is
   installed from an external registry, so every process follows the conventions
   above and is tested here.
-- **Modules stay parameter-agnostic**: tuning comes from `ext.args` / `ext.prefix`
-  in `conf/modules/<stage>.config`, never `params.*` read inside the module.
+- **Tool options are a process input, not `ext`.** Every module declares
+  `args: String` after its record input and puts `${args}` on the tool's command
+  line; outputs are named by `id`. The entry workflow declares a typed
+  `<module>_args: String = ''` parameter and passes it down through `take:`, so the
+  options are visible to the type checker, documented in `meta.yml`, settable on
+  the command line (`--sequali_args='--adapter-file a.fa'`) and identical when
+  the pipeline is included by another one or a module runs under
+  `nextflow module run --args '...'`. Modules never read `params.*` or `task.ext`.
 - **`withName:` selectors are PLAIN process names** (`withName: EXAMPLE`), never
   `WORKFLOW:SUBWORKFLOW:PROCESS` — the qualified form silently matches nothing.
 - **Container refs are fully qualified** (`container 'quay.io/nf-core/ubuntu:22.04'`),
@@ -140,8 +145,9 @@ module run ./modules/local/<tool>/main.nf --<field> <value>` runs a module on
   converts each row to that type, so the record type is the samplesheet schema.
   `--help` is generated from `nextflow_schema.json`, so every parameter also gets a
   schema entry.
-- **Update together**: the parameter declaration, `nextflow_schema.json`, and
-  `conf/modules/<stage>.config` whenever you add a parameter or stage.
+- **Update together**: the parameter declaration in `main.nf`, its
+  `nextflow_schema.json` entry, and the `take:` / call that passes it on whenever
+  you add a parameter or stage.
 - **Commits**: Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`,
   `chore:`); `cliff.toml` maps them into the changelog at tag time.
 - **Comments and commit messages are professional and standardised.** In code,
@@ -159,9 +165,9 @@ module run ./modules/local/<tool>/main.nf --<field> <value>` runs a module on
    spec, the module spec (`nextflow module spec -dry-run ./modules/local/<tool>`
    drafts it from `main.nf`; give `-author` without `@`, which the CLI reads as a
    file reference) and the module documentation.
-3. `conf/modules/<stage>.config` — `withName: <PROCESS>` block with `ext.args` /
-   `ext.prefix` (closures read the process inputs, e.g. `ext.prefix = { id }`); add
-   the include to `nextflow.config`.
+3. Tool options — add `<tool>_args: String = ''` to the `params {}` block of
+   `main.nf` and the "Tool options" group of `nextflow_schema.json`, and pass it
+   through the `take:` of `NEXTFLOW_TEMPLATE` to the module's `args` input.
 4. Wire it into `workflows/nextflow_template.nf` (or a subworkflow under
    `subworkflows/local/`): pass it the sample records, join its output back by
    `id`, and add the new fields to `SampleResult` in `workflows/nextflow_template.nf`.
@@ -208,8 +214,8 @@ logic instead:
 - Do not add AI/assistant attribution to commits or PRs (no `Co-Authored-By` /
   "Generated with" trailers).
 - Do not commit `work/`, `.nextflow*`, or `results*/` (see `.gitignore`).
-- Do not read `params.*` inside a module or a subworkflow; pass values in via
-  `take:` or `ext.args`.
+- Do not read `params.*` or `task.ext.*` inside a module or a subworkflow; pass
+  values in through `take:` and process inputs.
 - Do not use the `publishDir` or `storeDir` directives; publish through workflow
   outputs and reuse intermediates through workflow logic.
 - Do not reintroduce Illumina / short-read handling (`single_end`, `fastq_2`, R1/R2).

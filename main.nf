@@ -33,6 +33,13 @@ params {
     // With --help, include hidden parameters.
     show_hidden: Boolean = false
 
+    // Extra command-line options for each tool, passed to its process as the
+    // typed `args` input. Give a value that starts with a dash with `=`, e.g.
+    // --sequali_args='--adapter-file adapters.fa'.
+    handle_data_args: String = ''
+    sequali_args: String = ''
+    example_args: String = ''
+
     // Strip ANSI colours from the run summary. nextflow.config passes the same
     // value to nf-schema for its help and parameter summary.
     monochrome_logs: Boolean = false
@@ -61,7 +68,7 @@ workflow {
     // another pipeline includes this one.
     log.info(paramsSummaryLog(parameters_schema: "${moduleDir}/nextflow_schema.json"))
 
-    results = NEXTFLOW_TEMPLATE(params.input)
+    results = NEXTFLOW_TEMPLATE(params.input, params.handle_data_args, params.sequali_args, params.example_args)
 
     // Channels written to the output directory; the output block below says
     // where each one goes. Reads are published as samplesheet records so their

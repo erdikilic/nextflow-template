@@ -12,8 +12,9 @@ a file name do not collide.
 | --------- | ------- | ------------ | ------------------------------------------------ |
 | input     | `id`    | `String`     | Sample identifier                                |
 | input     | `reads` | `List<Path>` | Every FASTQ of the sample, in merge order        |
+| input     | `args`  | `String`     | Extra gzip options (`''` for none)               |
 | output    | `id`    | `String`     | Sample identifier                                |
-| output    | `fastq` | `Path`       | `<prefix>.merged.fastq.gz`                       |
+| output    | `fastq` | `Path`       | `<id>.merged.fastq.gz`                           |
 | topic     | —       | record       | `versions`: process, tool (`coreutils`), version |
 
 ## Usage
@@ -21,11 +22,11 @@ a file name do not collide.
 ```nextflow
 include { HANDLE_DATA } from './modules/local/handle_data/main'
 
-merged = HANDLE_DATA(samples)   // samples: Channel of records with id and reads
+merged = HANDLE_DATA(samples, '')   // samples: Channel of records with id and reads
 ```
 
 ## Configuration
 
-- `ext.args`: extra `gzip` options, e.g. `-6`.
-- `ext.prefix`: output file prefix (default: `id`).
+- `args` input: extra gzip options, e.g. `-6`; `''` for none. Outputs are
+  named by `id`.
 - Software: `quay.io/nf-core/ubuntu` or the conda spec in `environment.yml`.

@@ -16,6 +16,9 @@ include { EXAMPLE } from '../modules/local/example/main'
 workflow NEXTFLOW_TEMPLATE {
     take:
     rows: Channel<SamplesheetRow>
+    handle_data_args: String // extra gzip options for HANDLE_DATA
+    sequali_args: String // extra Sequali options
+    example_args: String // extra wc options for EXAMPLE
 
     main:
     // 1. Check the samplesheet rows and group multi-file samples.
@@ -23,16 +26,16 @@ workflow NEXTFLOW_TEMPLATE {
 
     // 2. Merge each sample's files into one FASTQ. The merged file replaces the
     //    list of input reads in the sample record.
-    merged = HANDLE_DATA(samples)
+    merged = HANDLE_DATA(samples, handle_data_args)
     reads = samples
         .join(merged, by: 'id')
         .map { sample -> record(id: sample.id, platform: sample.platform, fastq: sample.fastq) }
 
     // 3. Read QC on each merged FASTQ.
-    qc = SEQUALI(reads)
+    qc = SEQUALI(reads, sequali_args)
 
     // 4. Example per-sample process (replace with your real stages).
-    counts = EXAMPLE(reads)
+    counts = EXAMPLE(reads, example_args)
 
     // 5. One record per sample with every result.
     results = reads

@@ -50,6 +50,12 @@ data — e.g. `-profile apptainer,server` or `-profile test,docker`. See
 | `--max_cpus`         | `14`      | Per-task CPU limit.        |
 | `--max_memory`       | `30.GB`   | Per-task memory limit.     |
 | `--publish_dir_mode` | `copy`    | How results are published. |
+| `--handle_data_args` | _(empty)_ | Extra `gzip` options.      |
+| `--sequali_args`     | _(empty)_ | Extra Sequali options.     |
+| `--example_args`     | _(empty)_ | Extra `wc` options.        |
+
+A tool option that starts with a dash is given with `=`, so it is not read as a
+separate parameter: `--sequali_args='--adapter-file adapters.fa'`.
 
 `nextflow run . --help` lists the parameters from `nextflow_schema.json`.
 `--help <parameter>` shows one parameter in full, and `--help_full --show_hidden`

@@ -29,6 +29,9 @@ input:
       type: list
       description: Every FASTQ of the sample, plain or gzipped, in merge order
       pattern: "*.{fastq,fq}{,.gz}"
+  - name: args
+    type: string
+    description: Extra gzip command-line options (empty for none)
 output:
   - - name: id
       type: string

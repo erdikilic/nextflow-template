@@ -17,6 +17,7 @@ nextflow_process {
                     id: 'NANOPORE_BARCODE01',
                     fastq: file("${projectDir}/assets/reads/sample_ont_part1.fastq", checkIfExists: true)
                 ))
+                input[1] = ''
                 """
             }
         }
@@ -48,6 +49,7 @@ nextflow_process {
                     id: 'NANOPORE_BARCODE01',
                     fastq: file("${projectDir}/assets/reads/sample_ont_part1.fastq", checkIfExists: true)
                 ))
+                input[1] = ''
                 """
             }
         }
