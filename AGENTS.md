@@ -52,7 +52,7 @@ bin/                        executable helper scripts (Python: ruff-clean)
 assets/                     samplesheet + schema_input.json + tiny example data
 containers/<tool>/Dockerfile   custom images (bare name in module; registry set in config)
 tests/                      workflow-level nf-test
-docs/                       usage.md + output.md
+docs/                       usage.md + output.md + images/metro_map.svg
 ```
 
 ## Conventions (match these when adding code)
@@ -158,7 +158,8 @@ docs/                       usage.md + output.md
    `subworkflows/local/`): pass it the sample records, join its output back by
    `id`, and add the new fields to `SampleResult` in `workflows/nextflow_template.nf`.
 5. Publish them: add a `publish:` assignment in `main.nf` and a matching target
-   in its `output {}` block, then list the files in `docs/output.md`.
+   in its `output {}` block, then list the files in `docs/output.md` and add the
+   stage to the metro map, `docs/images/metro_map.svg` (`manifest.diagram`).
 6. `modules/local/<tool>/tests/main.nf.test` — tagged test with `record(...)`
    inputs; run
    `nf-test test --update-snapshot` and commit the generated `.snap`.

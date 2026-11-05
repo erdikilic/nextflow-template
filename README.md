@@ -12,6 +12,8 @@ long-read data (Oxford Nanopore and PacBio) — a runnable, tool-free skeleton p
 the full linting, testing, and CI setup. Use it with GitHub's **"Use this
 template"** button, then replace the `EXAMPLE` module with your real tools.
 
+![nextflow-template metro map](docs/images/metro_map.svg)
+
 ## Features
 
 - **Static typing throughout** (Nextflow 26.10): typed processes, workflows and
