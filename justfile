@@ -54,4 +54,4 @@ config:
 
 # Remove run artefacts
 clean:
-    rm -rf work results results_* .nextflow* .nf-test .nf-test.log
+    rm -rf work results results_* .nextflow* .nf-test .nf-test.log .lineage

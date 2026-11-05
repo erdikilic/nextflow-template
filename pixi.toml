@@ -78,7 +78,7 @@ stub = { cmd = "nextflow run . -profile test,docker -stub --outdir results_stub"
 launch = { cmd = "bash run.sh", description = "Run the workflow on real data via run.sh (arguments are forwarded)" }
 config = { cmd = "nextflow config . -profile test > /dev/null && echo 'config OK'", description = "Parse config / catch syntax errors" }
 update = { cmd = "pre-commit autoupdate", description = "Bump pre-commit hook / linter pins to their latest releases" }
-clean = { cmd = "rm -rf work results results_* .nextflow* .nf-test .nf-test.log", description = "Remove run artefacts" }
+clean = { cmd = "rm -rf work results results_* .nextflow* .nf-test .nf-test.log .lineage", description = "Remove run artefacts" }
 
 # Nextflow lives in a feature rather than [dependencies] so the version can be
 # swapped per environment without the two pins colliding.

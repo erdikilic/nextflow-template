@@ -114,6 +114,7 @@ workflow {
 output {
     // One merged FASTQ per sample, indexed by a samplesheet in the input format.
     reads: Channel<SamplesheetRow> {
+        label 'reads'
         path 'reads'
         index {
             path 'reads/samplesheet.csv'
@@ -125,6 +126,7 @@ output {
     // table that links each sample to its two reports. The map form of `path`
     // gives every file its own target, here <sample>.sequali.<ext>.
     qc: Channel<Record> {
+        label 'qc'
         path { r ->
             [
                 (r.html): "qc/sequali/${r.sample}.sequali.html",
@@ -139,11 +141,13 @@ output {
 
     // Per-sample output of the EXAMPLE process.
     counts: Channel<Record> {
+        label 'example'
         path 'example'
     }
 
     // Version of every tool that ran, one entry per process and tool.
     versions: Channel<ToolVersion> {
+        label 'provenance'
         index {
             path 'workflow_info/versions.yml'
         }
