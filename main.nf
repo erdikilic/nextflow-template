@@ -48,8 +48,9 @@ workflow {
             command: 'nextflow run . -profile <docker/apptainer/conda> --input samplesheet.csv --outdir results',
             fullHelp: params.help_full,
             showHidden: params.show_hidden,
+            parameter: helpTopic ?: null,
         ]
-        log.info paramsHelp(helpOptions, helpTopic)
+        log.info paramsHelp(helpOptions)
         exit 0
     }
 
@@ -57,7 +58,7 @@ workflow {
     if (params.validate_params) {
         validateParameters()
     }
-    log.info paramsSummaryLog(workflow)
+    log.info paramsSummaryLog()
 
     NEXTFLOW_TEMPLATE(params.input)
 
