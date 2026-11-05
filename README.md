@@ -38,9 +38,11 @@ template"** button, then replace the `EXAMPLE` module with your real tools.
   shellcheck, actionlint, zizmor (workflow security), yamllint, markdownlint,
   typos, gitleaks (secret scan), plus `nextflow lint` for the DSL. A
   commit-message hook enforces Conventional Commits.
-- **CI**: lint, nf-test, a real containerised `test,docker` run, a
-  Nextflow-version compatibility matrix (min → current → latest), plus
-  [OpenSSF Scorecard](https://securityscorecards.dev/) and dependency review.
+- **CI**: lint, nf-test and a real containerised `test,docker` run on the
+  pixi.lock toolchain, a weekly Nextflow-version check (manifest floor and
+  newest release), plus a weekly [OpenSSF Scorecard](https://securityscorecards.dev/)
+  and dependency review on pull requests. Documentation-only changes skip the
+  workflow jobs.
 - **Agent-ready**: `AGENTS.md` (canonical, symlinked to `CLAUDE.md`).
 
 ## Quick start

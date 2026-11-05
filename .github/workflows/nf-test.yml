@@ -1,11 +1,14 @@
 name: nf-test
-# Correctness of the workflow wiring via the nf-test suite (stub-based, fast).
-# NF-version coverage lives in nextflow-compatibility.yml, so this runs once.
+# Component tests run each module in its container; the workflow test checks the
+# wiring in stub mode. Nextflow-version coverage lives in
+# nextflow-compatibility.yml, so this runs once, on the pixi.lock pin.
 on:
   push:
     branches: [main]
+    paths-ignore: ["**.md", "docs/**", "LICENSE", "CITATION.cff"]
   pull_request:
     branches: [main]
+    paths-ignore: ["**.md", "docs/**", "LICENSE", "CITATION.cff"]
 
 concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}"

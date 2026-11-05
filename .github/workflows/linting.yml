@@ -1,4 +1,5 @@
 name: lint
+# pre-commit runs every linter, nextflow lint included, from the pixi toolchain.
 on:
   push:
     branches: [main]
@@ -38,25 +39,3 @@ jobs:
 
       - name: Run pre-commit
         run: pixi run pre-commit run --all-files --show-diff-on-failure
-
-  nextflow-lint:
-    name: nextflow lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out
-        uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
-      - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.11.3
-        with:
-          # renovate: datasource=github-releases depName=prefix-dev/pixi
-          pixi-version: "v0.84.1"
-          locked: true
-          cache: true
-
-      # Check mode only (no -format): fails on syntax and type errors and reports
-      # deprecations. It never rewrites files, so hand alignment is preserved.
-      - name: Lint Nextflow code
-        run: pixi run nf-lint

@@ -83,8 +83,7 @@ clean = { cmd = "rm -rf work results results_* .nextflow* .nf-test .nf-test.log"
 # Nextflow lives in a feature rather than [dependencies] so the version can be
 # swapped per environment without the two pins colliding.
 [feature.nf-pin.dependencies]
-# The lint, nf-test and functional CI jobs run this pin from pixi.lock; the
-# "current pin" entry of .github/workflows/nextflow-compatibility.yml follows it.
+# The lint, nf-test and functional CI jobs run this pin from pixi.lock.
 nextflow = "26.10.4.*"
 
 [feature.nf-min.dependencies]

@@ -1,12 +1,22 @@
 name: functional
 # Runs the workflow for real (containers + tools), not just -stub — catches
-# broken container pulls, tool invocations, and output publishing. Runs once on
-# the current NF; NF-version coverage lives in nextflow-compatibility.yml.
+# broken container pulls, tool invocations, and output publishing. Runs on the
+# pixi.lock pin, and only when workflow code, data or the toolchain change.
 on:
   push:
     branches: [main]
+    paths: &code
+      - "**.nf"
+      - "**.config"
+      - "nextflow_schema.json"
+      - "assets/**"
+      - "bin/**"
+      - "pixi.lock"
+      - ".github/workflows/functional.yml"
   pull_request:
     branches: [main]
+    paths: *code
+  workflow_dispatch:
 
 concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}"
