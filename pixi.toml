@@ -82,11 +82,11 @@ clean = { cmd = "rm -rf work results results_* .nextflow* .nf-test .nf-test.log"
 [feature.nf-pin.dependencies]
 # Keep in sync with the nf-core/setup-nextflow `version` in .github/workflows/
 # (functional, linting, nf-test and the "current pin" of nextflow-compatibility).
-nextflow = "26.04.6.*"
+nextflow = "26.10.4.*"
 
 [feature.nf-min.dependencies]
 # The floor declared by manifest.nextflowVersion in nextflow.config.
-nextflow = "26.04.4.*"
+nextflow = "26.10.3.*"
 
 # Container engines: pixi can supply Apptainer, but not Docker (a daemon, not a
 # conda package). On a Docker workstation the engine still comes from the host.
