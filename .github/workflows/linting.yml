@@ -20,13 +20,22 @@ jobs:
       - name: Check out
         uses: actions/checkout@v7
 
-      - name: Set up Python
-        uses: actions/setup-python@v7
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@v0.11.3
         with:
-          python-version: "3.14"
+          # renovate: datasource=github-releases depName=prefix-dev/pixi
+          pixi-version: "v0.84.1"
+          locked: true
+          cache: true
+
+      - name: Cache pre-commit hook environments
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
 
       - name: Run pre-commit
-        uses: pre-commit/action@v3.0.1
+        run: pixi run pre-commit run --all-files --show-diff-on-failure
 
   nextflow-lint:
     name: nextflow lint
@@ -35,14 +44,15 @@ jobs:
       - name: Check out
         uses: actions/checkout@v7
 
-      - name: Set up Nextflow
-        uses: nf-core/setup-nextflow@v3
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@v0.11.3
         with:
-          version: "26.10.4"
-          java-version: "25"
+          # renovate: datasource=github-releases depName=prefix-dev/pixi
+          pixi-version: "v0.84.1"
+          locked: true
+          cache: true
 
-      # Check mode only (no -format): fails on syntax errors, reports deprecations.
-      # It never rewrites files, so trailing comments / hand alignment are preserved.
-      # `just nf-format` is available locally if you ever want to auto-format.
+      # Check mode only (no -format): fails on syntax and type errors and reports
+      # deprecations. It never rewrites files, so hand alignment is preserved.
       - name: Lint Nextflow code
-        run: nextflow lint -o concise .
+        run: pixi run nf-lint

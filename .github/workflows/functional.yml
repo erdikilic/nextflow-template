@@ -24,14 +24,16 @@ jobs:
       - name: Check out
         uses: actions/checkout@v7
 
-      - name: Set up Nextflow
-        uses: nf-core/setup-nextflow@v3
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@v0.11.3
         with:
-          version: "26.10.4"
-          java-version: "25"
+          # renovate: datasource=github-releases depName=prefix-dev/pixi
+          pixi-version: "v0.84.1"
+          locked: true
+          cache: true
 
       - name: Run workflow (test profile, docker)
-        run: nextflow run . -profile test,docker --outdir results
+        run: pixi run nextflow run . -profile test,docker --outdir results
 
       - name: Assert outputs exist
         run: |
