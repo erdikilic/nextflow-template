@@ -57,7 +57,11 @@ docs/                       usage.md + output.md
 
 ## Conventions (match these when adding code)
 
-- **DSL2, 4-space indentation.** Process names `UPPERCASE_WITH_UNDERSCORES`.
+- **DSL2, formatted by `nextflow lint -format -spaces 4`** (the `nextflow-lint`
+  pre-commit hook applies it; `pixi run nf-format` formats the tree). Block
+  comments use the `*` form, and a comment that describes a section goes after
+  its label (`publish:`, `onComplete:`). Process names
+  `UPPERCASE_WITH_UNDERSCORES`.
 - **Every component is a directory.** A module holds `main.nf`, `environment.yml`,
   `meta.yml` and `tests/main.nf.test` (+ the committed `.snap`); a subworkflow holds
   `main.nf`, `meta.yml` and `tests/`. The directory mirrors the process name:

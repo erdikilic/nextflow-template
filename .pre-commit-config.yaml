@@ -91,13 +91,15 @@ repos:
         stages: [commit-msg]
         args: [--strict, feat, fix, docs, refactor, chore, ci, test, perf, build, style, revert]
 
-  # Nextflow syntax, type and deprecation checks. Uses the nextflow on PATH,
-  # which `pixi run` and the devcontainer provide.
+  # Nextflow syntax, type and deprecation checks, and the canonical Nextflow
+  # format: the hook rewrites a file that is not formatted, which fails the run
+  # until the change is staged. Uses the nextflow on PATH, which `pixi run` and
+  # the devcontainer provide.
   - repo: local
     hooks:
       - id: nextflow-lint
         name: nextflow lint
-        entry: nextflow lint -o concise
+        entry: nextflow lint -o concise -format -spaces 4
         language: system
         files: '\.(nf|config)$'
         exclude: '^nf-test\.config$'

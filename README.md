@@ -44,7 +44,8 @@ template"** button, then replace the `EXAMPLE` module with your real tools.
   level, with committed snapshots.
 - **Linting** (pre-commit + CI): prettier, ruff, hadolint (Dockerfile),
   shellcheck, actionlint, zizmor (workflow security), yamllint, markdownlint,
-  typos, gitleaks (secret scan), plus `nextflow lint` for the DSL. A
+  typos, gitleaks (secret scan), plus `nextflow lint` for the DSL, which also applies the canonical Nextflow
+  format. A
   commit-message hook enforces Conventional Commits.
 - **CI**: lint, nf-test and a real containerised `test,docker` run on the
   pixi.lock toolchain, a monthly Nextflow-version check (manifest floor and
