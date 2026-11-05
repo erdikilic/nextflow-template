@@ -46,7 +46,7 @@ pre-commit = ">=4.6,<5"
 nf-core = ">=4.0,<5"
 # Pinned to the exact rev of the ruff-pre-commit hook so that `pixi run ruff`
 # and `pixi run lint` can never disagree about what is a violation.
-ruff = "0.15.22.*"
+ruff = "0.17.3.*"
 just = ">=1.59"        # task runner behind the justfile recipes
 
 [activation.env]
