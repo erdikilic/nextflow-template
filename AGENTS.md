@@ -77,6 +77,9 @@ docs/                       usage.md + output.md
   must resolve inside the module's container or conda environment.
 - **Every process has a `stub:` block** so `-stub` validates wiring without running
   the tool.
+- **Processes have no `when:` section** (deprecated in Nextflow 26.10). Skip a
+  stage with an `if` in the calling workflow, or disable a process at runtime with
+  `process.when` in `conf/modules/<stage>.config`.
 - **Every component has an nf-test** with tags (`modules` / `modules_local` /
   `<name>`, or `subworkflows` / `subworkflows_local` / `<name>`) and a committed
   snapshot. Snapshot deterministic outputs only: assert a tool version by shape,

@@ -22,9 +22,6 @@ process EXAMPLE {
     tuple val(meta), path("*.linecount.txt"), emit: counts
     tuple val("${task.process}"), val('coreutils'), eval('wc --version | head -n1 | sed "s/^.* //"'), emit: versions_coreutils, topic: versions
 
-    when:
-    task.ext.when == null || task.ext.when
-
     script:
     def args   = task.ext.args   ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
