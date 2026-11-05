@@ -53,15 +53,9 @@
   ],
   "packageRules": [
     {
-      "description": "Bare-name images use quay.io per the workflows' registry='quay.io' convention.",
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["biocontainers/**", "nf-core/**", "erdikilic/**"],
-      "registryUrls": ["https://quay.io"]
-    },
-    {
       "description": "Biocontainer tags are <version>--<buildhash>; track the version part only.",
       "matchDatasources": ["docker"],
-      "matchPackageNames": ["biocontainers/**"],
+      "matchPackageNames": ["quay.io/biocontainers/**"],
       "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)(\\.(?<patch>\\d+))?(--.+)?$"
     },
     {

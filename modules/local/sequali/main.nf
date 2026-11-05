@@ -13,7 +13,7 @@ process SEQUALI {
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container 'biocontainers/sequali:1.0.2--py313h8c92656_1'
+    container 'quay.io/biocontainers/sequali:1.0.2--py313h8c92656_1'
 
     input:
     record(

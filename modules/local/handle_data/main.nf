@@ -17,7 +17,7 @@ process HANDLE_DATA {
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
-    container 'nf-core/ubuntu:22.04'
+    container 'quay.io/nf-core/ubuntu:22.04'
 
     input:
     record(

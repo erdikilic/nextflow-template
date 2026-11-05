@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1
 #
-# Example custom container. Build and push, then reference by BARE name in the
-# module (the registry is set once in nextflow.config):
+# Example custom container. Build and push, then reference it by its full name
+# in the module:
 #   docker build -t quay.io/erdikilic/example:0.1.0 containers/example
 #   docker push  quay.io/erdikilic/example:0.1.0
-#   # in modules/local/<tool>/main.nf:  container 'erdikilic/example:0.1.0'
+#   # in modules/local/<tool>/main.nf:  container 'quay.io/erdikilic/example:0.1.0'
 FROM mambaorg/micromamba:2.10.0
 
 LABEL org.opencontainers.image.source="https://github.com/erdikilic/nextflow-template" \

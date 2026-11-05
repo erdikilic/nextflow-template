@@ -50,7 +50,7 @@ modules/local/handle_data/  merge a sample's many FASTQs (ONT barcode / re-runs)
 modules/local/sequali/      per-sample read QC (HTML + JSON report)
 bin/                        executable helper scripts (Python: ruff-clean)
 assets/                     samplesheet + schema_input.json + tiny example data
-containers/<tool>/Dockerfile   custom images (bare name in module; registry set in config)
+containers/<tool>/Dockerfile   custom images (referenced by full name in the module)
 tests/                      workflow-level nf-test
 docs/                       usage.md + output.md + images/metro_map.svg
 ```
@@ -122,9 +122,9 @@ docs/                       usage.md + output.md + images/metro_map.svg
   in `conf/modules/<stage>.config`, never `params.*` read inside the module.
 - **`withName:` selectors are PLAIN process names** (`withName: EXAMPLE`), never
   `WORKFLOW:SUBWORKFLOW:PROCESS` — the qualified form silently matches nothing.
-- **Container refs are bare names** (`container 'nf-core/ubuntu:22.04'`); the
-  registry is set once in `nextflow.config`. Pin an explicit host only for images
-  not on that registry.
+- **Container refs are fully qualified** (`container 'quay.io/nf-core/ubuntu:22.04'`),
+  so a module pulls the same image inside this workflow, in a pipeline that
+  includes it, and under `nextflow module run`.
 - **Parameters are declared once.** A parameter the workflow script reads goes in
   the typed `params {}` block of `main.nf`, with its default and a `//` comment;
   Nextflow converts each CLI value to the declared type and rejects an undeclared
