@@ -3,10 +3,10 @@ name: nextflow-compatibility
 # supported Nextflow range: the manifest floor and the newest release, edge
 # included. The pixi.lock pin is covered by the nf-test and functional jobs.
 # Uses config parsing + -stub (no containers pulled), so the matrix stays fast.
-# Runs weekly, on demand, and on pull requests that touch Nextflow code.
+# Runs monthly, on demand, and on pull requests that touch Nextflow code.
 on:
   schedule:
-    - cron: "17 4 * * 1" # Mondays 04:17 UTC
+    - cron: "17 4 1 * *" # 1st of each month, 04:17 UTC
   workflow_dispatch:
   pull_request:
     branches: [main]
