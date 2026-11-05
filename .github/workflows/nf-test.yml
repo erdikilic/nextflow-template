@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Check out
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Set up pixi
         uses: prefix-dev/setup-pixi@v0.11.3

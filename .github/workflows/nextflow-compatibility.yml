@@ -31,6 +31,8 @@ jobs:
     steps:
       - name: Check out
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Set up Nextflow ${{ matrix.NXF_VER }}
         uses: nf-core/setup-nextflow@v3
