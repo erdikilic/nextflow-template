@@ -56,8 +56,7 @@ three forms:
 - a closure returning a directory per value, for example
   `path { r -> "qc/${r.sample}/" }` for one directory per sample;
 - a closure returning a map from each file to its target, which renames files or
-  sends them to different directories, as the `qc` target does. This is the
-  workflow-output form of the `publishDir` `saveAs` option.
+  sends them to different directories, as the `qc` target does.
 
 Replace the `example/` section with your real stages. Follow the naming
 convention: publish standalone files as `<id>.<descriptor>.<ext>` and keep
