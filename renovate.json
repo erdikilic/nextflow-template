@@ -42,10 +42,10 @@
     },
     {
       "customType": "regex",
-      "description": "Generic '# renovate: datasource=.. depName=..' annotations (e.g. nf-test version in CI).",
+      "description": "Generic '# renovate: datasource=.. depName=..' annotations in CI, on a 'key: value' line or a list item (pixi version, Nextflow matrix pin).",
       "managerFilePatterns": ["/^\\.github/workflows/[^/]+\\.ya?ml$/"],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\\s+\\S+?[:=]\\s*[\"']?(?<currentValue>[^\"'\\s]+)"
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\\s+(?:\\S+?[:=]|-)\\s*[\"']?(?<currentValue>[^\"'\\s]+)"
       ],
       "datasourceTemplate": "{{{datasource}}}",
       "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
@@ -81,9 +81,15 @@
       "enabled": false
     },
     {
-      "description": "The nf-pin feature must stay in step with the nf-core/setup-nextflow version in the CI workflows; flag it so the dashboard makes that obvious.",
-      "matchManagers": ["pixi"],
-      "matchDepTypes": ["feature-nf-pin"],
+      "description": "Nextflow tags carry a v prefix and edge releases a -edge suffix; track stable releases only.",
+      "matchPackageNames": ["nextflow-io/nextflow"],
+      "extractVersion": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+    },
+    {
+      "description": "The pixi nf-pin feature and the current-pin entry of the compatibility matrix name the same Nextflow release, so they update in one PR. The release age leaves time for the bioconda package to follow the GitHub release.",
+      "matchPackageNames": ["nextflow", "nextflow-io/nextflow"],
+      "groupName": "nextflow",
+      "minimumReleaseAge": "3 days",
       "addLabels": ["nextflow-version"]
     },
     {
