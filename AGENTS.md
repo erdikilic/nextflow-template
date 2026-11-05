@@ -62,9 +62,15 @@ docs/                       usage.md + output.md + images/metro_map.svg
   comments use the `*` form, and a comment that describes a section goes after
   its label (`publish:`, `onComplete:`). Process names
   `UPPERCASE_WITH_UNDERSCORES`.
-- **Every component is a directory.** A module holds `main.nf`, `environment.yml`,
-  `meta.yml` and `tests/main.nf.test` (+ the committed `.snap`); a subworkflow holds
-  `main.nf`, `meta.yml` and `tests/`. The directory mirrors the process name:
+- **Every component is a directory in the Nextflow module registry layout.** A
+  module holds `main.nf`, `meta.yml` (the Nextflow module spec: `name`,
+  `version`, `kind`, typed `input`/`output`/`topics`, `tools`), `README.md`,
+  `environment.yml` and `tests/main.nf.test` (+ the committed `.snap`); a
+  subworkflow holds `main.nf`, `meta.yml` (`kind: Workflow`), `README.md` and
+  `tests/`. `nextflow module validate` checks each one (the
+  `nextflow-module-validate` hook, `pixi run module-validate`), and `nextflow
+module run ./modules/local/<tool>/main.nf --<field> <value>` runs a module on
+  its own. The directory mirrors the process name:
   `<tool>/<subcommand>/` for `TOOL_SUBCOMMAND`, and a single directory named after
   the task for local utility processes (`handle_data/` -> `HANDLE_DATA`).
 - **Long reads only.** `platform` is `nanopore` or `pacbio`; the samplesheet has one
@@ -149,8 +155,10 @@ docs/                       usage.md + output.md + images/metro_map.svg
 1. `modules/local/<tool>/main.nf` — a typed process (`nextflow.enable.types = true`,
    a destructured record input, a record output keyed by `id`, container,
    `conda "${moduleDir}/environment.yml"`, a `versions` topic entry, `stub:`).
-2. `modules/local/<tool>/environment.yml` and `meta.yml` — the conda spec and the
-   documented inputs/outputs.
+2. `modules/local/<tool>/environment.yml`, `meta.yml` and `README.md` — the conda
+   spec, the module spec (`nextflow module spec -dry-run ./modules/local/<tool>`
+   drafts it from `main.nf`; give `-author` without `@`, which the CLI reads as a
+   file reference) and the module documentation.
 3. `conf/modules/<stage>.config` — `withName: <PROCESS>` block with `ext.args` /
    `ext.prefix` (closures read the process inputs, e.g. `ext.prefix = { id }`); add
    the include to `nextflow.config`.

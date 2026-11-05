@@ -62,6 +62,7 @@ setup = { cmd = "pre-commit install", description = "Install the git pre-commit 
 lint = { cmd = "pre-commit run --all-files", description = "Run all pre-commit linters" }
 nf-lint = { cmd = "nextflow lint -o concise $NF_LINT_EXCLUDE .", description = "Lint Nextflow (.nf/.config) for errors + deprecations" }
 format = { cmd = "pre-commit run prettier --all-files || true; pre-commit run ruff-format --all-files || true", description = "Auto-format (prettier + ruff)" }
+module-validate = { cmd = "bash -c 'for d in */local/*/; do nextflow module validate \"./${d%/}\" || exit 1; done'", description = "Check every module against the Nextflow module registry rules" }
 nf-format = { cmd = "nextflow lint -format -spaces 4 $NF_LINT_EXCLUDE .", description = "Auto-format Nextflow to canonical style" }
 test = { cmd = "nf-test test", description = "Run the nf-test suite" }
 run = { cmd = "nextflow run . -profile test,docker --outdir results", description = "Run the minimal test end-to-end (docker)" }

@@ -103,3 +103,12 @@ repos:
         language: system
         files: '\.(nf|config)$'
         exclude: '^nf-test\.config$'
+
+      # Every module and subworkflow directory passes the Nextflow module
+      # registry checks (main.nf, a meta.yml spec, README.md).
+      - id: nextflow-module-validate
+        name: nextflow module validate
+        entry: bash -c 'for d in */local/*/; do nextflow module validate "./${d%/}" || exit 1; done'
+        language: system
+        pass_filenames: false
+        files: "^(modules|subworkflows)/local/"

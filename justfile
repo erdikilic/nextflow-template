@@ -32,6 +32,10 @@ format:
     pre-commit run prettier --all-files || true
     pre-commit run ruff-format --all-files || true
 
+# Check every module against the Nextflow module registry rules
+module-validate:
+    for d in */local/*/; do nextflow module validate "./${d%/}" || exit 1; done
+
 # Auto-format Nextflow (.nf/.config) to canonical style
 nf-format:
     nextflow lint -format -spaces 4 {{ nf_lint_exclude }} .
