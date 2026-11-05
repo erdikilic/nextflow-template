@@ -2,31 +2,27 @@
     "nanopore + pacbio samplesheet groups multi-file samples": {
         "content": [
             [
-                [
-                    {
-                        "id": "NANOPORE_BARCODE01",
-                        "platform": "nanopore"
-                    },
-                    [
+                {
+                    "id": "NANOPORE_BARCODE01",
+                    "platform": "nanopore",
+                    "reads": [
                         "sample_ont_part1.fastq",
                         "sample_ont_part2.fastq"
                     ]
-                ],
-                [
-                    {
-                        "id": "PACBIO_HIFI",
-                        "platform": "pacbio"
-                    },
-                    [
+                },
+                {
+                    "id": "PACBIO_HIFI",
+                    "platform": "pacbio",
+                    "reads": [
                         "sample_pacbio.fastq"
                     ]
-                ]
+                }
             ]
         ],
-        "timestamp": "2026-08-31T13:44:57.732446451",
+        "timestamp": "2026-11-05T12:43:31.185161819",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.6"
+            "nextflow": "26.10.4"
         }
     }
 }

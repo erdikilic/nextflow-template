@@ -52,4 +52,4 @@ jobs:
           test -d results/example
           test -f results/reads/samplesheet.csv
           test -f results/qc/sequali/index.csv
-          test -f results/workflow_info/collated_versions.yml
+          test -f results/workflow_info/versions.yml

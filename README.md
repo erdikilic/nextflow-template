@@ -14,6 +14,9 @@ template"** button, then replace the `EXAMPLE` module with your real tools.
 
 ## Features
 
+- **Static typing throughout** (Nextflow 26.10): typed processes, workflows and
+  parameters, with samples carried as records and the platform as an enum, so
+  `nextflow lint` type-checks the whole workflow before a task runs.
 - **DSL2 structure**:
   `main.nf` → `workflows/` → `subworkflows/local/` → `modules/local/`. Every
   component is a directory carrying `main.nf`, `environment.yml`, `meta.yml` and
@@ -22,13 +25,18 @@ template"** button, then replace the `EXAMPLE` module with your real tools.
   and a JSON report per sample.
 - **Long-read input handling**: one row per FASTQ, grouped per sample, so an ONT
   barcode directory or a re-sequenced PacBio run merges into a single FASTQ.
-- **Tool versions on the `versions` topic** (`eval` outputs), collated into
-  `workflow_info/collated_versions.yml` with no per-stage channel plumbing.
+- **Tool versions on the `versions` topic** (`eval` in each process's `topic:`
+  section), published as `workflow_info/versions.yml` with no per-stage channel
+  plumbing.
 - **Workflow outputs**: a `publish:` section and an `output {}` block declare the
   whole results layout in one place, and the merged reads come with a
   samplesheet index that can be passed back to `--input`.
-- **Typed parameters** in `main.nf`, validated by the `nf-schema` plugin, which
-  also renders `--help` and checks the samplesheet.
+- **Typed parameters** in `main.nf`: `--input` is loaded straight into
+  `SamplesheetRow` records and checked at launch, and the `nf-schema` plugin
+  renders `--help` from `nextflow_schema.json`.
+- **Composable**: another pipeline can include this one with
+  `include { workflow as LONGREAD } from './main.nf'` and pass the samplesheet as
+  a channel of records.
 - **Config split**: resource labels and `resourceLimits` in `conf/base.config`,
   per-stage tool arguments in `conf/modules/<stage>.config`, container/engine
   profiles + hardware tiers.

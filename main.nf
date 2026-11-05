@@ -8,68 +8,71 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { paramsHelp ; paramsSummaryLog ; validateParameters } from 'plugin/nf-schema'
-include { NEXTFLOW_TEMPLATE                                } from './workflows/nextflow_template'
+nextflow.enable.types = true
 
-// Parameters read only by the workflow script. The declared types make the
-// strict parser convert CLI values (`--validate_params false` arrives as a
-// Boolean, not the truthy String "false"). Parameters that the configuration
-// also reads (outdir, publish_dir_mode, monochrome_logs, max_cpus, max_memory)
-// are declared in nextflow.config. nextflow_schema.json documents and validates
-// every parameter and is kept in step with both.
+include { paramsHelp ; paramsSummaryLog         } from 'plugin/nf-schema'
+include { NEXTFLOW_TEMPLATE                     } from './workflows/nextflow_template'
+include { SamplesheetRow                        } from './subworkflows/local/input_check/main'
+
+// Parameters read only by the workflow script. Nextflow converts each CLI value
+// to the declared type and rejects a parameter that is declared nowhere.
+// Parameters that only the configuration reads (outdir, publish_dir_mode,
+// max_cpus, max_memory) are declared in nextflow.config.
+// nextflow_schema.json documents every parameter for --help.
 params {
-    // Samplesheet CSV of long-read inputs (see assets/samplesheet.csv). Nullable
-    // so that --help runs without it; nf-schema reports it as required otherwise.
-    input: Path?
-
-    // Validate the parameters against nextflow_schema.json before the run starts.
-    validate_params: Boolean = true
+    // Samplesheet of long-read inputs (see assets/samplesheet.csv), loaded as a
+    // channel of SamplesheetRow records: each row is converted to that type, so
+    // an unknown platform or a missing FASTQ fails the run before it starts.
+    // Nullable so that --help runs without it.
+    input: Channel<SamplesheetRow>?
 
     // --help lists the top-level parameters; --help <name> shows one in full.
-    // Untyped because it takes either form.
-    help = false
+    help: String?
 
     // With --help, list every non-hidden parameter.
     help_full: Boolean = false
 
     // With --help, include hidden parameters.
     show_hidden: Boolean = false
+
+    // Strip ANSI colours from the run summary. nextflow.config passes the same
+    // value to nf-schema for its help and parameter summary.
+    monochrome_logs: Boolean = false
 }
 
 workflow {
 
     main:
     // Print the schema-driven help and exit when --help or --help_full is set.
-    // The strict parser passes an untyped CLI flag as a String, so "true" and
-    // "false" are read as flags and any other value names a parameter.
-    def helpTopic = params.help instanceof String && !(params.help in ['true', 'false']) ? params.help : ''
-    if (params.help in [true, 'true'] || helpTopic || params.help_full) {
+    // A bare --help arrives as "true"; any other value names a parameter.
+    if (params.help || params.help_full) {
         def helpOptions = [
             command: 'nextflow run . -profile <docker/apptainer/conda> --input samplesheet.csv --outdir results',
             fullHelp: params.help_full,
             showHidden: params.show_hidden,
-            parameter: helpTopic ?: null,
+            parameter: params.help && params.help != 'true' ? params.help : null,
         ]
-        log.info paramsHelp(helpOptions)
-        exit 0
+        log.info(paramsHelp(helpOptions))
+        exit(0, null)
     }
-
-    // Validate the parameters against nextflow_schema.json (nf-schema plugin).
-    if (params.validate_params) {
-        validateParameters()
+    if (params.input == null) {
+        error('Missing required parameter: --input <samplesheet.csv>')
     }
-    log.info paramsSummaryLog()
+    log.info(paramsSummaryLog())
 
-    NEXTFLOW_TEMPLATE(params.input)
+    results = NEXTFLOW_TEMPLATE(params.input)
 
     // Channels written to the output directory; the output block below says
     // where each one goes. Reads are published as samplesheet records so their
     // index file can be passed straight back to --input.
     publish:
-    reads    = NEXTFLOW_TEMPLATE.out.reads.map { meta, fastq -> [sample: meta.id, platform: meta.platform, fastq: fastq] }
-    qc       = NEXTFLOW_TEMPLATE.out.qc.map { meta, html, json -> [sample: meta.id, platform: meta.platform, html: html, json: json] }
-    counts   = NEXTFLOW_TEMPLATE.out.counts
-    versions = NEXTFLOW_TEMPLATE.out.versions
+    reads    = results.map { r -> record(sample: r.id, platform: r.platform, fastq: r.fastq) }
+    qc       = results.map { r -> record(sample: r.id, platform: r.platform, html: r.html, json: r.json) }
+    counts   = results.map { r -> record(sample: r.id, counts: r.counts) }
+    versions = channel.topic('versions')
+        .unique()
+        .collect()
+        .flatMap { entries -> entries.toSorted { v -> "${v.process} ${v.tool}" } }
 
     // Runs when the workflow finishes, successfully or not.
     onComplete:
@@ -85,10 +88,10 @@ workflow {
         ${rule}
         Duration    : ${workflow.duration}
         Completed   : ${workflow.complete}
-        Exit status : ${workflow.exitStatus != null ? workflow.exitStatus : '-'}
+        Exit status : ${workflow.exitStatus == null ? '-' : "${workflow.exitStatus}"}
         Work dir    : ${workflow.workDir}
-        Results     : ${params.outdir}
-        Reports     : ${params.outdir}/workflow_info
+        Results     : ${workflow.outputDir}
+        Reports     : ${workflow.outputDir}/workflow_info
         ${rule}
         """.stripIndent()
     )
@@ -110,7 +113,7 @@ workflow {
 
 output {
     // One merged FASTQ per sample, indexed by a samplesheet in the input format.
-    reads {
+    reads: Channel<SamplesheetRow> {
         path 'reads'
         index {
             path 'reads/samplesheet.csv'
@@ -121,7 +124,7 @@ output {
     // Sequali read-QC reports, one HTML and one JSON per sample, indexed by a
     // table that links each sample to its two reports. The map form of `path`
     // gives every file its own target, here <sample>.sequali.<ext>.
-    qc {
+    qc: Channel<Record> {
         path { r ->
             [
                 (r.html): "qc/sequali/${r.sample}.sequali.html",
@@ -135,14 +138,23 @@ output {
     }
 
     // Per-sample output of the EXAMPLE process.
-    counts {
+    counts: Channel<Record> {
         path 'example'
     }
 
-    // Versions of every tool that ran.
-    versions {
-        path 'workflow_info'
+    // Version of every tool that ran, one entry per process and tool.
+    versions: Channel<ToolVersion> {
+        index {
+            path 'workflow_info/versions.yml'
+        }
     }
+}
+
+// One tool version from the `versions` topic.
+record ToolVersion {
+    process: String
+    tool: String
+    version: String
 }
 
 /*

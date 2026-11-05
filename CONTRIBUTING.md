@@ -38,7 +38,7 @@ Either route works; pixi is optional. See `pixi task list` for the rest.
 ## Conventions
 
 See [`AGENTS.md`](AGENTS.md) for the full module/config/naming conventions. In
-short: DSL2, 4-space indent, `UPPERCASE` process names, `[meta, files]` channels,
+short: DSL2, 4-space indent, `UPPERCASE` process names, record channels,
 a `versions` topic output + `stub:` in every process, tuning via `ext.args` in
 `conf/modules/<stage>.config`, plain `withName:` selectors, and results published
 through the `output {}` block in `main.nf`.

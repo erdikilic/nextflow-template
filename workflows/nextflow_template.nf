@@ -2,43 +2,62 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     WORKFLOW: NEXTFLOW_TEMPLATE — wire subworkflows and modules together
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Every module takes the fields it needs from a sample record and returns a
+    record keyed by `id`. The workflow joins those records back by `id`, so one
+    channel carries every result of a sample.
 */
 
-include { INPUT_CHECK } from '../subworkflows/local/input_check/main'
-include { HANDLE_DATA } from '../modules/local/handle_data/main'
-include { EXAMPLE     } from '../modules/local/example/main'
-include { SEQUALI     } from '../modules/local/sequali/main'
+nextflow.enable.types = true
+
+include { INPUT_CHECK ; Platform ; SamplesheetRow } from '../subworkflows/local/input_check/main'
+include { HANDLE_DATA                            } from '../modules/local/handle_data/main'
+include { SEQUALI                                } from '../modules/local/sequali/main'
+include { EXAMPLE                                } from '../modules/local/example/main'
 
 workflow NEXTFLOW_TEMPLATE {
 
     take:
-    samplesheet   // path: CSV samplesheet
+    rows: Channel<SamplesheetRow>
 
     main:
-    // 1. Parse + validate the samplesheet, grouping multi-file samples.
-    ch_reads = INPUT_CHECK(samplesheet)
+    // 1. Check the samplesheet rows and group multi-file samples.
+    samples = INPUT_CHECK(rows)
 
-    // 2. Merge each sample's files into one FASTQ.
-    HANDLE_DATA(ch_reads)
+    // 2. Merge each sample's files into one FASTQ. The merged file replaces the
+    //    list of input reads in the sample record.
+    merged = HANDLE_DATA(samples)
+    reads = samples
+        .join(merged, by: 'id')
+        .map { sample -> record(id: sample.id, platform: sample.platform, fastq: sample.fastq) }
 
     // 3. Read QC on each merged FASTQ.
-    SEQUALI(HANDLE_DATA.out.reads)
+    qc = SEQUALI(reads)
 
     // 4. Example per-sample process (replace with your real stages).
-    EXAMPLE(HANDLE_DATA.out.reads)
+    counts = EXAMPLE(reads)
 
-    // 5. Collate the versions every process publishes on the `versions` topic.
-    //    Processes contribute to the topic implicitly, so no channel plumbing is
-    //    needed when a stage is added.
-    ch_versions = channel
-        .topic('versions')
-        .unique()
-        .map { proc, tool, version -> "\"${proc}\":\n    ${tool}: ${version}\n" }
-        .collectFile(name: 'collated_versions.yml', sort: true)
+    // 5. One record per sample with every result.
+    results = reads
+        .join(qc, by: 'id')
+        .join(counts, by: 'id')
 
     emit:
-    reads    = HANDLE_DATA.out.reads   // channel: [ val(meta), path(fastq) ]
-    qc       = SEQUALI.out.report      // channel: [ val(meta), path(html), path(json) ]
-    counts   = EXAMPLE.out.counts      // channel: [ val(meta), path(linecount) ]
-    versions = ch_versions             // channel: path(collated_versions.yml)
+    results: Channel<SampleResult>
+}
+
+// A sample with its reads merged into one FASTQ.
+record Sample {
+    id: String
+    platform: Platform
+    fastq: Path
+}
+
+// Every result the workflow produces for one sample.
+record SampleResult {
+    id: String
+    platform: Platform
+    fastq: Path
+    html: Path
+    json: Path
+    counts: Path
 }

@@ -10,7 +10,17 @@ nextflow_pipeline {
         options "-stub"
 
         when {
+            // The bundled samplesheet lists its FASTQs relative to the repository
+            // root, the usual launch directory. nf-test launches from its own test
+            // directory, so the test runs on a copy with absolute paths.
+            def samplesheet = new File("${launchDir}/samplesheet.csv")
+            samplesheet.parentFile.mkdirs()
+            samplesheet.text = new File("${baseDir}/assets/samplesheet.csv").readLines()
+                .collect { line -> line.replace(',assets/', ",${baseDir}/assets/") }
+                .join('\n') + '\n'
+
             params {
+                input  = samplesheet.toString()
                 outdir = "$outputDir"
             }
         }
@@ -28,7 +38,7 @@ nextflow_pipeline {
                 // The reads index is a samplesheet in the input format.
                 { assert path("$outputDir/reads/samplesheet.csv").readLines().size() == 3 },
                 { assert path("$outputDir/reads/samplesheet.csv").readLines()[0] == 'sample,platform,fastq' },
-                { assert path("$outputDir/workflow_info/collated_versions.yml").exists() }
+                { assert path("$outputDir/workflow_info/versions.yml").exists() }
             )
         }
     }

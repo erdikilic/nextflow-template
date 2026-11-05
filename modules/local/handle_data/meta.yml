@@ -1,65 +1,51 @@
 ---
-# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
-name: handle_data
-description: Concatenate every long-read FASTQ belonging to a sample into one gzipped FASTQ
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nextflow-io/schemas/main/module/v1/schema.json
+name: local/handle_data
+version: 1.0.0
+kind: Process
+description: Concatenate every FASTQ of a sample into one gzipped FASTQ
 keywords:
   - fastq
-  - concatenate
-  - nanopore
-  - pacbio
-  - long reads
+  - merge
+  - long-read
+license: Apache-2.0
+authors:
+  - "@erdikilic"
+maintainers:
+  - "@erdikilic"
+requires:
+  nextflow: ">=26.10.4"
 tools:
   - coreutils:
       description: GNU core utilities, the basic file, shell and text manipulation utilities
       homepage: https://www.gnu.org/software/coreutils/
       documentation: https://www.gnu.org/software/coreutils/manual/
       licence: ["GPL-3.0-or-later"]
-      identifier: ""
 input:
-  - - meta:
-        type: map
-        description: |
-          Groovy Map containing sample information
-          e.g. `[ id:'sample1', platform:'nanopore' ]`
-    - reads:
-        type: file
-        description: One or more FASTQ files belonging to a single sample, plain or gzipped
-        pattern: "*.{fastq,fq}{,.gz}"
-        ontologies: []
+  - - name: id
+      type: string
+      description: Sample identifier
+    - name: reads
+      type: list
+      description: Every FASTQ of the sample, plain or gzipped, in merge order
+      pattern: "*.{fastq,fq}{,.gz}"
 output:
-  reads:
-    - - meta:
-          type: map
-          description: |
-            Groovy Map containing sample information
-            e.g. `[ id:'sample1', platform:'nanopore' ]`
-      - "*.merged.fastq.gz":
-          type: file
-          description: All of the sample's reads concatenated into a single gzipped FASTQ
-          pattern: "*.merged.fastq.gz"
-          ontologies: []
-  versions_coreutils:
-    - - ${task.process}:
-          type: string
-          description: The process the versions were collected from
-      - coreutils:
-          type: string
-          description: The tool name
-      - wc --version | head -n1 | sed "s/^.* //":
-          type: eval
-          description: The expression to obtain the version of the tool
+  - - name: id
+      type: string
+      description: Sample identifier
+    - name: fastq
+      type: file
+      description: The sample's reads merged into one gzipped FASTQ
+      pattern: "*.merged.fastq.gz"
+      ontologies:
+        - edam: http://edamontology.org/format_1930 # FASTQ
 topics:
-  versions:
-    - - ${task.process}:
-          type: string
-          description: The process the versions were collected from
-      - coreutils:
-          type: string
-          description: The tool name
-      - wc --version | head -n1 | sed "s/^.* //":
-          type: eval
-          description: The expression to obtain the version of the tool
-authors:
-  - "@erdikilic"
-maintainers:
-  - "@erdikilic"
+  - - name: process
+      type: string
+      description: The process the version was collected from
+    - name: tool
+      type: string
+      description: The tool name (coreutils)
+    - name: version
+      type: string
+      description: The tool version

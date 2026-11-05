@@ -7,34 +7,45 @@
     handles reads of any length, so one invocation covers ONT and PacBio input.
 */
 
+nextflow.enable.types = true
+
 process SEQUALI {
-    tag "${meta.id}"
+    tag id
     label 'process_low'
 
     conda "${moduleDir}/environment.yml"
     container 'biocontainers/sequali:1.0.2--py313h8c92656_1'
 
     input:
-    tuple val(meta), path(reads)
+    record(
+        id: String,
+        fastq: Path
+    )
 
     output:
-    tuple val(meta), path("*.html"), path("*.json"), emit: report
-    tuple val("${task.process}"), val('sequali'), eval('sequali --version |& sed "1!d ; s/sequali //"'), emit: versions_sequali, topic: versions
+    record(
+        id: id,
+        html: file('*.html'),
+        json: file('*.json')
+    )
+
+    topic:
+    record(process: task.process, tool: 'sequali', version: eval('sequali --version |& sed "1!d ; s/sequali //"')) >> 'versions'
 
     script:
     def args   = task.ext.args   ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: id
     """
     sequali \\
         ${args} \\
         --threads ${task.cpus} \\
         --html ${prefix}.html \\
         --json ${prefix}.json \\
-        ${reads}
+        ${fastq}
     """
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: id
     """
     touch ${prefix}.html
     echo '{}' > ${prefix}.json

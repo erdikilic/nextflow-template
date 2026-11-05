@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/erdikilic/nextflow-template/main/assets/schema_input.json",
   "title": "nextflow-template samplesheet schema",
-  "description": "Schema for the file provided with params.input",
+  "description": "Samplesheet columns for params.input, for --help and launch forms. At runtime each row is converted to the SamplesheetRow record type in subworkflows/local/input_check/main.nf.",
   "type": "array",
   "items": {
     "type": "object",
@@ -10,14 +10,12 @@
       "sample": {
         "type": "string",
         "pattern": "^\\S+$",
-        "errorMessage": "Sample name must be provided and cannot contain spaces",
-        "meta": ["id"]
+        "errorMessage": "Sample name must be provided and cannot contain spaces"
       },
       "platform": {
         "type": "string",
         "enum": ["nanopore", "pacbio"],
-        "errorMessage": "platform must be one of: nanopore, pacbio",
-        "meta": ["platform"]
+        "errorMessage": "platform must be one of: nanopore, pacbio"
       },
       "fastq": {
         "type": "string",

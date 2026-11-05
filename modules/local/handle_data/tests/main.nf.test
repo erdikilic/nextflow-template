@@ -13,11 +13,13 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = channel.of([
-                    [ id:'NANOPORE_BARCODE01', platform:'nanopore' ],
-                    [ file("${projectDir}/assets/reads/sample_ont_part1.fastq", checkIfExists: true),
-                      file("${projectDir}/assets/reads/sample_ont_part2.fastq", checkIfExists: true) ]
-                ])
+                input[0] = channel.of(record(
+                    id: 'NANOPORE_BARCODE01',
+                    reads: [
+                        file("${projectDir}/assets/reads/sample_ont_part1.fastq", checkIfExists: true),
+                        file("${projectDir}/assets/reads/sample_ont_part2.fastq", checkIfExists: true),
+                    ]
+                ))
                 """
             }
         }
@@ -25,10 +27,7 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
-                // The tool version resolves from whichever engine the suite runs
-                // under, so assert its shape and snapshot every other output.
-                { assert process.out.versions_coreutils[0][2] ==~ /\d+\.\d+.*/ },
-                { assert snapshot(sanitizeOutput(process.out, ignoreKeys: ['versions_coreutils'])).match() }
+                { assert snapshot(process.out).match() }
             )
         }
     }
@@ -38,10 +37,10 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = channel.of([
-                    [ id:'PACBIO_HIFI', platform:'pacbio' ],
-                    [ file("${projectDir}/assets/reads/sample_pacbio.fastq", checkIfExists: true) ]
-                ])
+                input[0] = channel.of(record(
+                    id: 'PACBIO_HIFI',
+                    reads: [ file("${projectDir}/assets/reads/sample_pacbio.fastq", checkIfExists: true) ]
+                ))
                 """
             }
         }
@@ -49,10 +48,7 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
-                // The tool version resolves from whichever engine the suite runs
-                // under, so assert its shape and snapshot every other output.
-                { assert process.out.versions_coreutils[0][2] ==~ /\d+\.\d+.*/ },
-                { assert snapshot(sanitizeOutput(process.out, ignoreKeys: ['versions_coreutils'])).match() }
+                { assert snapshot(process.out).match() }
             )
         }
     }
@@ -64,11 +60,13 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = channel.of([
-                    [ id:'NANOPORE_BARCODE01', platform:'nanopore' ],
-                    [ file("${projectDir}/assets/reads/sample_ont_part1.fastq", checkIfExists: true),
-                      file("${projectDir}/assets/reads/sample_ont_part2.fastq", checkIfExists: true) ]
-                ])
+                input[0] = channel.of(record(
+                    id: 'NANOPORE_BARCODE01',
+                    reads: [
+                        file("${projectDir}/assets/reads/sample_ont_part1.fastq", checkIfExists: true),
+                        file("${projectDir}/assets/reads/sample_ont_part2.fastq", checkIfExists: true),
+                    ]
+                ))
                 """
             }
         }
@@ -76,10 +74,7 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
-                // The tool version resolves from whichever engine the suite runs
-                // under, so assert its shape and snapshot every other output.
-                { assert process.out.versions_coreutils[0][2] ==~ /\d+\.\d+.*/ },
-                { assert snapshot(sanitizeOutput(process.out, ignoreKeys: ['versions_coreutils'])).match() }
+                { assert snapshot(process.out).match() }
             )
         }
     }

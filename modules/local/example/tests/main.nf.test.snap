@@ -2,41 +2,35 @@
     "nanopore - fastq - stub": {
         "content": [
             {
-                "counts": [
-                    [
-                        {
-                            "id": "NANOPORE_BARCODE01",
-                            "platform": "nanopore"
-                        },
-                        "NANOPORE_BARCODE01.linecount.txt:md5,897316929176464ebc9ad085f31e7284"
-                    ]
+                "0": [
+                    {
+                        "counts": "NANOPORE_BARCODE01.linecount.txt:md5,897316929176464ebc9ad085f31e7284",
+                        "id": "NANOPORE_BARCODE01"
+                    }
                 ]
             }
         ],
-        "timestamp": "2026-09-28T12:25:05.284629397",
+        "timestamp": "2026-11-05T12:41:51.481529082",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.6"
+            "nextflow": "26.10.4"
         }
     },
     "nanopore - fastq": {
         "content": [
             {
-                "counts": [
-                    [
-                        {
-                            "id": "NANOPORE_BARCODE01",
-                            "platform": "nanopore"
-                        },
-                        "NANOPORE_BARCODE01.linecount.txt:md5,c30f7472766d25af1dc80b3ffc9a58c7"
-                    ]
+                "0": [
+                    {
+                        "counts": "NANOPORE_BARCODE01.linecount.txt:md5,c30f7472766d25af1dc80b3ffc9a58c7",
+                        "id": "NANOPORE_BARCODE01"
+                    }
                 ]
             }
         ],
-        "timestamp": "2026-09-28T12:24:59.079695526",
+        "timestamp": "2026-11-05T12:41:45.091402269",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.6"
+            "nextflow": "26.10.4"
         }
     }
 }

@@ -5,5 +5,5 @@ reports:
     display: "Nextflow execution report"
   workflow_info/execution_timeline.html:
     display: "Nextflow timeline"
-  workflow_info/collated_versions.yml:
+  workflow_info/versions.yml:
     display: "Tool versions"

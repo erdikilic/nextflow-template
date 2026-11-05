@@ -2,61 +2,52 @@
     "nanopore - multiple fastq": {
         "content": [
             {
-                "reads": [
-                    [
-                        {
-                            "id": "NANOPORE_BARCODE01",
-                            "platform": "nanopore"
-                        },
-                        "NANOPORE_BARCODE01.merged.fastq.gz:md5,b29ef46756ad3aa01139a43a26b22a21"
-                    ]
+                "0": [
+                    {
+                        "fastq": "NANOPORE_BARCODE01.merged.fastq.gz:md5,b29ef46756ad3aa01139a43a26b22a21",
+                        "id": "NANOPORE_BARCODE01"
+                    }
                 ]
             }
         ],
-        "timestamp": "2026-09-28T12:35:57.197620845",
+        "timestamp": "2026-11-05T12:41:59.692291562",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.6"
+            "nextflow": "26.10.4"
         }
     },
     "pacbio - single fastq": {
         "content": [
             {
-                "reads": [
-                    [
-                        {
-                            "id": "PACBIO_HIFI",
-                            "platform": "pacbio"
-                        },
-                        "PACBIO_HIFI.merged.fastq.gz:md5,d301770eeb0641ac216db2dfdf650af6"
-                    ]
+                "0": [
+                    {
+                        "fastq": "PACBIO_HIFI.merged.fastq.gz:md5,d301770eeb0641ac216db2dfdf650af6",
+                        "id": "PACBIO_HIFI"
+                    }
                 ]
             }
         ],
-        "timestamp": "2026-09-28T12:25:17.835395751",
+        "timestamp": "2026-11-05T12:42:05.404146412",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.6"
+            "nextflow": "26.10.4"
         }
     },
     "nanopore - multiple fastq - stub": {
         "content": [
             {
-                "reads": [
-                    [
-                        {
-                            "id": "NANOPORE_BARCODE01",
-                            "platform": "nanopore"
-                        },
-                        "NANOPORE_BARCODE01.merged.fastq.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
-                    ]
+                "0": [
+                    {
+                        "fastq": "NANOPORE_BARCODE01.merged.fastq.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "id": "NANOPORE_BARCODE01"
+                    }
                 ]
             }
         ],
-        "timestamp": "2026-09-28T12:25:24.536348066",
+        "timestamp": "2026-11-05T12:42:16.029699173",
         "meta": {
             "nf-test": "0.9.5",
-            "nextflow": "26.04.6"
+            "nextflow": "26.10.4"
         }
     }
 }

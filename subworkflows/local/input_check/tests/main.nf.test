@@ -13,7 +13,9 @@ nextflow_workflow {
         when {
             workflow {
                 """
-                input[0] = file("${projectDir}/assets/samplesheet.csv", checkIfExists: true)
+                input[0] = channel.of(file("${projectDir}/assets/samplesheet.csv", checkIfExists: true))
+                    .flatMap { csv -> csv.splitCsv(header: true) }
+                    .map { row -> record(sample: row.sample, platform: row.platform, fastq: file("${projectDir}/\${row.fastq}")) }
                 """
             }
         }
@@ -23,11 +25,34 @@ nextflow_workflow {
                 { assert workflow.success },
                 // 3 rows -> 2 samples: NANOPORE_BARCODE01 arrives as two FASTQs.
                 { assert workflow.out[0].size() == 2 },
-                // Snapshot names only: the samplesheet holds paths outside the
-                // work dir, whose absolute form differs per machine.
+                // Snapshot file names only: the reads live outside the work
+                // directory, so their absolute paths differ per machine.
                 { assert snapshot(
-                    workflow.out[0].collect { meta, reads -> [meta, reads.collect { r -> file(r).name }] }
+                    workflow.out[0]
+                        .collect { s -> [id: s.id, platform: s.platform, reads: s.reads.collect { r -> file(r).name }] }
+                        .sort { s -> s.id }
                 ).match() }
+            )
+        }
+    }
+
+    test("a sample listed with two platforms fails") {
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of(
+                    record(sample: 'S1', platform: 'nanopore', fastq: file("${projectDir}/assets/reads/sample_ont_part1.fastq")),
+                    record(sample: 'S1', platform: 'pacbio', fastq: file("${projectDir}/assets/reads/sample_pacbio.fastq"))
+                )
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.errorReport.contains('more than one platform') }
             )
         }
     }

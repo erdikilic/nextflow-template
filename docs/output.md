@@ -21,7 +21,7 @@ results/
     ├── execution_timeline.html     # per-task timeline
     ├── execution_trace.txt         # per-task trace (resources, exit status)
     ├── workflow_dag.html           # workflow DAG
-    └── collated_versions.yml       # versions of every tool that ran, from the `versions` topic
+    └── versions.yml                # process, tool and version of every tool that ran
 ```
 
 `reads/samplesheet.csv` lists every published FASTQ with its sample and
@@ -36,13 +36,13 @@ At the end of a run Nextflow prints the published outputs;
 Sequali shows the whole path from a process to `results/`:
 
 1. **Process** — `SEQUALI` ([`modules/local/sequali`](../modules/local/sequali/main.nf))
-   emits `report`, the HTML and JSON of one sample together with its `meta`. Its
-   tool arguments live in [`conf/modules/qc.config`](../conf/modules/qc.config).
-2. **Named workflow** — `NEXTFLOW_TEMPLATE` emits that channel:
-   `qc = SEQUALI.out.report`.
+   takes `record(id, fastq)` and returns `record(id, html, json)`. Its tool
+   arguments live in [`conf/modules/qc.config`](../conf/modules/qc.config).
+2. **Named workflow** — `NEXTFLOW_TEMPLATE` joins those records with the other
+   results of each sample by `id` and emits one `SampleResult` record per sample.
 3. **`publish:`** — the entry workflow in [`main.nf`](../main.nf) turns each
    value into a record and names the channel:
-   `qc = NEXTFLOW_TEMPLATE.out.qc.map { meta, html, json -> [sample: meta.id, platform: meta.platform, html: html, json: json] }`.
+   `qc = results.map { r -> record(sample: r.id, platform: r.platform, html: r.html, json: r.json) }`.
 4. **`output {}`** — the `qc` target's `path` closure maps each file of a record
    to its own target, `qc/sequali/<sample>.sequali.html` and `.json`, and its
    `index` block writes one row per record to `qc/sequali/index.csv`, with the

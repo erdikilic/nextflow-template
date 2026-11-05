@@ -1,29 +1,31 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
-name: input_check
-description: Validate a long-read samplesheet and group multi-file samples
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nextflow-io/schemas/main/module/v1/schema.json
+name: local/input_check
+version: 1.0.0
+kind: Workflow
+description: Check long-read samplesheet rows and group a sample's FASTQs into one record
 keywords:
   - samplesheet
   - validation
   - nanopore
   - pacbio
-  - long reads
-components: []
-input:
-  - samplesheet:
-      type: file
-      description: |
-        CSV samplesheet with the columns sample, platform and fastq, validated
-        against assets/schema_input.json.
-      pattern: "*.csv"
-output:
-  - reads:
-      type: file
-      description: |
-        One entry per sample, with every FASTQ for that sample collected into a
-        list sorted by filename.
-        Structure: [ val(meta), [ path(reads) ] ]
-      pattern: "*.{fastq,fq}{,.gz}"
+  - long-read
+license: Apache-2.0
 authors:
   - "@erdikilic"
 maintainers:
   - "@erdikilic"
+requires:
+  nextflow: ">=26.10.4"
+input:
+  - name: rows
+    type: channel
+    description: |
+      SamplesheetRow records (sample, platform, fastq), one per samplesheet row,
+      as loaded from --input.
+output:
+  - name: samples
+    type: channel
+    description: |
+      SampleReads records (id, platform, reads), one per sample, with every FASTQ
+      of the sample in `reads`, sorted by file name.

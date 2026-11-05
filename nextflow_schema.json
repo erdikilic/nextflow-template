@@ -62,12 +62,6 @@
           "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"],
           "fa_icon": "fas fa-copy"
         },
-        "validate_params": {
-          "type": "boolean",
-          "default": true,
-          "description": "Validate parameters against the schema at runtime.",
-          "fa_icon": "fas fa-check-square"
-        },
         "monochrome_logs": {
           "type": "boolean",
           "default": false,

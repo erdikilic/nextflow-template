@@ -66,13 +66,31 @@ docs/                       usage.md + output.md
 - **Long reads only.** `platform` is `nanopore` or `pacbio`; the samplesheet has one
   `fastq` column and no pairing. Do not reintroduce short-read concepts such as
   `single_end`, `fastq_2` or R1/R2 handling.
-- **Channels carry `[ val(meta), path(...) ]`.** `meta` has `id` and `platform`, set
-  by `INPUT_CHECK`, so modules can branch (e.g. `minimap2 -x map-ont` vs `-x map-hifi`).
+- **Static typing in every script.** Each `.nf` file starts with
+  `nextflow.enable.types = true`, so `nextflow lint` and the language server
+  type-check it. Processes declare typed `input:`, `stage:`, `output:` and `topic:`
+  sections; workflows declare typed `take:` and `emit:` (`Channel<T>`, `Value<T>`).
+- **Channels carry records, not tuples.** A sample is a record such as
+  `record(id: 'S1', platform: Platform.nanopore, fastq: file(...))`, its fields
+  read by name. A record type is declared next to the workflow that produces it
+  (`Platform`, `SamplesheetRow` and `SampleReads` in `INPUT_CHECK`; `Sample` and
+  `SampleResult` in `NEXTFLOW_TEMPLATE`; `ToolVersion` in `main.nf`) and included
+  by name where it is needed. A module declares a destructured record input with only
+  the fields it reads, e.g. `record(id: String, fastq: Path)`, and returns
+  `record(id: id, <name>: file(...))`; the calling workflow joins results back with
+  `join(other, by: 'id')`. `platform` stays on the sample record, so a stage can
+  branch on it (e.g. `minimap2 -x map-ont` vs `-x map-hifi`).
+- **Core operators only**: `map`, `filter`, `flatMap`, `groupBy`, `join(by:)`,
+  `combine`, `mix`, `collect`, `unique`, `view`. Legacy operators (`groupTuple`,
+  `branch`, `multiMap`, `set`, `tap`, `collectFile`, `splitCsv`, ...) defeat the type
+  checker; the static-typing operator guide in the Nextflow docs lists each
+  replacement.
 - **Conda comes from `environment.yml`**: `conda "${moduleDir}/environment.yml"`,
   never an inline dependency string.
-- **Versions travel on the `versions` topic**, one entry per tool:
-  `tuple val("${task.process}"), val('<tool>'), eval('<version command>'), emit: versions_<tool>, topic: versions`.
-  `NEXTFLOW_TEMPLATE` collates the topic into `workflow_info/collated_versions.yml`, so a new
+- **Versions travel on the `versions` topic**, one entry per tool, from the
+  process `topic:` section:
+  `record(process: task.process, tool: '<tool>', version: eval('<version command>')) >> 'versions'`.
+  The entry workflow publishes the topic as `workflow_info/versions.yml`, so a new
   stage needs no channel plumbing. The eval command also runs under `-stub`, so it
   must resolve inside the module's container or conda environment.
 - **Every process has a `stub:` block** so `-stub` validates wiring without running
@@ -82,8 +100,9 @@ docs/                       usage.md + output.md
   `process.when` in `conf/modules/<stage>.config`.
 - **Every component has an nf-test** with tags (`modules` / `modules_local` /
   `<name>`, or `subworkflows` / `subworkflows_local` / `<name>`) and a committed
-  snapshot. Snapshot deterministic outputs only: assert a tool version by shape,
-  because it follows whichever engine the suite runs under.
+  snapshot. Test inputs are built with `record(...)`, and a typed process's output
+  records arrive in `process.out[0]`. Snapshot deterministic outputs only; tool
+  versions are not process outputs, and the workflow test checks `versions.yml`.
 - **Results are published through workflow outputs**, never `publishDir`. The
   entry workflow's `publish:` section names the channels to keep and the
   `output {}` block in `main.nf` places them under `outputDir` (= `--outdir`).
@@ -102,11 +121,15 @@ docs/                       usage.md + output.md
 - **Container refs are bare names** (`container 'nf-core/ubuntu:22.04'`); the
   registry is set once in `nextflow.config`. Pin an explicit host only for images
   not on that registry.
-- **Parameters are declared once.** A parameter read only by the workflow script
-  goes in the typed `params {}` block of `main.nf`, with its default and a `//`
-  comment. A parameter the configuration reads (`outdir`, `publish_dir_mode`,
-  `max_cpus`, ...) goes in `nextflow.config`. `--help` is generated from
-  `nextflow_schema.json`, so every parameter also gets a schema entry.
+- **Parameters are declared once.** A parameter the workflow script reads goes in
+  the typed `params {}` block of `main.nf`, with its default and a `//` comment;
+  Nextflow converts each CLI value to the declared type and rejects an undeclared
+  parameter. A parameter only the configuration reads (`outdir`,
+  `publish_dir_mode`, `max_cpus`, ...) goes in `nextflow.config`. The samplesheet
+  is `input: Channel<SamplesheetRow>?`: Nextflow loads the file into records and
+  converts each row to that type, so the record type is the samplesheet schema.
+  `--help` is generated from `nextflow_schema.json`, so every parameter also gets a
+  schema entry.
 - **Update together**: the parameter declaration, `nextflow_schema.json`, and
   `conf/modules/<stage>.config` whenever you add a parameter or stage.
 - **Commits**: Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`,
@@ -119,17 +142,21 @@ docs/                       usage.md + output.md
 
 ## Adding a new stage (recipe)
 
-1. `modules/local/<tool>/main.nf` — the process (inputs/outputs, container,
+1. `modules/local/<tool>/main.nf` — a typed process (`nextflow.enable.types = true`,
+   a destructured record input, a record output keyed by `id`, container,
    `conda "${moduleDir}/environment.yml"`, a `versions` topic entry, `stub:`).
 2. `modules/local/<tool>/environment.yml` and `meta.yml` — the conda spec and the
    documented inputs/outputs.
 3. `conf/modules/<stage>.config` — `withName: <PROCESS>` block with `ext.args` /
-   `ext.prefix`; add the include to `nextflow.config`.
+   `ext.prefix` (closures read the process inputs, e.g. `ext.prefix = { id }`); add
+   the include to `nextflow.config`.
 4. Wire it into `workflows/nextflow_template.nf` (or a subworkflow under
-   `subworkflows/local/`) and `emit:` the channels worth keeping.
+   `subworkflows/local/`): pass it the sample records, join its output back by
+   `id`, and add the new fields to `SampleResult` in `workflows/nextflow_template.nf`.
 5. Publish them: add a `publish:` assignment in `main.nf` and a matching target
    in its `output {}` block, then list the files in `docs/output.md`.
-6. `modules/local/<tool>/tests/main.nf.test` — tagged test; run
+6. `modules/local/<tool>/tests/main.nf.test` — tagged test with `record(...)`
+   inputs; run
    `nf-test test --update-snapshot` and commit the generated `.snap`.
 7. Run `nf-test test` and `pre-commit run --all-files`.
 
@@ -151,16 +178,16 @@ logic instead:
    index: Path?
    ```
 
-2. Pass both into the named workflow through `take:` and build the index only
-   when none is given:
+2. Pass both into the named workflow through `take:` (`fasta: Path?`,
+   `index: Path?`) and build the index only when none is given:
 
    ```nextflow
-   ch_index = index
-       ? channel.value([[id: index.baseName], index])
-       : MINIMAP2_INDEX(channel.value([[id: fasta.baseName], fasta])).index
+   val_index = index
+       ? channel.value(index)
+       : MINIMAP2_INDEX(record(id: fasta.baseName, fasta: fasta)).map { r -> r.index }
    ```
 
-3. Emit `ch_index` and publish it, so the published file can be passed back with
+3. Emit `val_index` and publish it, so the published file can be passed back with
    `--index` on the next run.
 
 ## Do not
