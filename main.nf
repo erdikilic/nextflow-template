@@ -49,6 +49,7 @@ workflow {
             fullHelp: params.help_full,
             showHidden: params.show_hidden,
             parameter: params.help && params.help != 'true' ? params.help : null,
+            parameters_schema: "${moduleDir}/nextflow_schema.json",
         ]
         log.info(paramsHelp(helpOptions))
         exit(0, null)
@@ -56,7 +57,9 @@ workflow {
     if (params.input == null) {
         error('Missing required parameter: --input <samplesheet.csv>')
     }
-    log.info(paramsSummaryLog())
+    // The schema is resolved next to this script, so the summary also works when
+    // another pipeline includes this one.
+    log.info(paramsSummaryLog(parameters_schema: "${moduleDir}/nextflow_schema.json"))
 
     results = NEXTFLOW_TEMPLATE(params.input)
 
