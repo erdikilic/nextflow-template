@@ -35,8 +35,9 @@ template"** button, then replace the `EXAMPLE` module with your real tools.
 - **Testing**: [nf-test](https://www.nf-test.com/) at both workflow and component
   level, with committed snapshots.
 - **Linting** (pre-commit + CI): prettier, ruff, hadolint (Dockerfile),
-  shellcheck, actionlint, yamllint, markdownlint, gitleaks (secret scan),
-  plus `nextflow lint` for the DSL.
+  shellcheck, actionlint, zizmor (workflow security), yamllint, markdownlint,
+  typos, gitleaks (secret scan), plus `nextflow lint` for the DSL. A
+  commit-message hook enforces Conventional Commits.
 - **CI**: lint, nf-test, a real containerised `test,docker` run, a
   Nextflow-version compatibility matrix (min → current → latest), plus
   [OpenSSF Scorecard](https://securityscorecards.dev/) and dependency review.
