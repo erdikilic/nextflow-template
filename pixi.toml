@@ -21,9 +21,9 @@ platforms = ["linux-64", "osx-arm64"]
 
 [dependencies]
 # --- Nextflow runtime -------------------------------------------------------
-# bioconda's nextflow package constrains openjdk >=17,<=24. 21 is what CI installs
-# (actions/setup-java, temurin 21) — keep the two in step.
-openjdk = "21.*"
+# bioconda's nextflow package accepts openjdk >=17,<26. Java 25 is the current LTS
+# and the version CI installs (java-version in .github/workflows/); keep the two in step.
+openjdk = "25.*"
 nf-test = "0.9.5.*"
 
 # --- Launcher portability ---------------------------------------------------
@@ -45,6 +45,7 @@ nf-core = ">=4.0,<5"
 # Pinned to the exact rev of the ruff-pre-commit hook so that `pixi run ruff`
 # and `pixi run lint` can never disagree about what is a violation.
 ruff = "0.15.22.*"
+just = ">=1.59"        # task runner behind the justfile recipes
 
 [activation.env]
 # `nextflow lint` walks the whole tree, and pixi's env holds nf-core's Jinja

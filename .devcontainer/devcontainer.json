@@ -2,11 +2,12 @@
   "name": "nextflow-template",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "features": {
-    "ghcr.io/devcontainers/features/java:1": { "version": "17" },
-    "ghcr.io/devcontainers/features/python:1": { "version": "3.14" },
     "ghcr.io/devcontainers/features/docker-in-docker:4": {}
   },
-  "postCreateCommand": "curl -s https://get.nextflow.io | bash && sudo mv nextflow /usr/local/bin/ && curl -sSfL https://just.systems/install.sh | sudo bash -s -- --to /usr/local/bin && pip install --user pre-commit nf-core && pre-commit install",
+  "remoteEnv": {
+    "PATH": "${containerEnv:HOME}/.pixi/bin:${containerEnv:PATH}"
+  },
+  "postCreateCommand": "curl -fsSL https://pixi.sh/install.sh | bash && ~/.pixi/bin/pixi install && ~/.pixi/bin/pixi run setup && echo 'eval \"$(pixi shell-hook --manifest-path ${containerWorkspaceFolder}/pixi.toml)\"' >> ~/.bashrc",
   "customizations": {
     "vscode": {
       "extensions": ["nextflow.nextflow", "charliermarsh.ruff"]

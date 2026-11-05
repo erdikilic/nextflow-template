@@ -35,7 +35,7 @@ jobs:
         uses: nf-core/setup-nextflow@v3
         with:
           version: ${{ matrix.NXF_VER }}
-          java-version: "21"
+          java-version: "25"
 
       - name: Parse config
         run: nextflow config . -profile test,docker >/dev/null
