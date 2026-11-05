@@ -1,0 +1,26 @@
+nextflow_pipeline {
+
+    name "The template included by another pipeline (stub)"
+    script "tests/composition/main.nf"
+
+    tag "workflow"
+    tag "composition"
+
+    test("an including pipeline passes the samplesheet as a channel") {
+
+        options "-stub"
+
+        then {
+            def console = workflow.stdout.join('\n')
+            assertAll(
+                { assert workflow.success },
+                // Both samples reach the included pipeline's reads output, and its
+                // versions topic reaches the caller.
+                { assert console.contains('reads: NANOPORE_BARCODE01') },
+                { assert console.contains('reads: PACBIO_HIFI') },
+                { assert console.contains('version: sequali') },
+                { assert !console.contains('Could not read parameters') }
+            )
+        }
+    }
+}

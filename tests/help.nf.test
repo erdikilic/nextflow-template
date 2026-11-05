@@ -1,0 +1,47 @@
+nextflow_pipeline {
+
+    name "Parameter help and the required input"
+    script "main.nf"
+
+    tag "workflow"
+    tag "help"
+
+    test("--help lists the parameters and exits") {
+
+        when {
+            params {
+                help  = 'true'
+                input = null
+            }
+        }
+
+        then {
+            // nf-test keeps the log.info output in the run's nextflow.log.
+            def console = new File("${launchDir}/meta/nextflow.log").readLines()
+            assertAll(
+                { assert workflow.success },
+                { assert console.any { line -> line.contains('--input') } },
+                { assert workflow.trace.tasks().size() == 0 }
+            )
+        }
+    }
+
+    test("--help <parameter> shows one parameter in full") {
+
+        when {
+            params {
+                help  = 'input'
+                input = null
+            }
+        }
+
+        then {
+            // nf-test keeps the log.info output in the run's nextflow.log.
+            def console = new File("${launchDir}/meta/nextflow.log").readLines()
+            assertAll(
+                { assert workflow.success },
+                { assert console.any { line -> line.contains('schema') && line.contains('assets/schema_input.json') } }
+            )
+        }
+    }
+}
