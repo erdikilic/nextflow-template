@@ -1,23 +1,21 @@
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    SUBWORKFLOW: INPUT_CHECK — check samplesheet rows and group them per sample
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Takes the samplesheet as a channel of SamplesheetRow records. Loading the
-    samplesheet into that type has already checked that every platform is a
-    Platform value and every FASTQ exists; INPUT_CHECK adds the rules a type
-    cannot express (sample names without whitespace, FASTQ file extensions, one
-    platform per sample).
-
-    Rows are then GROUPED by sample, so a sample provided as many files (e.g. an
-    ONT barcode directory split across several FASTQs, or a re-sequenced PacBio
-    run) becomes one SampleReads record. HANDLE_DATA then concatenates them.
-    The reads of a sample are sorted by file name for reproducibility.
-*/
+ * SUBWORKFLOW: INPUT_CHECK — check samplesheet rows and group them per sample
+ *
+ * Takes the samplesheet as a channel of SamplesheetRow records. Loading the
+ * samplesheet into that type has already checked that every platform is a
+ * Platform value and every FASTQ exists; INPUT_CHECK adds the rules a type
+ * cannot express (sample names without whitespace, FASTQ file extensions, one
+ * platform per sample).
+ *
+ * Rows are then GROUPED by sample, so a sample provided as many files (e.g. an
+ * ONT barcode directory split across several FASTQs, or a re-sequenced PacBio
+ * run) becomes one SampleReads record. HANDLE_DATA then concatenates them.
+ * The reads of a sample are sorted by file name for reproducibility.
+ */
 
 nextflow.enable.types = true
 
 workflow INPUT_CHECK {
-
     take:
     rows: Channel<SamplesheetRow>
 
@@ -53,7 +51,7 @@ workflow INPUT_CHECK {
 // list fails the run before any task starts.
 enum Platform {
     nanopore,
-    pacbio
+    pacbio,
 }
 
 // One samplesheet row: a single FASTQ of a sample. The field names match the

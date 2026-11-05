@@ -1,18 +1,16 @@
 #!/usr/bin/env nextflow
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    <WORKFLOW_NAME>
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    A Nextflow DSL2 workflow scaffolded from nextflow-template.
-    Replace this header, the EXAMPLE module, and the schema with your own tools.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
+ * <WORKFLOW_NAME>
+ *
+ * A Nextflow DSL2 workflow scaffolded from nextflow-template.
+ * Replace this header, the EXAMPLE module, and the schema with your own tools.
+ */
 
 nextflow.enable.types = true
 
-include { paramsHelp ; paramsSummaryLog         } from 'plugin/nf-schema'
-include { NEXTFLOW_TEMPLATE                     } from './workflows/nextflow_template'
-include { SamplesheetRow                        } from './subworkflows/local/input_check/main'
+include { paramsHelp ; paramsSummaryLog } from 'plugin/nf-schema'
+include { NEXTFLOW_TEMPLATE } from './workflows/nextflow_template'
+include { SamplesheetRow } from './subworkflows/local/input_check/main'
 
 // Parameters read only by the workflow script. Nextflow converts each CLI value
 // to the declared type and rejects a parameter that is declared nowhere.
@@ -65,17 +63,22 @@ workflow {
     // Channels written to the output directory; the output block below says
     // where each one goes. Reads are published as samplesheet records so their
     // index file can be passed straight back to --input.
-    publish:
-    reads    = results.map { r -> record(sample: r.id, platform: r.platform, fastq: r.fastq) }
-    qc       = results.map { r -> record(sample: r.id, platform: r.platform, html: r.html, json: r.json) }
-    counts   = results.map { r -> record(sample: r.id, counts: r.counts) }
-    versions = channel.topic('versions')
+    ch_reads = results.map { r -> record(sample: r.id, platform: r.platform, fastq: r.fastq) }
+    ch_qc = results.map { r -> record(sample: r.id, platform: r.platform, html: r.html, json: r.json) }
+    ch_counts = results.map { r -> record(sample: r.id, counts: r.counts) }
+    ch_versions = channel.topic('versions')
         .unique()
         .collect()
         .flatMap { entries -> entries.toSorted { v -> "${v.process} ${v.tool}" } }
 
-    // Runs when the workflow finishes, successfully or not.
+    publish:
+    reads: Channel<SamplesheetRow> = ch_reads
+    qc: Channel<Record> = ch_qc
+    counts: Channel<Record> = ch_counts
+    versions: Channel<ToolVersion> = ch_versions
+
     onComplete:
+    // Runs when the workflow finishes, successfully or not.
     def colour = logColours(params.monochrome_logs)
     def status = workflow.success
         ? "${colour.green}Succeeded${colour.reset}"
@@ -96,20 +99,19 @@ workflow {
         """.stripIndent()
     )
 
-    // Runs when the workflow fails, before onComplete.
     onError:
+    // Runs when the workflow fails, before onComplete.
     def reason = workflow.errorMessage ? ": ${workflow.errorMessage}" : ''
     log.error("Workflow failed${reason}")
 }
 
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Outputs — layout of --outdir (see docs/output.md)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Each target publishes the files in the channel of the same name. The root is
-    `outputDir` (= --outdir) and the copy mode is `workflow.output.mode`
-    (= --publish_dir_mode), both set in nextflow.config.
-*/
+ * Outputs — layout of --outdir (see docs/output.md)
+ *
+ * Each target publishes the files in the channel of the same name. The root is
+ * `outputDir` (= --outdir) and the copy mode is `workflow.output.mode`
+ * (= --publish_dir_mode), both set in nextflow.config.
+ */
 
 output {
     // One merged FASTQ per sample, indexed by a samplesheet in the input format.
@@ -162,17 +164,15 @@ record ToolVersion {
 }
 
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Helpers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
+ * Helpers
+ */
 
 // ANSI colour codes, blanked out when --monochrome_logs is set.
 def logColours(monochrome) {
     [
         reset: monochrome ? '' : "\033[0m",
-        red:   monochrome ? '' : "\033[0;31m",
+        red: monochrome ? '' : "\033[0;31m",
         green: monochrome ? '' : "\033[0;32m",
-        dim:   monochrome ? '' : "\033[2m",
+        dim: monochrome ? '' : "\033[2m",
     ]
 }

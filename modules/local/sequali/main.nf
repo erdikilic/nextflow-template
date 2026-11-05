@@ -1,11 +1,10 @@
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    PROCESS: SEQUALI — read quality metrics for one sample
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Runs Sequali on a sample's merged FASTQ and writes an HTML report and the same
-    metrics as JSON. Sequali detects the read format and compression itself and
-    handles reads of any length, so one invocation covers ONT and PacBio input.
-*/
+ * PROCESS: SEQUALI — read quality metrics for one sample
+ *
+ * Runs Sequali on a sample's merged FASTQ and writes an HTML report and the same
+ * metrics as JSON. Sequali detects the read format and compression itself and
+ * handles reads of any length, so one invocation covers ONT and PacBio input.
+ */
 
 nextflow.enable.types = true
 
@@ -26,14 +25,14 @@ process SEQUALI {
     record(
         id: id,
         html: file('*.html'),
-        json: file('*.json')
+        json: file('*.json'),
     )
 
     topic:
     record(process: task.process, tool: 'sequali', version: eval('sequali --version |& sed "1!d ; s/sequali //"')) >> 'versions'
 
     script:
-    def args   = task.ext.args   ?: ''
+    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: id
     """
     sequali \\
