@@ -1,0 +1,10 @@
+# zizmor: security checks for the GitHub Actions workflows (pre-commit hook).
+rules:
+  # Actions are pinned to release tags, which Renovate and Dependabot update.
+  unpinned-uses:
+    config:
+      policies:
+        "*": ref-pin
+  # softprops/action-gh-release attaches the git-cliff changelog in one step.
+  superfluous-actions:
+    disable: true
