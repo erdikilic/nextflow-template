@@ -83,3 +83,46 @@ process {
     }
 }
 ```
+
+## Resuming and caching
+
+`-resume` reuses every task whose inputs, script and container are unchanged,
+using the task cache in `.nextflow/cache` under the launch directory:
+
+```bash
+nextflow run . -profile docker --input samplesheet.csv -resume
+```
+
+The workflow keeps its tasks reproducible for the cache: a sample's FASTQs are
+sorted by file name before they are merged, and the versions index is sorted.
+
+- **Cloud cache** — on a cloud VM, where the launch directory disappears with the
+  VM, keep the cache in object storage. Set the variables, name each run, and
+  resume by session ID:
+
+  ```bash
+  export NXF_CLOUDCACHE_PATH=s3://my-bucket/cache
+  export NXF_IGNORE_RESUME_HISTORY=true
+  nextflow run . -profile docker --input samplesheet.csv -name run-1
+  nextflow run . -profile docker --input samplesheet.csv -name run-2 -resume <session-id>
+  ```
+
+- **Global cache** — Seqera Platform (with Nextflow 26.10 or later) can keep one
+  content-addressed cache for an organisation in AWS, Google Cloud or Azure
+  storage and reuse identical tasks across runs and pipelines, not only across
+  resumes of one run. It is a Platform feature, so the workflow needs no
+  change to use it.
+
+## Data lineage
+
+Lineage is enabled in `nextflow.config`, so every run records its parameters,
+tasks and published files in `.lineage/` under the launch directory. Each output
+target carries a label (`reads`, `qc`, `example`, `provenance`).
+
+```bash
+nextflow lineage list                                   # runs and their lineage IDs
+nextflow lineage view lid://<run-id>                    # parameters, config, metadata
+nextflow lineage find type=FileOutput labels=qc         # every QC report
+nextflow lineage check lid://<run-id>/reads/samplesheet.csv   # verify a checksum
+nextflow lineage render lid://<run-id>/qc/sequali/index.csv   # provenance graph (HTML)
+```
