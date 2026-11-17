@@ -76,8 +76,9 @@ Provide your own data with a CSV samplesheet (see [`assets/samplesheet.csv`](ass
 nextflow run . --input samplesheet.csv --outdir results -profile docker
 ```
 
-Or launch through [`run.sh`](run.sh), which applies the defaults in `run.env` and
-forwards anything else to Nextflow:
+Or launch through [`run.sh`](run.sh), which reads `PROFILE` and `OUTDIR` from the
+environment (see [`run.env.example`](run.env.example)) and forwards anything else
+to Nextflow:
 
 ```bash
 ./run.sh --input samplesheet.csv                    # Nextflow must be installed
@@ -86,7 +87,7 @@ pixi run launch --input samplesheet.csv             # pixi supplies Nextflow its
 
 `pixi run launch` needs no prior Nextflow, Java or bash-4 install — see
 [Development](#development). A container engine is still required: pixi can
-provide Apptainer (`pixi run -e hpc launch ... --profile apptainer`) but not
+provide Apptainer (`PROFILE=apptainer pixi run -e hpc launch ...`) but not
 Docker, which is a daemon rather than a package.
 
 ## Profiles
