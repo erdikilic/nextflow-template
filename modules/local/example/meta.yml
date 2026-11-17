@@ -14,7 +14,7 @@ authors:
 maintainers:
   - "@erdikilic"
 requires:
-  nextflow: ">=26.10.4"
+  nextflow: ">=26.10.6"
 tools:
   - coreutils:
       description: GNU core utilities, the basic file, shell and text manipulation utilities

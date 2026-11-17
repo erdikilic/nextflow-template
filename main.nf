@@ -82,10 +82,10 @@ workflow {
         .flatMap { entries -> entries.toSorted { v -> "${v.process} ${v.tool}" } }
 
     publish:
-    reads: Channel<SamplesheetRow> = ch_reads
-    qc: Channel<Record> = ch_qc
-    counts: Channel<Record> = ch_counts
-    versions: Channel<ToolVersion> = ch_versions
+    reads = ch_reads
+    qc = ch_qc
+    counts = ch_counts
+    versions = ch_versions
 
     onComplete:
     // Runs when the workflow finishes, successfully or not.

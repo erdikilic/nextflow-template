@@ -14,7 +14,7 @@ authors:
 maintainers:
   - "@erdikilic"
 requires:
-  nextflow: ">=26.10.4"
+  nextflow: ">=26.10.6"
 tools:
   - sequali:
       description: Fast sequencing quality metrics for short and long reads
