@@ -113,10 +113,12 @@ sorted by file name before they are merged, and the versions index is sorted.
   nextflow run . -profile docker --input samplesheet.csv -name run-2 -resume <session-id>
   ```
 
-- **Global cache** — Seqera Platform (with Nextflow 26.10 or later) can keep one
-  content-addressed cache for an organisation in AWS, Google Cloud or Azure
-  storage and reuse identical tasks across runs and pipelines, not only across
-  resumes of one run. It is a Platform feature, so the workflow needs no
+- **Global cache** — Seqera Platform (Seqera Cloud and Enterprise 26.2, with
+  Nextflow 26.10 or later) can keep one content-addressed cache for a workspace
+  in AWS, Google Cloud or Azure storage. A task is keyed by its inputs and
+  script alone, without the session or the process name, so an identical task
+  from any run or pipeline in the workspace is restored instead of run again,
+  with or without `-resume`. It is a Platform feature, so the workflow needs no
   change to use it.
 
 ## Data lineage
@@ -132,3 +134,55 @@ nextflow lineage find type=FileOutput labels=qc         # every QC report
 nextflow lineage check lid://<run-id>/reads/samplesheet.csv   # verify a checksum
 nextflow lineage render lid://<run-id>/qc/sequali/index.csv   # provenance graph (HTML)
 ```
+
+## Including the workflow in another pipeline
+
+Another pipeline can include this one and call it like a named workflow (pipeline
+composition, experimental in Nextflow 26.10). The `params` block is its input and
+the `output {}` block its result: the caller passes one record with a field per
+parameter, and decides what to publish in its own `output {}` block.
+
+```nextflow
+nextflow.enable.types = true
+
+include { workflow as LONGREAD } from './nextflow-template/main.nf'
+
+workflow {
+    main:
+    longread = LONGREAD(record(input: rows))
+    longread.reads.view()      // Channel<SamplesheetRow>
+    longread.versions.view()   // Channel<ToolVersion>
+}
+```
+
+`rows` is a channel of `record(sample: ..., platform: ..., fastq: ...)` values,
+for example the output of an upstream pipeline. A parameter with a default, such
+as `sequali_args`, can be left out of the record.
+
+To offer every parameter of this workflow to the caller's users, import the
+`params` block as a record type. Each parameter is then set as
+`--longread.<name>`:
+
+```nextflow
+nextflow.enable.types = true
+
+include { params as LongreadParams ; workflow as LONGREAD } from './nextflow-template/main.nf'
+
+params {
+    longread: LongreadParams
+}
+
+workflow {
+    main:
+    longread = LONGREAD(params.longread)
+}
+```
+
+```bash
+nextflow run caller.nf -profile docker --longread.input samplesheet.csv
+```
+
+Inclusion captures the scripts only, so the calling pipeline supplies the
+configuration: the container engine, the resource labels of `conf/base.config`
+and the `nf-schema` plugin. [`tests/composition/`](../tests/composition) holds a
+runnable caller of each form.

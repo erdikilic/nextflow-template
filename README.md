@@ -38,7 +38,8 @@ template"** button, then replace the `EXAMPLE` module with your real tools.
   renders `--help` from `nextflow_schema.json`.
 - **Composable**: another pipeline can include this one with
   `include { workflow as LONGREAD } from './main.nf'` and pass the samplesheet as
-  a channel of records.
+  a channel of records, or import its `params` block (see
+  [docs/usage.md](docs/usage.md#including-the-workflow-in-another-pipeline)).
 - **Tool options as typed inputs**: each module takes an `args` input, set per
   tool with `--<tool>_args` (e.g. `--sequali_args='--adapter-file a.fa'`), the same
   when the pipeline is included elsewhere or a module runs on its own.
