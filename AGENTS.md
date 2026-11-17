@@ -47,7 +47,7 @@ subworkflows/local/<name>/  main.nf + meta.yml + tests/
 modules/local/<tool>/       main.nf + environment.yml + meta.yml + tests/
 modules/local/handle_data/  merge a sample's many FASTQs (ONT barcode / re-runs)
 modules/local/sequali/      per-sample read QC (HTML + JSON report)
-bin/                        executable helper scripts (Python: ruff-clean)
+bin/                        standalone helper scripts that no process calls (Python: ruff-clean)
 assets/                     samplesheet + schema_input.json + tiny example data
 containers/<tool>/Dockerfile   custom images (referenced by full name in the module)
 tests/                      workflow-level nf-test
@@ -136,6 +136,13 @@ module run ./modules/local/<tool>/main.nf --<field> <value>` runs a module on
 - **Container refs are fully qualified** (`container 'quay.io/nf-core/ubuntu:22.04'`),
   so a module pulls the same image inside this workflow, in a pipeline that
   includes it, and under `nextflow module run`.
+- **A script that a process runs ships with its module**, as an executable in
+  `modules/local/<tool>/resources/usr/bin/`, and the module's `main.nf` sets
+  `nextflow.enable.moduleBinaries = true` under `nextflow.enable.types`. The
+  script is then on the task's `PATH` in this workflow and in a pipeline that
+  includes it. An including pipeline has its own project root, so a process never
+  calls a project-level `bin/` script or reads `projectDir`. Without Wave, module
+  scripts need a work directory on a local or shared file system.
 - **Parameters are declared once.** A parameter the workflow script reads goes in
   the typed `params {}` block of `main.nf`, with its default and a `//` comment;
   Nextflow converts each CLI value to the declared type and rejects an undeclared
