@@ -64,7 +64,7 @@
       "addLabels": ["container"]
     },
     {
-      "description": "conda channels publish pre-releases (e.g. python 3.15.0rc3) that conda versioning does not mark unstable, and its pep440 backend cannot rewrite a 'X.Y.*' pin to one. Restrict pixi deps to final releases.",
+      "description": "Restrict pixi dependencies to final releases: conda channels publish pre-releases that conda versioning does not mark unstable.",
       "matchManagers": ["pixi"],
       "allowedVersions": "/^\\d+(\\.\\d+)*$/"
     },

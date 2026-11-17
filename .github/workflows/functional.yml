@@ -1,6 +1,6 @@
 name: functional
-# Runs the workflow for real (containers + tools), not just -stub — catches
-# broken container pulls, tool invocations, and output publishing. Runs on the
+# Runs the workflow with its containers and tools, where -stub checks the wiring
+# only: covers container pulls, tool invocations and output publishing. Runs on the
 # pixi.lock pin, and only when workflow code, data or the toolchain change.
 on:
   push:

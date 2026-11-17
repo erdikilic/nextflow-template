@@ -1,7 +1,7 @@
 /*
  * PROCESS: HANDLE_DATA — normalise raw input into one FASTQ per sample
  *
- * A single long-read sample often arrives as MANY FASTQs — an ONT barcode
+ * A single long-read sample often arrives as many FASTQs — an ONT barcode
  * directory (`fastq_runid_*.fastq.gz`) or a re-sequenced PacBio run. HANDLE_DATA
  * concatenates all of a sample's files into one gzipped FASTQ. `zcat -f` accepts
  * both plain and gzipped inputs, so mixed inputs merge cleanly.

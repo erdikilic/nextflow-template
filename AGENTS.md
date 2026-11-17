@@ -131,8 +131,9 @@ module run ./modules/local/<tool>/main.nf --<field> <value>` runs a module on
   the command line (`--sequali_args='--adapter-file a.fa'`) and identical when
   the pipeline is included by another one or a module runs under
   `nextflow module run --args '...'`. Modules never read `params.*` or `task.ext`.
-- **`withName:` selectors are PLAIN process names** (`withName: EXAMPLE`), never
-  `WORKFLOW:SUBWORKFLOW:PROCESS` — the qualified form silently matches nothing.
+- **`withName:` selectors are plain process names** (`withName: EXAMPLE`), never
+  `WORKFLOW:SUBWORKFLOW:PROCESS` — the qualified form matches nothing and reports
+  no error.
 - **Container refs are fully qualified** (`container 'quay.io/nf-core/ubuntu:22.04'`),
   so a module pulls the same image inside this workflow, in a pipeline that
   includes it, and under `nextflow module run`.

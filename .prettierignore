@@ -1,8 +1,5 @@
-# Generated lockfile: its formatting is owned by pixi, not prettier. Without this,
-# any regenerated lock (notably Renovate's lockFileMaintenance PRs) arrives in
-# pixi's own layout and fails the prettier hook in CI.
+# Generated lockfile: pixi owns its formatting.
 pixi.lock
 
-# pixi's installed environments — gitignored, so pre-commit never passes them, but
-# this keeps a bare `prettier .` from walking them.
+# pixi's installed environments, which a bare `prettier .` would otherwise walk.
 .pixi/

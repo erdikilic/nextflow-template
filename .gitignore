@@ -16,7 +16,7 @@ __pycache__/
 .venv/
 .ruff_cache/
 
-# pixi (pixi.lock IS committed — it is the reproducibility guarantee)
+# pixi environments (pixi.lock is committed: it pins the toolchain)
 .pixi/
 
 # Editors / OS

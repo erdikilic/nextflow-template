@@ -1,6 +1,6 @@
 # pixi.toml — reproducible developer toolchain for this template.
 #
-# This does NOT affect how the workflow provisions software: Nextflow does that
+# It does not change how the workflow provisions software: Nextflow does that
 # per process via the `container` / `conda` directives in modules/local/*/main.nf.
 # pixi only pins the tools a contributor needs on their PATH.
 #
@@ -29,32 +29,28 @@ openjdk = "25.*"
 nf-test = "0.9.5.*"
 
 # --- Launcher portability ---------------------------------------------------
-# run.sh is a trivial stub here, but workflows built from this template grow real
-# launchers that need bash >= 4 (associative arrays, BASH_VERSINFO guards) and GNU
-# realpath/nproc. macOS ships bash 3.2 and no nproc, so such a launcher exits
-# immediately on a Mac even though osx-arm64 is a supported platform above.
-# Shipping both keeps `pixi run launch` portable; neither is needed by the stub.
+# A launcher grown from run.sh typically needs bash >= 4 (associative arrays) and
+# GNU realpath/nproc. macOS ships bash 3.2 and no nproc, so these two packages
+# keep `pixi run launch` portable on osx-arm64.
 bash = ">=5.2"
 coreutils = ">=9.5"
 
 # --- Linting / release tooling ----------------------------------------------
 # pre-commit fetches its own hook binaries (prettier, markdownlint, yamllint,
 # shellcheck, hadolint, actionlint, gitleaks) from the revs pinned in
-# .pre-commit-config.yaml, so those are deliberately NOT duplicated here.
+# .pre-commit-config.yaml, so they are not repeated here.
 python = "3.14.*"      # interpreter for pre-commit, nf-core and bin/ helpers
 pre-commit = ">=4.6,<5"
 nf-core = ">=4.0,<5"
-# Pinned to the exact rev of the ruff-pre-commit hook so that `pixi run ruff`
-# and `pixi run lint` can never disagree about what is a violation.
+# Pinned to the rev of the ruff-pre-commit hook, so `pixi run ruff` and
+# `pixi run lint` apply the same rules.
 ruff = "0.17.3.*"
 just = ">=1.59"        # task runner behind the justfile recipes
 
 [activation.env]
-# `nextflow lint` walks the whole tree, and pixi's env holds nf-core's Jinja
-# *templates* (.pixi/envs/*/lib/python*/site-packages/nf_core/**/*.nf) — which are
-# not valid Nextflow and produce ~11 phantom errors. Passing -exclude REPLACES the
-# built-in default list rather than appending to it, so the defaults are restated
-# here. (.venv is covered too: a pip-installed nf-core has the same problem.)
+# `nextflow lint` walks the whole tree, and an in-tree environment (.pixi/,
+# .venv/) holds nf-core's Jinja templates, which are not valid Nextflow. Passing
+# -exclude replaces the built-in default list, so the defaults are restated here.
 NF_LINT_EXCLUDE = "-exclude .git -exclude .lineage -exclude .nextflow -exclude .nf-test -exclude nf-test.config -exclude work -exclude .pixi -exclude .venv"
 
 [tasks]
@@ -67,15 +63,14 @@ nf-format = { cmd = "nextflow lint -format -spaces 4 $NF_LINT_EXCLUDE .", descri
 test = { cmd = "nf-test test", description = "Run the nf-test suite" }
 run = { cmd = "nextflow run . -profile test,docker --outdir results", description = "Run the minimal test end-to-end (docker)" }
 stub = { cmd = "nextflow run . -profile test,docker -stub --outdir results_stub", description = "Validate wiring without running tools" }
-# The real-data entry point, and the one task name meant to stay identical across
-# every workflow built from this template:  pixi run launch /seq/RUN_07 --dry-run
+# The real-data entry point; the task name is the same in every workflow built
+# from this template:  pixi run launch --input samplesheet.csv --outdir results
 #
-# KEEP THIS A SINGLE COMMAND. pixi appends a user's trailing arguments to the END
-# of the task string, not to the first command in it. Chaining anything here (`&&`,
-# `;`) would silently deliver every workflow parameter to the wrong command.
+# The task is a single command: pixi appends trailing arguments to the end of the
+# task string, so in a chain (`&&`, `;`) they would reach the last command only.
 #
-# Workflow parameters stay owned by run.sh and run.env — pixi contributes the
-# toolchain only, so there is exactly one place a run's settings come from.
+# Workflow parameters belong to run.sh and run.env; pixi contributes the
+# toolchain only, so a run's settings come from one place.
 launch = { cmd = "bash run.sh", description = "Run the workflow on real data via run.sh (arguments are forwarded)" }
 config = { cmd = "nextflow config . -profile test > /dev/null && echo 'config OK'", description = "Parse config / catch syntax errors" }
 update = { cmd = "pre-commit autoupdate", description = "Bump pre-commit hook / linter pins to their latest releases" }
@@ -103,8 +98,8 @@ apptainer = ">=1.5"
 default = ["nf-pin"]
 # Reproduce the CI minimum-version job locally:  pixi run -e nf-min stub
 nf-min = { features = ["nf-min"], no-default-feature = false }
-# Clusters without a usable Apptainer:  pixi run -e hpc launch /data --profile apptainer
-# The profile is passed explicitly on purpose. Setting PROFILE here would be
-# overridden without warning by a run.env, which run.sh sources after the
-# environment — silently running Docker on a machine that has no Docker.
+# Clusters without a usable Apptainer:
+#   PROFILE=apptainer pixi run -e hpc launch --input samplesheet.csv
+# The profile is a run setting (PROFILE, as in run.env), so this environment
+# adds the engine and leaves the profile to the caller.
 hpc = ["nf-pin", "hpc"]

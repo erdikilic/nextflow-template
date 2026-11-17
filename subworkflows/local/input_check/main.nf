@@ -7,7 +7,7 @@
  * cannot express (sample names without whitespace, FASTQ file extensions, one
  * platform per sample).
  *
- * Rows are then GROUPED by sample, so a sample provided as many files (e.g. an
+ * Rows are then grouped by sample, so a sample provided as many files (e.g. an
  * ONT barcode directory split across several FASTQs, or a re-sequenced PacBio
  * run) becomes one SampleReads record. HANDLE_DATA then concatenates them.
  * The reads of a sample are sorted by file name for reproducibility.

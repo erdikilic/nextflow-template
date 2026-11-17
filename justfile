@@ -6,7 +6,7 @@
 
 # `nextflow lint` walks the whole tree, and an in-tree env dir (.pixi/, .venv/)
 # holds nf-core's Jinja templates, which are not valid Nextflow. Passing -exclude
-# REPLACES the built-in default list, so the defaults are restated here.
+# replaces the built-in default list, so the defaults are restated here.
 nf_lint_exclude := "-exclude .git -exclude .lineage -exclude .nextflow " + \
     "-exclude .nf-test -exclude nf-test.config -exclude work " + \
     "-exclude .pixi -exclude .venv"
