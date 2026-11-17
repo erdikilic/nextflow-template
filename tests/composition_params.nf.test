@@ -1,0 +1,40 @@
+nextflow_pipeline {
+
+    name "The template included with its params block (stub)"
+    script "tests/composition/params_import.nf"
+
+    tag "workflow"
+    tag "composition"
+
+    test("an including pipeline sets the template's parameters as --longread.<name>") {
+
+        options "-stub"
+
+        when {
+            // The bundled samplesheet lists its FASTQs relative to the repository
+            // root, the usual launch directory. nf-test launches from its own test
+            // directory, so the test runs on a copy with absolute paths.
+            def samplesheet = new File("${launchDir}/samplesheet.csv")
+            samplesheet.parentFile.mkdirs()
+            samplesheet.text = new File("${baseDir}/assets/samplesheet.csv").readLines()
+                .collect { line -> line.replace(',assets/', ",${baseDir}/assets/") }
+                .join('\n') + '\n'
+
+            params {
+                longread = [input: samplesheet.toString()]
+            }
+        }
+
+        then {
+            def console = workflow.stdout.join('\n')
+            assertAll(
+                { assert workflow.success },
+                // The samplesheet given as longread.input reaches the included
+                // pipeline, and its outputs reach the caller.
+                { assert console.contains('reads: NANOPORE_BARCODE01') },
+                { assert console.contains('reads: PACBIO_HIFI') },
+                { assert console.contains('version: sequali') }
+            )
+        }
+    }
+}
