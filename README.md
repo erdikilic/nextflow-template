@@ -7,7 +7,7 @@
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/erdikilic/nextflow-template/badge)](https://scorecard.dev/viewer/?uri=github.com/erdikilic/nextflow-template)
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A526.10.6-brightgreen?labelColor=000000&logo=nextflow)](https://www.nextflow.io/)
 
-A state-of-the-art [Nextflow](https://www.nextflow.io/) DSL2 workflow template for
+A [Nextflow](https://www.nextflow.io/) DSL2 workflow template for
 long-read data (Oxford Nanopore and PacBio) — a runnable, tool-free skeleton plus
 the full linting, testing, and CI setup. Use it with GitHub's **"Use this
 template"** button, then replace the `EXAMPLE` module with your real tools.

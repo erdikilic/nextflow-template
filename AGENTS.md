@@ -6,7 +6,7 @@ is a symlink to this file. This is the cross-tool standard (Codex and others rea
 
 ## What this is
 
-A state-of-the-art **Nextflow DSL2** workflow template for **long-read data**
+A **Nextflow DSL2** workflow template for **long-read data**
 (Oxford Nanopore and PacBio). It ships a runnable, tool-free skeleton (one example
 module + subworkflow) plus the full linting, testing, and CI setup. Replace the
 `EXAMPLE` module and `INPUT_CHECK` samplesheet schema with your own tools; keep the

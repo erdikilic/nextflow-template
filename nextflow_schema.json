@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/erdikilic/nextflow-template/main/nextflow_schema.json",
   "title": "nextflow-template workflow parameters",
-  "description": "A state-of-the-art Nextflow DSL2 workflow template.",
+  "description": "A Nextflow DSL2 workflow template for long-read data (Oxford Nanopore and PacBio).",
   "type": "object",
   "$defs": {
     "input_output_options": {
