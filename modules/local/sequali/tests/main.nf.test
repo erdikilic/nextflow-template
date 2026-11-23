@@ -8,13 +8,13 @@ nextflow_process {
     tag "modules_local"
     tag "sequali"
 
-    test("nanopore - fastq") {
+    test("ont_r10 - fastq") {
 
         when {
             process {
                 """
                 input[0] = channel.of(record(
-                    id: 'NANOPORE_BARCODE01',
+                    id: 'ONT_BARCODE01',
                     fastq: file("${projectDir}/assets/reads/sample_ont_part1.fastq", checkIfExists: true)
                 ))
                 input[1] = ''
@@ -38,7 +38,7 @@ nextflow_process {
         }
     }
 
-    test("nanopore - fastq - stub") {
+    test("ont_r10 - fastq - stub") {
 
         options "-stub"
 
@@ -46,7 +46,7 @@ nextflow_process {
             process {
                 """
                 input[0] = channel.of(record(
-                    id: 'NANOPORE_BARCODE01',
+                    id: 'ONT_BARCODE01',
                     fastq: file("${projectDir}/assets/reads/sample_ont_part1.fastq", checkIfExists: true)
                 ))
                 input[1] = ''

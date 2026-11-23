@@ -1,0 +1,31 @@
+{
+    "reads are merged and checked under the PREPARE and QC stages": {
+        "content": [
+            [
+                {
+                    "fastq": "ONT_BARCODE01.merged.fastq.gz:md5,b29ef46756ad3aa01139a43a26b22a21",
+                    "id": "ONT_BARCODE01",
+                    "platform": "ont_r10"
+                }
+            ],
+            "ONT_BARCODE01",
+            {
+                "mean_length": 80.25,
+                "minimum_length": 80,
+                "maximum_length": 81,
+                "total_reads": 4,
+                "q20_reads": 4,
+                "total_bases": 321,
+                "q20_bases": 321,
+                "total_gc_bases": 160,
+                "total_n_bases": 0,
+                "read_pair_info": null
+            }
+        ],
+        "timestamp": "2026-11-23T10:25:32.464538907",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.6"
+        }
+    }
+}

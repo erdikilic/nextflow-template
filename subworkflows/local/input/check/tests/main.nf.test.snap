@@ -1,0 +1,28 @@
+{
+    "ont_r10 + pacbio_hifi samplesheet groups multi-file samples": {
+        "content": [
+            [
+                {
+                    "id": "HIFI_SAMPLE01",
+                    "platform": "pacbio_hifi",
+                    "reads": [
+                        "sample_pacbio.fastq"
+                    ]
+                },
+                {
+                    "id": "ONT_BARCODE01",
+                    "platform": "ont_r10",
+                    "reads": [
+                        "sample_ont_part1.fastq",
+                        "sample_ont_part2.fastq"
+                    ]
+                }
+            ]
+        ],
+        "timestamp": "2026-11-23T10:31:42.101418493",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.6"
+        }
+    }
+}

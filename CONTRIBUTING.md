@@ -35,10 +35,16 @@ pixi run test             # equivalent to `nf-test test`
 
 Either route works; pixi is optional. See `pixi task list` for the rest.
 
+The Nextflow hooks run through `.github/scripts/with-nextflow.sh`: it uses the
+pixi environment's Nextflow when `.pixi` holds one, otherwise the one on `PATH`,
+and stops with a one-line message when that Nextflow is older than
+`manifest.nextflowVersion`.
+
 ## Conventions
 
 See [`AGENTS.md`](AGENTS.md) for the full module/config/naming conventions. In
 short: DSL2 formatted by `nextflow lint -format`, `UPPERCASE` process names, record channels,
 a `versions` topic output + `stub:` in every process, tool options as a typed
-`args` process input, plain `withName:` selectors, and results published
-through the `output {}` block in `main.nf`.
+`args` process input, task names qualified by scope and stage with `withName:`
+selectors anchored on their tail (`'.*:READS:QC:SEQUALI'`), and results
+published through the `output {}` block in `main.nf`.

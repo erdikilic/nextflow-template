@@ -1,0 +1,17 @@
+{
+    "EXAMPLE runs on every sample": {
+        "content": [
+            [
+                {
+                    "counts": "ONT_BARCODE01.linecount.txt:md5,c30f7472766d25af1dc80b3ffc9a58c7",
+                    "id": "ONT_BARCODE01"
+                }
+            ]
+        ],
+        "timestamp": "2026-11-23T10:37:53.871898198",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.6"
+        }
+    }
+}

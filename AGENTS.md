@@ -7,10 +7,10 @@ is a symlink to this file. This is the cross-tool standard (Codex and others rea
 ## What this is
 
 A **Nextflow DSL2** workflow template for **long-read data**
-(Oxford Nanopore and PacBio). It ships a runnable, tool-free skeleton (one example
-module + subworkflow) plus the full linting, testing, and CI setup. Replace the
-`EXAMPLE` module and `INPUT_CHECK` samplesheet schema with your own tools; keep the
-structure and conventions.
+(Oxford Nanopore and PacBio). It ships a runnable, tool-free skeleton (three
+scopes calling three example steps) plus the full linting, testing, and CI setup.
+Replace the `EXAMPLE` step and the samplesheet schema of the `INPUT:CHECK` stage
+with your own tools; keep the structure and conventions.
 
 ## Commands
 
@@ -42,14 +42,21 @@ main.nf                     entry: typed params, --help, validation, publish: + 
 nextflow.config             defaults, manifest, profiles (docker/apptainer/conda/test + hw tiers)
 nextflow_schema.json        parameter schema (nf-schema)
 conf/base.config            resource labels (process_single/low/medium/high) + resourceLimits
-workflows/nextflow_template.nf  wires subworkflows + modules
-subworkflows/local/<name>/  main.nf + meta.yml + tests/
-modules/local/<tool>/       main.nf + environment.yml + meta.yml + tests/
+workflows/nextflow_template.nf  NEXTFLOW_TEMPLATE: calls the scopes INPUT, READS, SAMPLE
+subworkflows/local/<scope>/          a scope: main.nf + meta.yml + README.md + tests/
+subworkflows/local/<scope>/<stage>/  a stage of that scope, the same files
+subworkflows/local/input/check/      INPUT:CHECK, samplesheet rules and grouping (no task)
+subworkflows/local/reads/prepare/    READS:PREPARE, calls HANDLE_DATA
+subworkflows/local/reads/qc/         READS:QC, calls SEQUALI
+subworkflows/local/sample/           SAMPLE, calls EXAMPLE directly
+modules/local/<tool>/       a step: main.nf + environment.yml + meta.yml + tests/
 modules/local/handle_data/  merge a sample's many FASTQs (ONT barcode / re-runs)
 modules/local/sequali/      per-sample read QC (HTML + JSON report)
 bin/                        standalone helper scripts that no process calls (Python: ruff-clean)
 assets/                     samplesheet + schema_input.json + tiny example data
 containers/<tool>/Dockerfile   custom images (referenced by full name in the module)
+.github/scripts/            with-nextflow.sh (the Nextflow the hooks run),
+                            validate-components.sh (registry checks of every component)
 tests/                      workflow-level nf-test
 docs/                       usage.md + output.md + images/metro_map.svg
 ```
@@ -65,30 +72,41 @@ docs/                       usage.md + output.md + images/metro_map.svg
   module holds `main.nf`, `meta.yml` (the Nextflow module spec: `name`,
   `version`, `kind`, typed `input`/`output`/`topics`, `tools`), `README.md`,
   `environment.yml` and `tests/main.nf.test` (+ the committed `.snap`); a
-  subworkflow holds `main.nf`, `meta.yml` (`kind: Workflow`), `README.md` and
-  `tests/`. `nextflow module validate` checks each one (the
-  `nextflow-module-validate` hook, `pixi run module-validate`), and `nextflow
-module run ./modules/local/<tool>/main.nf --<field> <value>` runs a module on
-  its own. The directory mirrors the process name:
+  scope or a stage holds `main.nf`, `meta.yml` (`kind: Workflow`), `README.md`
+  and `tests/`. A scope is `subworkflows/local/<scope>/` and each of its stages
+  a directory beside the scope's `main.nf` (`subworkflows/local/reads/qc/`,
+  `name: local/reads/qc`). `.github/scripts/validate-components.sh` runs
+  `nextflow module validate` on every directory holding a `main.nf` (the
+  `nextflow-module-validate` hook, `pixi run module-validate` and
+  `just module-validate`). Modules meet every registry rule. Scopes and stages
+  include their steps by relative path, which the registry rule on includes
+  forbids, and the relative path is what lets another workflow include this one;
+  for them that one rule is not applied and every other rule is.
+  `nextflow module run ./modules/local/<tool>/main.nf --<field> <value>` runs a
+  module on its own. The directory mirrors the process name:
   `<tool>/<subcommand>/` for `TOOL_SUBCOMMAND`, and a single directory named after
   the task for local utility processes (`handle_data/` -> `HANDLE_DATA`).
-- **Long reads only.** `platform` is `nanopore` or `pacbio`; the samplesheet has one
-  `fastq` column and no pairing. Do not reintroduce short-read concepts such as
+- **Long reads only.** `platform` is `ont_r9`, `ont_r10` or `pacbio_hifi`, the
+  chemistry rather than the basecalling model. The samplesheet has one `fastq`
+  column and no pairing; its `platform` column is optional, an empty or missing
+  cell takes `--platform` (default `ont_r10`) and a cell in the samplesheet wins. Do not reintroduce short-read concepts such as
   `single_end`, `fastq_2` or R1/R2 handling.
 - **Static typing in every script.** Each `.nf` file starts with
   `nextflow.enable.types = true`, so `nextflow lint` and the language server
   type-check it. Processes declare typed `input:`, `stage:`, `output:` and `topic:`
   sections; workflows declare typed `take:` and `emit:` (`Channel<T>`, `Value<T>`).
 - **Channels carry records, not tuples.** A sample is a record such as
-  `record(id: 'S1', platform: Platform.nanopore, fastq: file(...))`, its fields
+  `record(id: 'S1', platform: Platform.ont_r10, fastq: file(...))`, its fields
   read by name. A record type is declared next to the workflow that produces it
-  (`Platform`, `SamplesheetRow` and `SampleReads` in `INPUT_CHECK`; `Sample` and
+  (`Platform`, `SamplesheetRow` and `SampleReads` in `INPUT:CHECK`; `Sample` in
+  `READS:PREPARE`; `ReadQc` in `READS:QC`; `LineCounts` in `SAMPLE`;
   `SampleResult` in `NEXTFLOW_TEMPLATE`; `ToolVersion` in `main.nf`) and included
   by name where it is needed. A module declares a destructured record input with only
   the fields it reads, e.g. `record(id: String, fastq: Path)`, and returns
   `record(id: id, <name>: file(...))`; the calling workflow joins results back with
   `join(other, by: 'id')`. `platform` stays on the sample record, so a stage can
-  branch on it (e.g. `minimap2 -x map-ont` vs `-x map-hifi`).
+  branch on it (e.g. `minimap2 -x map-ont` for `ont_r9` and `ont_r10`,
+  `-x map-hifi` for `pacbio_hifi`).
 - **Core operators only**: `map`, `filter`, `flatMap`, `groupBy`, `join(by:)`,
   `combine`, `mix`, `collect`, `unique`, `view`. Legacy operators (`groupTuple`,
   `branch`, `multiMap`, `set`, `tap`, `collectFile`, `splitCsv`, ...) defeat the type
@@ -108,7 +126,8 @@ module run ./modules/local/<tool>/main.nf --<field> <value>` runs a module on
   stage with an `if` in the calling workflow, or disable a process at runtime with
   `process.when` in a custom config passed with `-c`.
 - **Every component has an nf-test** with tags (`modules` / `modules_local` /
-  `<name>`, or `subworkflows` / `subworkflows_local` / `<name>`) and a committed
+  `<name>`, or `subworkflows` / `subworkflows_local` / `<scope>` or
+  `<scope>/<stage>`) and a committed
   snapshot. Test inputs are built with `record(...)`, and a typed process's output
   records arrive in `process.out[0]`. Snapshot deterministic outputs only; tool
   versions are not process outputs, and the workflow test checks `versions.yml`.
@@ -131,9 +150,19 @@ module run ./modules/local/<tool>/main.nf --<field> <value>` runs a module on
   the command line (`--sequali_args='--adapter-file a.fa'`) and identical when
   another workflow includes this one or a module runs under
   `nextflow module run --args '...'`. Modules never read `params.*` or `task.ext`.
-- **`withName:` selectors are plain process names** (`withName: EXAMPLE`), never
-  `WORKFLOW:SUBWORKFLOW:PROCESS` — the qualified form matches nothing and reports
-  no error.
+- **Task names are qualified by nesting.** The entry workflow calls scopes, a
+  scope calls stages and a stage calls steps. A step is a process, included under
+  an alias where the same process runs more than once in a stage or the alias
+  carries information. Depth follows the work: three levels is usual, not
+  required. The tasks here are `NEXTFLOW_TEMPLATE:READS:PREPARE:HANDLE_DATA`,
+  `NEXTFLOW_TEMPLATE:READS:QC:SEQUALI` and `NEXTFLOW_TEMPLATE:SAMPLE:EXAMPLE`;
+  `NEXTFLOW_TEMPLATE:INPUT:CHECK` is channel logic and runs no task.
+- **`withName:` selectors anchor on the tail of the task path**
+  (`'.*:READS:QC:SEQUALI'`), which also matches when another workflow includes
+  this one; an exact qualified name matches only a direct run, a partial path
+  (`'READS:QC:SEQUALI'`) matches nothing, and a plain process name applies to
+  every alias and call site. An unmatched selector only warns, and
+  `nextflow lint` does not check selectors.
 - **Container refs are fully qualified** (`container 'quay.io/nf-core/ubuntu:22.04'`),
   so a module pulls the same image inside this workflow, in one that
   includes it, and under `nextflow module run`.
@@ -173,19 +202,27 @@ module run ./modules/local/<tool>/main.nf --<field> <value>` runs a module on
    spec, the module spec (`nextflow module spec -dry-run ./modules/local/<tool>`
    drafts it from `main.nf`; give `-author` without `@`, which the CLI reads as a
    file reference) and the module documentation.
-3. Tool options — add `<tool>_args: String = ''` to the `params {}` block of
+3. The stage — `subworkflows/local/<scope>/<stage>/main.nf`, a typed `workflow
+<STAGE>` that includes the module and calls it on the sample records, with
+   `meta.yml` (`kind: Workflow`, `name: local/<scope>/<stage>`), `README.md` and
+   `tests/main.nf.test`. Include the stage in the scope's `main.nf`
+   (`include { <STAGE> } from './<stage>/main'`), call it there and emit its
+   output; a new scope goes in `subworkflows/local/<scope>/main.nf` and is called
+   from `workflows/nextflow_template.nf`. The task is then named
+   `NEXTFLOW_TEMPLATE:<SCOPE>:<STAGE>:<TOOL>`.
+4. Tool options — add `<tool>_args: String = ''` to the `params {}` block of
    `main.nf` and the "Tool options" group of `nextflow_schema.json`, and pass it
-   through the `take:` of `NEXTFLOW_TEMPLATE` to the module's `args` input.
-4. Wire it into `workflows/nextflow_template.nf` (or a subworkflow under
-   `subworkflows/local/`): pass it the sample records, join its output back by
-   `id`, and add the new fields to `SampleResult` in `workflows/nextflow_template.nf`.
-5. Publish them: add a `publish:` assignment in `main.nf` and a matching target
+   through the `take:` of `NEXTFLOW_TEMPLATE`, the scope and the stage to the
+   module's `args` input.
+5. Join the stage's output back by `id` in `workflows/nextflow_template.nf` and add
+   the new fields to `SampleResult` there.
+6. Publish them: add a `publish:` assignment in `main.nf` and a matching target
    in its `output {}` block, then list the files in `docs/output.md` and add the
    stage to the metro map, `docs/images/metro_map.svg` (`manifest.diagram`).
-6. `modules/local/<tool>/tests/main.nf.test` — tagged test with `record(...)`
+7. `modules/local/<tool>/tests/main.nf.test` — tagged test with `record(...)`
    inputs; run
    `nf-test test --update-snapshot` and commit the generated `.snap`.
-7. Run `nf-test test` and `pre-commit run --all-files`.
+8. Run `nf-test test` and `pre-commit run --all-files`.
 
 ## Reusing an expensive intermediate (recipe)
 
@@ -222,7 +259,7 @@ logic instead:
 - Do not add AI/assistant attribution to commits or PRs (no `Co-Authored-By` /
   "Generated with" trailers).
 - Do not commit `work/`, `.nextflow*`, or `results*/` (see `.gitignore`).
-- Do not read `params.*` or `task.ext.*` inside a module or a subworkflow; pass
+- Do not read `params.*` or `task.ext.*` inside a module, a scope or a stage; pass
   values in through `take:` and process inputs.
 - Do not use the `publishDir` or `storeDir` directives; publish through workflow
   outputs and reuse intermediates through workflow logic.

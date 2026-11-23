@@ -21,12 +21,15 @@ results/
     ├── execution_timeline.html     # per-task timeline
     ├── execution_trace.txt         # per-task trace (resources, exit status)
     ├── workflow_dag.html           # workflow DAG
-    └── versions.yml                # process, tool and version of every tool that ran
+    └── versions.yml                # task name, tool and version of every tool that ran
 ```
 
 `reads/samplesheet.csv` lists every published FASTQ with its sample and
 platform, so the merged reads can seed another run with
-`--input results/reads/samplesheet.csv`.
+`--input results/reads/samplesheet.csv`. Its `platform` column, like the one in
+`qc/sequali/index.csv`, holds the platform each sample ran under (`ont_r9`,
+`ont_r10` or `pacbio_hifi`), with `--platform` filled in where the input left the
+cell empty.
 
 At the end of a run Nextflow prints the published outputs;
 `-output-format json` prints the same list as JSON.
@@ -35,20 +38,26 @@ At the end of a run Nextflow prints the published outputs;
 
 Sequali shows the whole path from a process to `results/`:
 
-1. **Process** — `SEQUALI` ([`modules/local/sequali`](../modules/local/sequali/main.nf))
+1. **Step** — `SEQUALI` ([`modules/local/sequali`](../modules/local/sequali/main.nf))
    takes `record(id, fastq)` and its `args` (from `--sequali_args`) and returns
-   `record(id, html, json)`.
-2. **Named workflow** — `NEXTFLOW_TEMPLATE` joins those records with the other
+   `record(id, html, json)`. It runs as the task
+   `NEXTFLOW_TEMPLATE:READS:QC:SEQUALI`.
+2. **Stage and scope** — the `QC` stage
+   ([`subworkflows/local/reads/qc`](../subworkflows/local/reads/qc/main.nf)) calls
+   `SEQUALI` and emits its records as `ReadQc`; the `READS` scope
+   ([`subworkflows/local/reads`](../subworkflows/local/reads/main.nf)) emits them
+   as `qc`, next to the prepared reads.
+3. **Named workflow** — `NEXTFLOW_TEMPLATE` joins those records with the other
    results of each sample by `id` and emits one `SampleResult` record per sample.
-3. **`publish:`** — the entry workflow in [`main.nf`](../main.nf) turns each
+4. **`publish:`** — the entry workflow in [`main.nf`](../main.nf) turns each
    value into a record and names the channel:
    `qc = results.map { r -> record(sample: r.id, platform: r.platform, html: r.html, json: r.json) }`.
-4. **`output {}`** — the `qc` target's `path` closure maps each file of a record
+5. **`output {}`** — the `qc` target's `path` closure maps each file of a record
    to its own target, `qc/sequali/<sample>.sequali.html` and `.json`, and its
    `index` block writes one row per record to `qc/sequali/index.csv`, with the
    paths of the published copies.
 
-To add a stage, emit its channel from the named workflow, add a `publish:`
+To add a stage, emit its channel from its scope and the named workflow, add a `publish:`
 assignment, and add an `output {}` target with the same name. `path` takes one of
 three forms:
 

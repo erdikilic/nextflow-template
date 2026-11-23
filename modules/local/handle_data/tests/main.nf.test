@@ -8,13 +8,13 @@ nextflow_process {
     tag "modules_local"
     tag "handle_data"
 
-    test("nanopore - multiple fastq") {
+    test("ont_r10 - multiple fastq") {
 
         when {
             process {
                 """
                 input[0] = channel.of(record(
-                    id: 'NANOPORE_BARCODE01',
+                    id: 'ONT_BARCODE01',
                     reads: [
                         file("${projectDir}/assets/reads/sample_ont_part1.fastq", checkIfExists: true),
                         file("${projectDir}/assets/reads/sample_ont_part2.fastq", checkIfExists: true),
@@ -33,13 +33,13 @@ nextflow_process {
         }
     }
 
-    test("pacbio - single fastq") {
+    test("pacbio_hifi - single fastq") {
 
         when {
             process {
                 """
                 input[0] = channel.of(record(
-                    id: 'PACBIO_HIFI',
+                    id: 'HIFI_SAMPLE01',
                     reads: [ file("${projectDir}/assets/reads/sample_pacbio.fastq", checkIfExists: true) ]
                 ))
                 input[1] = ''
@@ -55,7 +55,7 @@ nextflow_process {
         }
     }
 
-    test("nanopore - multiple fastq - stub") {
+    test("ont_r10 - multiple fastq - stub") {
 
         options "-stub"
 
@@ -63,7 +63,7 @@ nextflow_process {
             process {
                 """
                 input[0] = channel.of(record(
-                    id: 'NANOPORE_BARCODE01',
+                    id: 'ONT_BARCODE01',
                     reads: [
                         file("${projectDir}/assets/reads/sample_ont_part1.fastq", checkIfExists: true),
                         file("${projectDir}/assets/reads/sample_ont_part2.fastq", checkIfExists: true),

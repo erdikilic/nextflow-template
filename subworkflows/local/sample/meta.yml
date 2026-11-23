@@ -1,0 +1,31 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nextflow-io/schemas/main/module/v1/schema.json
+name: local/sample
+version: 1.0.0
+kind: Workflow
+description: Scope that runs the per-sample analysis on the prepared reads
+keywords:
+  - example
+  - scope
+  - template
+license: Apache-2.0
+authors:
+  - "@erdikilic"
+maintainers:
+  - "@erdikilic"
+requires:
+  nextflow: ">=26.10.6"
+input:
+  - name: samples
+    type: channel
+    description: |
+      Sample records (id, platform, fastq), one per sample.
+  - name: example_args
+    type: string
+    description: |
+      Extra wc options for EXAMPLE (empty for none).
+output:
+  - name: counts
+    type: channel
+    description: |
+      LineCounts records (id, counts), the EXAMPLE output of each sample.

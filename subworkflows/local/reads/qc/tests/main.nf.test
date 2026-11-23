@@ -1,0 +1,41 @@
+nextflow_workflow {
+
+    name "Test Workflow READS:QC"
+    script "../main.nf"
+    workflow "QC"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "reads/qc"
+
+    test("one Sequali report per sample") {
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of(record(
+                    id: 'ONT_BARCODE01',
+                    platform: 'ont_r10',
+                    fastq: file("${projectDir}/assets/reads/sample_ont_part1.fastq", checkIfExists: true)
+                ))
+                input[1] = ''
+                """
+            }
+        }
+
+        then {
+            def report = workflow.out[0][0]
+            assertAll(
+                { assert workflow.success },
+                // The HTML report embeds the run time, so its name is snapshotted
+                // together with the read metrics from the JSON summary.
+                { assert snapshot(
+                    report.id,
+                    path(report.html).fileName.toString(),
+                    path(report.json).fileName.toString(),
+                    path(report.json).json.summary
+                ).match() }
+            )
+        }
+    }
+}

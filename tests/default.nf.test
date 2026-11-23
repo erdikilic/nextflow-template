@@ -1,6 +1,6 @@
 nextflow_pipeline {
 
-    name "Minimal workflow test (stub)"
+    name "Minimal workflow test and the --platform default (stub)"
     script "main.nf"
 
     tag "workflow"
@@ -28,7 +28,13 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.success },
-                // 3 samplesheet rows -> 2 samples: NANOPORE_BARCODE01 arrives as
+                // Every task is named by its call path: scope, stage, step.
+                { assert workflow.trace.tasks().collect { t -> t.name.replaceAll(/ \(.*\)$/, '') }.unique().toSorted() == [
+                    'NEXTFLOW_TEMPLATE:READS:PREPARE:HANDLE_DATA',
+                    'NEXTFLOW_TEMPLATE:READS:QC:SEQUALI',
+                    'NEXTFLOW_TEMPLATE:SAMPLE:EXAMPLE',
+                ] },
+                // 3 samplesheet rows -> 2 samples: ONT_BARCODE01 arrives as
                 // two FASTQs and is merged into one.
                 { assert path("$outputDir/reads").list().findAll { f -> f.fileName.toString().endsWith('.merged.fastq.gz') }.size() == 2 },
                 { assert path("$outputDir/example").list().size() == 2 },
@@ -39,6 +45,97 @@ nextflow_pipeline {
                 { assert path("$outputDir/reads/samplesheet.csv").readLines().size() == 3 },
                 { assert path("$outputDir/reads/samplesheet.csv").readLines()[0] == 'sample,platform,fastq' },
                 { assert path("$outputDir/workflow_info/versions.yml").exists() }
+            )
+        }
+    }
+
+    test("a samplesheet without a platform column runs under the default --platform") {
+
+        options "-stub"
+
+        when {
+            // The bundled samplesheet without its platform column, with absolute
+            // FASTQ paths, since nf-test launches from its own test directory.
+            def samplesheet = new File("${launchDir}/samplesheet.csv")
+            samplesheet.parentFile.mkdirs()
+            samplesheet.text = new File("${baseDir}/assets/samplesheet.csv").readLines()
+                .collect { line -> line.split(',') }
+                .collect { cells -> [cells[0], cells[2].replaceFirst(/^assets\//, "${baseDir}/assets/")].join(',') }
+                .join('\n') + '\n'
+
+            params {
+                input  = samplesheet.toString()
+                outdir = "$outputDir"
+            }
+        }
+
+        then {
+            def index = path("$outputDir/reads/samplesheet.csv").readLines()
+            assertAll(
+                { assert workflow.success },
+                { assert index[0] == 'sample,platform,fastq' },
+                { assert index.drop(1).collect { line -> line.split(',')[0..1].join(',') }.toSorted() == [
+                    'HIFI_SAMPLE01,ont_r10',
+                    'ONT_BARCODE01,ont_r10',
+                ] }
+            )
+        }
+    }
+
+    test("a row with an empty platform cell takes --platform, a row with a value keeps it") {
+
+        options "-stub"
+
+        when {
+            // The ONT rows lose their platform cell; the HiFi row keeps its own.
+            def samplesheet = new File("${launchDir}/samplesheet.csv")
+            samplesheet.parentFile.mkdirs()
+            samplesheet.text = new File("${baseDir}/assets/samplesheet.csv").readLines()
+                .collect { line -> line.replace(',assets/', ",${baseDir}/assets/").replace(',ont_r10,', ',,') }
+                .join('\n') + '\n'
+
+            params {
+                input    = samplesheet.toString()
+                outdir   = "$outputDir"
+                platform = 'ont_r9'
+            }
+        }
+
+        then {
+            def index = path("$outputDir/reads/samplesheet.csv").readLines()
+            assertAll(
+                { assert workflow.success },
+                { assert index.drop(1).collect { line -> line.split(',')[0..1].join(',') }.toSorted() == [
+                    'HIFI_SAMPLE01,pacbio_hifi',
+                    'ONT_BARCODE01,ont_r9',
+                ] }
+            )
+        }
+    }
+
+    test("a --platform outside ont_r9, ont_r10 and pacbio_hifi stops the run") {
+
+        options "-stub"
+
+        when {
+            def samplesheet = new File("${launchDir}/samplesheet.csv")
+            samplesheet.parentFile.mkdirs()
+            samplesheet.text = new File("${baseDir}/assets/samplesheet.csv").readLines()
+                .collect { line -> line.replace(',assets/', ",${baseDir}/assets/") }
+                .join('\n') + '\n'
+
+            params {
+                input    = samplesheet.toString()
+                outdir   = "$outputDir"
+                platform = 'nanopore'
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.trace.tasks().size() == 0 },
+                { assert workflow.stdout.join('\n').contains("--platform 'nanopore' must be one of: ont_r9, ont_r10, pacbio_hifi") }
             )
         }
     }

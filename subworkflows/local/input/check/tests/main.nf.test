@@ -1,0 +1,106 @@
+nextflow_workflow {
+
+    name "Test Workflow INPUT:CHECK"
+    script "../main.nf"
+    workflow "CHECK"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "input/check"
+
+    test("ont_r10 + pacbio_hifi samplesheet groups multi-file samples") {
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of(file("${projectDir}/assets/samplesheet.csv", checkIfExists: true))
+                    .flatMap { csv -> csv.splitCsv(header: true) }
+                    .map { row -> record(sample: row.sample, platform: row.platform, fastq: file("${projectDir}/\${row.fastq}")) }
+                input[1] = 'ont_r10'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                // 3 rows -> 2 samples: ONT_BARCODE01 arrives as two FASTQs.
+                { assert workflow.out[0].size() == 2 },
+                // Snapshot file names only: the reads live outside the work
+                // directory, so their absolute paths differ per machine.
+                { assert snapshot(
+                    workflow.out[0]
+                        .collect { s -> [id: s.id, platform: s.platform, reads: s.reads.collect { r -> file(r).name }] }
+                        .sort { s -> s.id }
+                ).match() }
+            )
+        }
+    }
+
+    test("a sample listed with two platforms fails") {
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of(
+                    record(sample: 'S1', platform: 'ont_r10', fastq: file("${projectDir}/assets/reads/sample_ont_part1.fastq")),
+                    record(sample: 'S1', platform: 'pacbio_hifi', fastq: file("${projectDir}/assets/reads/sample_pacbio.fastq"))
+                )
+                input[1] = 'ont_r10'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.errorReport.contains('more than one platform') }
+            )
+        }
+    }
+
+    test("a row without a platform takes --platform, a row with one keeps it") {
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of(
+                    record(sample: 'S1', platform: null, fastq: file("${projectDir}/assets/reads/sample_ont_part1.fastq")),
+                    record(sample: 'S2', platform: 'ont_r9', fastq: file("${projectDir}/assets/reads/sample_ont_part2.fastq"))
+                )
+                input[1] = 'pacbio_hifi'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out[0].collectEntries { s -> [(s.id): s.platform.toString()] } == [S1: 'pacbio_hifi', S2: 'ont_r9'] }
+            )
+        }
+    }
+
+    test("a --platform outside the Platform values fails") {
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of(
+                    record(sample: 'S1', platform: null, fastq: file("${projectDir}/assets/reads/sample_ont_part1.fastq"))
+                )
+                input[1] = 'nanopore'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                // The check runs while the workflow is built, before any task, so the
+                // message reaches the run log rather than a task's error report.
+                { assert workflow.stdout.join('\n').contains("--platform 'nanopore' must be one of: ont_r9, ont_r10, pacbio_hifi") }
+            )
+        }
+    }
+}

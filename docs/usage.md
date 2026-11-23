@@ -5,29 +5,35 @@
 Provide a CSV via `--input`. The workflow takes long-read data only — Oxford
 Nanopore and PacBio. Columns:
 
-| Column     | Description                                            |
-| ---------- | ------------------------------------------------------ |
-| `sample`   | Sample name (no spaces). Becomes the record's `id`.    |
-| `platform` | `nanopore` or `pacbio`.                                |
-| `fastq`    | One long-read FASTQ. `.fastq`/`.fq`, optionally `.gz`. |
+| Column     | Description                                                          |
+| ---------- | -------------------------------------------------------------------- |
+| `sample`   | Sample name (no spaces). Becomes the record's `id`.                  |
+| `platform` | Optional. `ont_r9`, `ont_r10` or `pacbio_hifi`; empty: `--platform`. |
+| `fastq`    | One long-read FASTQ. `.fastq`/`.fq`, optionally `.gz`.               |
+
+The platform names the chemistry, not the basecalling model: `ont_r9` and
+`ont_r10` are Oxford Nanopore R9.4.1 and R10.4.1 flow cells, `pacbio_hifi` is
+PacBio HiFi. A row whose `platform` cell is empty, or a samplesheet without the
+column, takes `--platform` (default `ont_r10`); a value in the samplesheet wins.
 
 A sample that arrives as several files — an ONT barcode directory split across
 many FASTQs, or a re-sequenced run — gets **one row per file**, all sharing the
-same `sample` name. `INPUT_CHECK` groups those rows and `HANDLE_DATA` merges them
-into a single FASTQ per sample.
+same `sample` name. The `INPUT:CHECK` stage groups those rows and `HANDLE_DATA`
+merges them into a single FASTQ per sample.
 
 ```csv
 sample,platform,fastq
-NANOPORE_BARCODE01,nanopore,/data/barcode01/fastq_runid_a.fastq.gz
-NANOPORE_BARCODE01,nanopore,/data/barcode01/fastq_runid_b.fastq.gz
-PACBIO_HIFI,pacbio,/data/pacbio/hifi_reads.fastq.gz
+ONT_BARCODE01,ont_r10,/data/barcode01/fastq_runid_a.fastq.gz
+ONT_BARCODE01,ont_r10,/data/barcode01/fastq_runid_b.fastq.gz
+HIFI_SAMPLE01,pacbio_hifi,/data/pacbio/hifi_reads.fastq.gz
 ```
 
 Nextflow loads the samplesheet into `SamplesheetRow` records
-([`INPUT_CHECK`](../subworkflows/local/input_check/main.nf)) before the run starts: a `platform`
-outside the list or a FASTQ that does not exist fails the run at once.
-`INPUT_CHECK` then rejects sample names with whitespace, files without a FASTQ
-extension, and a sample listed with two platforms. Relative FASTQ paths resolve
+([`INPUT:CHECK`](../subworkflows/local/input/check/main.nf)) before the run
+starts: a `platform` outside the list or a FASTQ that does not exist fails the run
+at once. `INPUT:CHECK` then rejects a `--platform` outside the list, sample names
+with whitespace, files without a FASTQ extension, and a sample listed with two
+platforms. Relative FASTQ paths resolve
 against the launch directory. Each sample record carries `id` and `platform`, so a
 stage can branch on the technology (e.g. `minimap2 -x map-ont` vs `-x map-hifi`).
 
@@ -47,6 +53,7 @@ data — e.g. `-profile apptainer,server` or `-profile test,docker`. See
 | -------------------- | --------- | -------------------------- |
 | `--input`            | _(req.)_  | Samplesheet CSV.           |
 | `--outdir`           | `results` | Output directory.          |
+| `--platform`         | `ont_r10` | Platform of an empty cell. |
 | `--max_cpus`         | `14`      | Per-task CPU limit.        |
 | `--max_memory`       | `30.GB`   | Per-task memory limit.     |
 | `--publish_dir_mode` | `copy`    | How results are published. |
@@ -79,16 +86,26 @@ Each task requests the CPUs and memory of its label in
 [`conf/base.config`](../conf/base.config) (`process_low` = 4 CPUs, 8 GB, and so
 on); the limits only cap those requests. A larger host therefore runs more tasks
 at once rather than larger tasks. To give a heavy tool more of a big machine,
-raise its label, or override one process in a custom config passed with `-c`:
+raise its label, or override one step in a custom config passed with `-c`:
 
 ```groovy
 process {
-    withName: EXAMPLE {
+    withName: '.*:SAMPLE:EXAMPLE' {
         cpus   = 32
         memory = 128.GB
     }
 }
 ```
+
+Every task is named by its call path: the workflow, the scope, the stage and the
+step, such as `NEXTFLOW_TEMPLATE:READS:QC:SEQUALI`. A `withName:` pattern anchored
+on the tail of that path, as above, matches whether the workflow runs directly or
+is included by another one, which puts its own name in front
+(`LONGREAD:NEXTFLOW_TEMPLATE:READS:QC:SEQUALI`). An exact qualified name matches
+only when the workflow runs directly, a partial path such as `'READS:QC:SEQUALI'`
+matches nothing, and a plain process name (`SEQUALI`) matches the process wherever
+it is called. A selector that matches nothing prints a warning and changes
+nothing.
 
 ## Resuming and caching
 

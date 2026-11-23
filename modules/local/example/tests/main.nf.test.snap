@@ -1,11 +1,11 @@
 {
-    "nanopore - fastq - stub": {
+    "ont_r10 - fastq - stub": {
         "content": [
             {
                 "0": [
                     {
-                        "counts": "NANOPORE_BARCODE01.linecount.txt:md5,897316929176464ebc9ad085f31e7284",
-                        "id": "NANOPORE_BARCODE01"
+                        "counts": "ONT_BARCODE01.linecount.txt:md5,897316929176464ebc9ad085f31e7284",
+                        "id": "ONT_BARCODE01"
                     }
                 ]
             }
@@ -16,13 +16,13 @@
             "nextflow": "26.10.4"
         }
     },
-    "nanopore - fastq": {
+    "ont_r10 - fastq": {
         "content": [
             {
                 "0": [
                     {
-                        "counts": "NANOPORE_BARCODE01.linecount.txt:md5,c30f7472766d25af1dc80b3ffc9a58c7",
-                        "id": "NANOPORE_BARCODE01"
+                        "counts": "ONT_BARCODE01.linecount.txt:md5,c30f7472766d25af1dc80b3ffc9a58c7",
+                        "id": "ONT_BARCODE01"
                     }
                 ]
             }

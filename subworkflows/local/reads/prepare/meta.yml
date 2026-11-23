@@ -1,0 +1,32 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nextflow-io/schemas/main/module/v1/schema.json
+name: local/reads/prepare
+version: 1.0.0
+kind: Workflow
+description: Stage that merges every FASTQ of a sample into one gzipped FASTQ
+keywords:
+  - fastq
+  - merge
+  - long-read
+license: Apache-2.0
+authors:
+  - "@erdikilic"
+maintainers:
+  - "@erdikilic"
+requires:
+  nextflow: ">=26.10.6"
+input:
+  - name: samples
+    type: channel
+    description: |
+      SampleReads records (id, platform, reads), one per sample.
+  - name: handle_data_args
+    type: string
+    description: |
+      Extra gzip options for HANDLE_DATA (empty for none).
+output:
+  - name: samples
+    type: channel
+    description: |
+      Sample records (id, platform, fastq), the list of reads replaced by the
+      merged FASTQ.

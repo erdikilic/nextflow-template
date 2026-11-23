@@ -1,0 +1,33 @@
+nextflow_workflow {
+
+    name "Test Workflow SAMPLE"
+    script "../main.nf"
+    workflow "SAMPLE"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "sample"
+
+    test("EXAMPLE runs on every sample") {
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of(record(
+                    id: 'ONT_BARCODE01',
+                    platform: 'ont_r10',
+                    fastq: file("${projectDir}/assets/reads/sample_ont_part1.fastq", checkIfExists: true)
+                ))
+                input[1] = ''
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(workflow.out[0]).match() }
+            )
+        }
+    }
+}

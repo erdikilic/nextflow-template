@@ -1,0 +1,32 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nextflow-io/schemas/main/module/v1/schema.json
+name: local/reads/qc
+version: 1.0.0
+kind: Workflow
+description: Stage that reports read quality metrics for each sample with Sequali
+keywords:
+  - qc
+  - fastq
+  - long-read
+license: Apache-2.0
+authors:
+  - "@erdikilic"
+maintainers:
+  - "@erdikilic"
+requires:
+  nextflow: ">=26.10.6"
+input:
+  - name: samples
+    type: channel
+    description: |
+      Sample records (id, platform, fastq), one per sample.
+  - name: sequali_args
+    type: string
+    description: |
+      Extra Sequali options (empty for none).
+output:
+  - name: reports
+    type: channel
+    description: |
+      ReadQc records (id, html, json): the Sequali HTML report and the same
+      metrics as JSON.

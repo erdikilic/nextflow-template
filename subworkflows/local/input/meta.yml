@@ -1,14 +1,13 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nextflow-io/schemas/main/module/v1/schema.json
-name: local/input_check
+name: local/input
 version: 1.0.0
 kind: Workflow
-description: Check long-read samplesheet rows and group a sample's FASTQs into one record
+description: Scope that turns the long-read samplesheet into one record per sample
 keywords:
   - samplesheet
   - validation
-  - nanopore
-  - pacbio
+  - scope
   - long-read
 license: Apache-2.0
 authors:
@@ -23,9 +22,14 @@ input:
     description: |
       SamplesheetRow records (sample, platform, fastq), one per samplesheet row,
       as loaded from --input.
+  - name: platform
+    type: string
+    description: |
+      Platform of a row whose platform cell is empty: ont_r9, ont_r10 or
+      pacbio_hifi (from --platform).
 output:
   - name: samples
     type: channel
     description: |
-      SampleReads records (id, platform, reads), one per sample, with every FASTQ
-      of the sample in `reads`, sorted by file name.
+      SampleReads records (id, platform, reads), one per sample, from the CHECK
+      stage.

@@ -1,11 +1,11 @@
 {
-    "nanopore - multiple fastq": {
+    "ont_r10 - multiple fastq": {
         "content": [
             {
                 "0": [
                     {
-                        "fastq": "NANOPORE_BARCODE01.merged.fastq.gz:md5,b29ef46756ad3aa01139a43a26b22a21",
-                        "id": "NANOPORE_BARCODE01"
+                        "fastq": "ONT_BARCODE01.merged.fastq.gz:md5,b29ef46756ad3aa01139a43a26b22a21",
+                        "id": "ONT_BARCODE01"
                     }
                 ]
             }
@@ -16,13 +16,13 @@
             "nextflow": "26.10.4"
         }
     },
-    "pacbio - single fastq": {
+    "pacbio_hifi - single fastq": {
         "content": [
             {
                 "0": [
                     {
-                        "fastq": "PACBIO_HIFI.merged.fastq.gz:md5,d301770eeb0641ac216db2dfdf650af6",
-                        "id": "PACBIO_HIFI"
+                        "fastq": "HIFI_SAMPLE01.merged.fastq.gz:md5,d301770eeb0641ac216db2dfdf650af6",
+                        "id": "HIFI_SAMPLE01"
                     }
                 ]
             }
@@ -33,13 +33,13 @@
             "nextflow": "26.10.4"
         }
     },
-    "nanopore - multiple fastq - stub": {
+    "ont_r10 - multiple fastq - stub": {
         "content": [
             {
                 "0": [
                     {
-                        "fastq": "NANOPORE_BARCODE01.merged.fastq.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
-                        "id": "NANOPORE_BARCODE01"
+                        "fastq": "ONT_BARCODE01.merged.fastq.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "id": "ONT_BARCODE01"
                     }
                 ]
             }

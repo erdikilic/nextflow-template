@@ -20,8 +20,16 @@
           "pattern": "^\\S+\\.csv$",
           "schema": "assets/schema_input.json",
           "description": "Path to a comma-separated samplesheet describing the long-read input samples.",
-          "help_text": "Use `assets/samplesheet.csv` as a starting point. Columns: sample, platform, fastq.",
+          "help_text": "Use `assets/samplesheet.csv` as a starting point. Columns: sample, platform (optional), fastq.",
           "fa_icon": "fas fa-file-csv"
+        },
+        "platform": {
+          "type": "string",
+          "default": "ont_r10",
+          "enum": ["ont_r9", "ont_r10", "pacbio_hifi"],
+          "description": "Sequencing platform of a samplesheet row whose platform cell is empty or absent.",
+          "help_text": "Oxford Nanopore R9 or R10 chemistry, or PacBio HiFi. A platform given in the samplesheet takes precedence.",
+          "fa_icon": "fas fa-microscope"
         },
         "outdir": {
           "type": "string",

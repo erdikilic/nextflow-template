@@ -19,14 +19,22 @@ template"** button, then replace the `EXAMPLE` module with your real tools.
 - **Static typing throughout** (Nextflow 26.10): typed processes, workflows and
   parameters, with samples carried as records and the platform as an enum, so
   `nextflow lint` type-checks the whole workflow before a task runs.
-- **DSL2 structure**:
-  `main.nf` → `workflows/` → `subworkflows/local/` → `modules/local/`. Every
-  component is a directory carrying `main.nf`, `environment.yml`, `meta.yml` and
-  its own `tests/`.
+- **DSL2 structure in scopes and stages**:
+  `main.nf` → `workflows/` → `subworkflows/local/<scope>/` →
+  `subworkflows/local/<scope>/<stage>/` → `modules/local/`. Every task is named by
+  its call path, such as `NEXTFLOW_TEMPLATE:READS:QC:SEQUALI`, and every
+  component is a directory carrying `main.nf`, `meta.yml`, a `README.md` and its
+  own `tests/` (plus `environment.yml` for a module).
+- **Qualified `withName:` selectors**: a pattern anchored on the tail of the task
+  path, `withName: '.*:READS:QC:SEQUALI'`, configures one step here and when
+  another workflow includes this one (see
+  [docs/usage.md](docs/usage.md#resource-limits)).
 - **Read QC** with [Sequali](https://github.com/rhpvorderman/sequali): an HTML
   and a JSON report per sample.
 - **Long-read input handling**: one row per FASTQ, grouped per sample, so an ONT
-  barcode directory or a re-sequenced PacBio run merges into a single FASTQ.
+  barcode directory or a re-sequenced PacBio run merges into a single FASTQ. The
+  platform is `ont_r9`, `ont_r10` or `pacbio_hifi`; the samplesheet's `platform`
+  column is optional and an empty cell takes `--platform` (default `ont_r10`).
 - **Tool versions on the `versions` topic** (`eval` in each process's `topic:`
   section), published as `workflow_info/versions.yml` with no per-stage channel
   plumbing.

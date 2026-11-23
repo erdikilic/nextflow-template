@@ -10,7 +10,7 @@ nextflow.enable.types = true
 
 include { paramsHelp ; paramsSummaryLog } from 'plugin/nf-schema'
 include { NEXTFLOW_TEMPLATE } from './workflows/nextflow_template'
-include { SamplesheetRow } from './subworkflows/local/input_check/main'
+include { SamplesheetRow } from './subworkflows/local/input/check/main'
 
 // Parameters read only by the workflow script. Nextflow converts each CLI value
 // to the declared type and rejects a parameter that is declared nowhere.
@@ -23,6 +23,10 @@ params {
     // an unknown platform or a missing FASTQ fails the run before it starts.
     // Nullable so that --help runs without it.
     input: Channel<SamplesheetRow>?
+
+    // Platform of a samplesheet row whose platform cell is empty or whose
+    // samplesheet has no platform column: ont_r9, ont_r10 or pacbio_hifi.
+    platform: String = 'ont_r10'
 
     // --help lists the top-level parameters; --help <name> shows one in full.
     help: String?
@@ -68,7 +72,7 @@ workflow {
     // another workflow includes this one.
     log.info(paramsSummaryLog(parameters_schema: "${moduleDir}/nextflow_schema.json"))
 
-    results = NEXTFLOW_TEMPLATE(params.input, params.handle_data_args, params.sequali_args, params.example_args)
+    results = NEXTFLOW_TEMPLATE(params.input, params.platform, params.handle_data_args, params.sequali_args, params.example_args)
 
     // Channels written to the output directory; the output block below says
     // where each one goes. Reads are published as samplesheet records so their

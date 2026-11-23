@@ -31,8 +31,8 @@ nextflow_pipeline {
                 { assert workflow.success },
                 // The samplesheet given as longread.input reaches the included
                 // workflow, and its outputs reach the caller.
-                { assert console.contains('reads: NANOPORE_BARCODE01') },
-                { assert console.contains('reads: PACBIO_HIFI') },
+                { assert console.contains('reads: ONT_BARCODE01') },
+                { assert console.contains('reads: HIFI_SAMPLE01') },
                 { assert console.contains('version: sequali') }
             )
         }

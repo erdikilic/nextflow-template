@@ -1,4 +1,4 @@
 sample,platform,fastq
-NANOPORE_BARCODE01,nanopore,assets/reads/sample_ont_part1.fastq
-NANOPORE_BARCODE01,nanopore,assets/reads/sample_ont_part2.fastq
-PACBIO_HIFI,pacbio,assets/reads/sample_pacbio.fastq
+ONT_BARCODE01,ont_r10,assets/reads/sample_ont_part1.fastq
+ONT_BARCODE01,ont_r10,assets/reads/sample_ont_part2.fastq
+HIFI_SAMPLE01,pacbio_hifi,assets/reads/sample_pacbio.fastq

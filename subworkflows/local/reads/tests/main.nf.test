@@ -1,0 +1,46 @@
+nextflow_workflow {
+
+    name "Test Workflow READS"
+    script "../main.nf"
+    workflow "READS"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "reads"
+
+    test("reads are merged and checked under the PREPARE and QC stages") {
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of(record(
+                    id: 'ONT_BARCODE01',
+                    platform: 'ont_r10',
+                    reads: [
+                        file("${projectDir}/assets/reads/sample_ont_part1.fastq", checkIfExists: true),
+                        file("${projectDir}/assets/reads/sample_ont_part2.fastq", checkIfExists: true),
+                    ]
+                ))
+                input[1] = ''
+                input[2] = ''
+                """
+            }
+        }
+
+        then {
+            def report = workflow.out.qc[0]
+            assertAll(
+                { assert workflow.success },
+                // Each step is named by the stage that calls it.
+                { assert workflow.trace.tasks().collect { t -> t.name.replaceAll(/ \(.*\)$/, '') }.toSorted() == ['READS:PREPARE:HANDLE_DATA', 'READS:QC:SEQUALI'] },
+                // The HTML report embeds the run time, so only the merged reads
+                // and the QC metrics are snapshotted.
+                { assert snapshot(
+                    workflow.out.samples,
+                    report.id,
+                    path(report.json).json.summary
+                ).match() }
+            )
+        }
+    }
+}

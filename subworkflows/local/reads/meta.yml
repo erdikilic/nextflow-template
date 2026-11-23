@@ -1,0 +1,43 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nextflow-io/schemas/main/module/v1/schema.json
+name: local/reads
+version: 1.0.0
+kind: Workflow
+description: Scope that merges each sample's FASTQs into one file and checks read quality
+keywords:
+  - fastq
+  - merge
+  - qc
+  - scope
+  - long-read
+license: Apache-2.0
+authors:
+  - "@erdikilic"
+maintainers:
+  - "@erdikilic"
+requires:
+  nextflow: ">=26.10.6"
+input:
+  - name: samples
+    type: channel
+    description: |
+      SampleReads records (id, platform, reads), one per sample.
+  - name: handle_data_args
+    type: string
+    description: |
+      Extra gzip options for HANDLE_DATA (empty for none).
+  - name: sequali_args
+    type: string
+    description: |
+      Extra Sequali options (empty for none).
+output:
+  - name: samples
+    type: channel
+    description: |
+      Sample records (id, platform, fastq) with the merged FASTQ, from the
+      PREPARE stage.
+  - name: qc
+    type: channel
+    description: |
+      ReadQc records (id, html, json), one Sequali report pair per sample, from
+      the QC stage.

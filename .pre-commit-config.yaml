@@ -93,22 +93,24 @@ repos:
 
   # Nextflow syntax, type and deprecation checks, and the canonical Nextflow
   # format: the hook rewrites a file that is not formatted, which fails the run
-  # until the change is staged. Uses the nextflow on PATH, which `pixi run` and
-  # the devcontainer provide.
+  # until the change is staged. Both Nextflow hooks run through
+  # .github/scripts/with-nextflow.sh, which picks the pixi environment's Nextflow
+  # when .pixi provides one, otherwise the one on PATH, and stops before the hook
+  # runs when that Nextflow is older than manifest.nextflowVersion.
   - repo: local
     hooks:
       - id: nextflow-lint
         name: nextflow lint
-        entry: nextflow lint -o concise -format -spaces 4
-        language: system
+        entry: .github/scripts/with-nextflow.sh nextflow lint -o concise -format -spaces 4
+        language: script
         files: '\.(nf|config)$'
         exclude: '^nf-test\.config$'
 
-      # Every module and subworkflow directory passes the Nextflow module
-      # registry checks (main.nf, a meta.yml spec, README.md).
+      # Every component, the stages nested in a scope included, against the
+      # Nextflow module registry rules (.github/scripts/validate-components.sh).
       - id: nextflow-module-validate
         name: nextflow module validate
-        entry: bash -c 'for d in */local/*/; do nextflow module validate "./${d%/}" || exit 1; done'
-        language: system
+        entry: .github/scripts/with-nextflow.sh .github/scripts/validate-components.sh
+        language: script
         pass_filenames: false
-        files: "^(modules|subworkflows)/local/"
+        files: '^((modules|subworkflows)/local/|\.github/scripts/validate-components\.sh$)'

@@ -1,0 +1,23 @@
+{
+    "a multi-file and a single-file sample each become one FASTQ": {
+        "content": [
+            [
+                {
+                    "fastq": "HIFI_SAMPLE01.merged.fastq.gz:md5,d301770eeb0641ac216db2dfdf650af6",
+                    "id": "HIFI_SAMPLE01",
+                    "platform": "pacbio_hifi"
+                },
+                {
+                    "fastq": "ONT_BARCODE01.merged.fastq.gz:md5,b29ef46756ad3aa01139a43a26b22a21",
+                    "id": "ONT_BARCODE01",
+                    "platform": "ont_r10"
+                }
+            ]
+        ],
+        "timestamp": "2026-11-23T10:39:11.561065662",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.6"
+        }
+    }
+}

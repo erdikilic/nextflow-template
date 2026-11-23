@@ -1,0 +1,26 @@
+{
+    "one Sequali report per sample": {
+        "content": [
+            "ONT_BARCODE01",
+            "ONT_BARCODE01.html",
+            "ONT_BARCODE01.json",
+            {
+                "mean_length": 80.0,
+                "minimum_length": 80,
+                "maximum_length": 80,
+                "total_reads": 2,
+                "q20_reads": 2,
+                "total_bases": 160,
+                "q20_bases": 160,
+                "total_gc_bases": 80,
+                "total_n_bases": 0,
+                "read_pair_info": null
+            }
+        ],
+        "timestamp": "2026-11-23T10:37:41.009619891",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.10.6"
+        }
+    }
+}

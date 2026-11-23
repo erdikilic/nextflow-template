@@ -1,12 +1,12 @@
 {
-    "nanopore - fastq - stub": {
+    "ont_r10 - fastq - stub": {
         "content": [
             {
                 "0": [
                     {
-                        "html": "NANOPORE_BARCODE01.html:md5,d41d8cd98f00b204e9800998ecf8427e",
-                        "id": "NANOPORE_BARCODE01",
-                        "json": "NANOPORE_BARCODE01.json:md5,8a80554c91d9fca8acb82f023de02f11"
+                        "html": "ONT_BARCODE01.html:md5,d41d8cd98f00b204e9800998ecf8427e",
+                        "id": "ONT_BARCODE01",
+                        "json": "ONT_BARCODE01.json:md5,8a80554c91d9fca8acb82f023de02f11"
                     }
                 ]
             }
@@ -17,11 +17,11 @@
             "nextflow": "26.10.4"
         }
     },
-    "nanopore - fastq": {
+    "ont_r10 - fastq": {
         "content": [
-            "NANOPORE_BARCODE01",
-            "NANOPORE_BARCODE01.html",
-            "NANOPORE_BARCODE01.json",
+            "ONT_BARCODE01",
+            "ONT_BARCODE01.html",
+            "ONT_BARCODE01.json",
             {
                 "mean_length": 80.0,
                 "minimum_length": 80,

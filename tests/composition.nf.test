@@ -14,10 +14,16 @@ nextflow_pipeline {
             def console = workflow.stdout.join('\n')
             assertAll(
                 { assert workflow.success },
+                // The including workflow's alias prefixes every task name.
+                { assert workflow.trace.tasks().collect { t -> t.name.replaceAll(/ \(.*\)$/, '') }.unique().toSorted() == [
+                    'LONGREAD:NEXTFLOW_TEMPLATE:READS:PREPARE:HANDLE_DATA',
+                    'LONGREAD:NEXTFLOW_TEMPLATE:READS:QC:SEQUALI',
+                    'LONGREAD:NEXTFLOW_TEMPLATE:SAMPLE:EXAMPLE',
+                ] },
                 // Both samples reach the included workflow's reads output, and its
                 // versions topic reaches the caller.
-                { assert console.contains('reads: NANOPORE_BARCODE01') },
-                { assert console.contains('reads: PACBIO_HIFI') },
+                { assert console.contains('reads: ONT_BARCODE01') },
+                { assert console.contains('reads: HIFI_SAMPLE01') },
                 { assert console.contains('version: sequali') },
                 { assert !console.contains('Could not read parameters') }
             )
