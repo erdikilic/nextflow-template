@@ -1,6 +1,6 @@
 /*
- * Includes the template as a workflow, the way another pipeline composes it, and
- * passes the samplesheet as a channel of records instead of a file.
+ * Includes the template the way another workflow does, and passes the
+ * samplesheet as a channel of records instead of a file.
  */
 
 nextflow.enable.types = true

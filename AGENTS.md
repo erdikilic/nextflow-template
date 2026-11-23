@@ -129,19 +129,19 @@ module run ./modules/local/<tool>/main.nf --<field> <value>` runs a module on
   `<module>_args: String = ''` parameter and passes it down through `take:`, so the
   options are visible to the type checker, documented in `meta.yml`, settable on
   the command line (`--sequali_args='--adapter-file a.fa'`) and identical when
-  the pipeline is included by another one or a module runs under
+  another workflow includes this one or a module runs under
   `nextflow module run --args '...'`. Modules never read `params.*` or `task.ext`.
 - **`withName:` selectors are plain process names** (`withName: EXAMPLE`), never
   `WORKFLOW:SUBWORKFLOW:PROCESS` — the qualified form matches nothing and reports
   no error.
 - **Container refs are fully qualified** (`container 'quay.io/nf-core/ubuntu:22.04'`),
-  so a module pulls the same image inside this workflow, in a pipeline that
+  so a module pulls the same image inside this workflow, in one that
   includes it, and under `nextflow module run`.
 - **A script that a process runs ships with its module**, as an executable in
   `modules/local/<tool>/resources/usr/bin/`, and the module's `main.nf` sets
   `nextflow.enable.moduleBinaries = true` under `nextflow.enable.types`. The
-  script is then on the task's `PATH` in this workflow and in a pipeline that
-  includes it. An including pipeline has its own project root, so a process never
+  script is then on the task's `PATH` here and in any workflow that includes
+  this one. An including workflow has its own project root, so a process never
   calls a project-level `bin/` script or reads `projectDir`. Without Wave, module
   scripts need a work directory on a local or shared file system.
 - **Parameters are declared once.** A parameter the workflow script reads goes in

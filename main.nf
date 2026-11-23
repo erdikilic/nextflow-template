@@ -65,7 +65,7 @@ workflow {
         error('Missing required parameter: --input <samplesheet.csv>')
     }
     // The schema is resolved next to this script, so the summary also works when
-    // another pipeline includes this one.
+    // another workflow includes this one.
     log.info(paramsSummaryLog(parameters_schema: "${moduleDir}/nextflow_schema.json"))
 
     results = NEXTFLOW_TEMPLATE(params.input, params.handle_data_args, params.sequali_args, params.example_args)

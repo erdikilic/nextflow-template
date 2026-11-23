@@ -6,7 +6,7 @@ nextflow_pipeline {
     tag "workflow"
     tag "composition"
 
-    test("an including pipeline sets the template's parameters as --longread.<name>") {
+    test("the including workflow sets the template's parameters as --longread.<name>") {
 
         options "-stub"
 
@@ -30,7 +30,7 @@ nextflow_pipeline {
             assertAll(
                 { assert workflow.success },
                 // The samplesheet given as longread.input reaches the included
-                // pipeline, and its outputs reach the caller.
+                // workflow, and its outputs reach the caller.
                 { assert console.contains('reads: NANOPORE_BARCODE01') },
                 { assert console.contains('reads: PACBIO_HIFI') },
                 { assert console.contains('version: sequali') }

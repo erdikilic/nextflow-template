@@ -117,7 +117,7 @@ sorted by file name before they are merged, and the versions index is sorted.
   Nextflow 26.10 or later) can keep one content-addressed cache for a workspace
   in AWS, Google Cloud or Azure storage. A task is keyed by its inputs and
   script alone, without the session or the process name, so an identical task
-  from any run or pipeline in the workspace is restored instead of run again,
+  from any run or workflow in the workspace is restored instead of run again,
   with or without `-resume`. It is a Platform feature, so the workflow needs no
   change to use it.
 
@@ -135,12 +135,13 @@ nextflow lineage check lid://<run-id>/reads/samplesheet.csv   # verify a checksu
 nextflow lineage render lid://<run-id>/qc/sequali/index.csv   # provenance graph (HTML)
 ```
 
-## Including the workflow in another pipeline
+## Including the workflow in another workflow
 
-Another pipeline can include this one and call it like a named workflow (pipeline
-composition, experimental in Nextflow 26.10). The `params` block is its input and
-the `output {}` block its result: the caller passes one record with a field per
-parameter, and decides what to publish in its own `output {}` block.
+Another workflow can include this one under an alias and call it like any
+named workflow; including a whole workflow is experimental in Nextflow 26.10.
+The `params` block is its input and the `output {}` block its result: the
+caller passes one record with a field per parameter, and decides what to
+publish in its own `output {}` block.
 
 ```nextflow
 nextflow.enable.types = true
@@ -156,7 +157,7 @@ workflow {
 ```
 
 `rows` is a channel of `record(sample: ..., platform: ..., fastq: ...)` values,
-for example the output of an upstream pipeline. A parameter with a default, such
+for example the output of an upstream workflow. A parameter with a default, such
 as `sequali_args`, can be left out of the record.
 
 To offer every parameter of this workflow to the caller's users, import the
@@ -182,7 +183,7 @@ workflow {
 nextflow run caller.nf -profile docker --longread.input samplesheet.csv
 ```
 
-Inclusion captures the scripts only, so the calling pipeline supplies the
+Inclusion captures the scripts only, so the including workflow supplies the
 configuration: the container engine, the resource labels of `conf/base.config`
 and the `nf-schema` plugin. [`tests/composition/`](../tests/composition) holds a
 runnable caller of each form.

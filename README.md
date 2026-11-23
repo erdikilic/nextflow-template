@@ -36,13 +36,13 @@ template"** button, then replace the `EXAMPLE` module with your real tools.
 - **Typed parameters** in `main.nf`: `--input` is loaded straight into
   `SamplesheetRow` records and checked at launch, and the `nf-schema` plugin
   renders `--help` from `nextflow_schema.json`.
-- **Composable**: another pipeline can include this one with
+- **Composable**: another workflow can include this one with
   `include { workflow as LONGREAD } from './main.nf'` and pass the samplesheet as
   a channel of records, or import its `params` block (see
-  [docs/usage.md](docs/usage.md#including-the-workflow-in-another-pipeline)).
+  [docs/usage.md](docs/usage.md#including-the-workflow-in-another-workflow)).
 - **Tool options as typed inputs**: each module takes an `args` input, set per
   tool with `--<tool>_args` (e.g. `--sequali_args='--adapter-file a.fa'`), the same
-  when the pipeline is included elsewhere or a module runs on its own.
+  when the workflow is included elsewhere or a module runs on its own.
 - **Config split**: resource labels and `resourceLimits` in `conf/base.config`,
   container/engine profiles + hardware tiers.
 - **Testing**: [nf-test](https://www.nf-test.com/) at both workflow and component
